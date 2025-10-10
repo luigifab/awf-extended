@@ -3,7 +3,7 @@
 
 
 cd "$(dirname "$0")"
-version="3.1.0"
+version="3.2.0"
 gtk="gtk3"
 
 mkdir builder
@@ -31,7 +31,7 @@ fi
 
 
 # create packages for Debian and Ubuntu
-for serie in experimental questing plucky oracular noble jammy focal bionic xenial trusty; do
+for serie in experimental questing plucky noble jammy focal bionic xenial trusty; do
 
 	printf "\n\n#################################################################### $serie ## awf-gtk3 ##\n\n"
 	if [ $serie = "experimental" ]; then
@@ -63,11 +63,11 @@ for serie in experimental questing plucky oracular noble jammy focal bionic xeni
 		echo "=========================== buildpackage ($serie) =="
 		dpkg-buildpackage -us -uc
 	else
-		# debhelper: experimental:13 focal/mx19/mx21:12 bionic:9 xenial:9 trusty:9
+		# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
 		if [ $serie = "unstable" ]; then
 			mv debian/control.debian debian/control
 
-		elif [ $serie = "mx19" ] || [ $serie = "mx21" ]; then
+		elif [ $serie = "mx21" ]; then
 			mv debian/control.mx debian/control
 			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
 		elif [ $serie = "focal" ]; then
@@ -95,7 +95,7 @@ for serie in experimental questing plucky oracular noble jammy focal bionic xeni
 		else
 			mv debian/control.ubuntu debian/control
 		fi
-		if [ $serie = "mx23" ] || [ $serie = "mx21" ] || [ $serie = "mx19" ]; then
+		if [ $serie = "mx25" ] || [ $serie = "mx23" ] || [ $serie = "mx21" ]; then
 			mv debian/changelog.mx debian/changelog
 			sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
 		elif [ $serie = "unstable" ]; then

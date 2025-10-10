@@ -1,5 +1,5 @@
 Name:          awf-gtk2
-Version:       3.1.0
+Version:       3.2.0
 Release:       %mkrel 1
 Summary:       Theme preview application for GTK 2
 Summary(fr):   Application d'aperçu de thème pour GTK 2
@@ -77,6 +77,9 @@ done
 
 
 %changelog
+* Fri Oct 10 2025 Fabrice Creuzot <code@luigifab.fr> - 3.2.0-1.mga
+- New upstream release
+
 * Fri Aug 08 2025 Fabrice Creuzot <code@luigifab.fr> - 3.1.0-1.mga
 - New upstream release
 - Add support for CSD dialog

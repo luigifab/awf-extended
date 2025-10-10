@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated L/21/07/2025
+ * Updated D/05/10/2025
  *
  * Copyright 2020-2025 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -26,14 +26,15 @@
  *
  *
  * Translations update:
- *  https://github.com/GNOME/gtk/blob/3.24.49/po/fr.po
+ *  https://github.com/GNOME/gtk/blob/3.24.50/po/fr.po
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-gtk*.c
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7.0) with:
- *  Debian Testing 64                   (1536 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
- *  Fedora Rawhide 64                   (1536 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
+ *  Debian Testing 64                   (1536 MB) GTK 2.24/3.24/4.20 + GLIB 2.84 + Pango 1.56
+ *  Fedora Rawhide 64                   (1536 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.57
+ *  Ubuntu 25.04 Plucky Puffin 64       (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
  *  Ubuntu 24.10 Oracular Oriole 64     (4096 MB) GTK 2.24/3.24/4.16 + GLIB 2.82 + Pango 1.54
  *  Ubuntu 24.04 Noble Numbat 64        (4096 MB) GTK 2.24/3.24/4.14 + GLIB 2.80 + Pango 1.52
  *  Ubuntu 23.10 Mantic Minotaur 64     (3072 MB) GTK 2.24/3.24/4.12 + GLIB 2.78 + Pango 1.51
@@ -127,6 +128,7 @@ static GHashTable *hash_user_theme = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
 static GtkWidget *window = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
+static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL;
 static GtkWidget *volume1 = NULL, *volume2 = NULL;
 static GtkWidget *progressbar1 = NULL, *progressbar2 = NULL, *progressbar3 = NULL, *progressbar4 = NULL, *progressbar8 = NULL, *progressbar9 = NULL;
 static GtkWidget *scale1 = NULL, *scale2 = NULL, *scale3 = NULL, *scale4 = NULL, *scale5 = NULL, *scale6 = NULL;
@@ -263,8 +265,7 @@ int main (int argc, gchar **argv) {
 				return status;
 			// --theme <theme> -t <theme>
 			case 't':
-				if (g_hash_table_lookup (hash_system_theme, optarg) ||
-					g_hash_table_lookup (hash_user_theme, optarg))
+				if (g_hash_table_lookup (hash_system_theme, optarg) || g_hash_table_lookup (hash_user_theme, optarg))
 					opt_theme = (gchar*) optarg;
 				break;
 			// --screenshot <filename> -s <filename>
@@ -307,7 +308,7 @@ int main (int argc, gchar **argv) {
 	}
 
 	// create and show window
-	// @code specdific for gtk4
+	// code specific for gtk4
 	g_unix_signal_add (SIGHUP, on_sighup, NULL);
 	GtkApplication *app = gtk_application_new ("org.gtk.awf", G_APPLICATION_NON_UNIQUE);
 	g_signal_connect (app, "activate", G_CALLBACK (create_window), NULL);
@@ -349,6 +350,9 @@ static void awf_load_theme (GHashTable* hashtable, gchar *directory) { // @commo
 
 	if (g_file_test (directory, G_FILE_TEST_IS_DIR)) {
 
+		if (g_getenv ("AWF_DEBUG") != NULL)
+			g_printf("theme dir: %s\n", directory);
+
 		GError *error = NULL;
 		GDir *dir = g_dir_open (directory, 0, &error);
 
@@ -386,13 +390,32 @@ static int awf_compare_theme (gconstpointer theme1, gconstpointer theme2) { // @
 	return g_strcmp0 ((gchar*) theme1, (gchar*) theme2);
 }
 
-static void notify_updated_gtktheme (GSettings *settings, gchar *key, gpointer userdata) { // @common
+static void notify_updated_gtktheme (GSettings *settings, gchar *key, gpointer userdata) { // @common gtk3/4
 
-	gchar *new_theme = g_settings_get_string (settings, "gtk-theme");
-	g_usleep (G_USEC_PER_SEC / 2);
+	if (g_strcmp0 ("gtk-theme", (gchar*) userdata) == 0) {
 
-	update_theme (new_theme);
-	find_and_check_menuradio (gtk_application_get_menubar (GTK_APPLICATION (g_application_get_default ())), new_theme);
+		gchar *new_theme = g_settings_get_string (settings, "gtk-theme");
+		g_usleep (G_USEC_PER_SEC / 2);
+
+		update_theme (new_theme);
+		find_and_check_menuradio (gtk_application_get_menubar (GTK_APPLICATION (g_application_get_default ())), new_theme);
+		g_free (new_theme);
+	}
+	else if (headbarCloseLeft && headbarCloseRight) {
+
+		gboolean closeLeft = FALSE, closeRight = FALSE; // minimize, maximize, close, icon, menu
+		gchar *tokens = g_settings_get_string (settings, (gchar*) userdata);
+		if (g_str_has_prefix (tokens, "icon") || g_str_has_prefix (tokens, "menu"))
+			closeLeft = TRUE;
+		else if (g_str_has_suffix (tokens, "icon") || g_str_has_suffix (tokens, "menu"))
+			closeRight = TRUE;
+		if (g_getenv ("AWF_DEBUG") != NULL)
+			g_printf("tokens: %s %d %d\n", tokens, closeLeft, closeRight);
+		g_free (tokens);
+
+		gtk_widget_set_visible (headbarCloseLeft, closeLeft);
+		gtk_widget_set_visible (headbarCloseRight, closeRight);
+	}
 }
 
 static void update_text_direction (int direction) { // @common 80%
@@ -700,10 +723,8 @@ static gboolean on_sighup (void *data) { // @common
 static gboolean take_screenshot (void *data) { // @common 50%
 
 	GdkPixbuf *image = NULL;
-	int width = 0, height = 0;
+	//int width = gtk_widget_get_width (window), height = gtk_widget_get_height (window);
 
-	width = gtk_widget_get_width (window);
-	height = gtk_widget_get_height (window);
 	//GtkSnapshot *snapshot = gtk_snapshot_new ();
 	// @todo https://stackoverflow.com/q/78771600
 	//GskRenderNode *node = gtk_snapshot_free_to_node (snapshot);
@@ -713,13 +734,13 @@ static gboolean take_screenshot (void *data) { // @common 50%
 	//cairo_destroy (cr);
 	//cairo_surface_destroy (surface);
 
-	if (image) {
+	/* if (image) {
 		gdk_pixbuf_save (image, opt_screenshot, "png", NULL, "compression", "9", NULL);
 		g_object_unref (image);
  		gchar *text = g_strdup_printf (_app("Theme reloaded, then screenshot saved (%s)."), opt_screenshot);
 		update_statusbar (text);
 		g_free (text);
-	}
+	} */
 
 	return FALSE;
 }
@@ -730,7 +751,8 @@ static gboolean take_screenshot (void *data) { // @common 50%
 static void create_window (gpointer app) {
 
 	GtkWidget *vbox_window, *widgets;
-	gchar *text;
+	gboolean closeLeft = FALSE, closeRight = FALSE;
+	gchar *text, *value;
 
 	// window
 	window = gtk_application_window_new (GTK_APPLICATION (app));
@@ -772,21 +794,21 @@ static void create_window (gpointer app) {
 			GtkWidget *headerbar = gtk_header_bar_new ();
 			gtk_header_bar_set_show_title_buttons (GTK_HEADER_BAR (headerbar), TRUE);
 
-			gchar *tokens;
-			gboolean closeLeft = FALSE, closeRight = FALSE; // minimize, maximize, close, icon, menu
+			gchar *tokens; // minimize, maximize, close, icon, menu
 			g_object_get (gtk_widget_get_settings (headerbar), "gtk-decoration-layout", &tokens, NULL);
 			if (g_str_has_prefix (tokens, "icon") || g_str_has_prefix (tokens, "menu"))
 				closeLeft = TRUE;
 			else if (g_str_has_suffix (tokens, "icon") || g_str_has_suffix (tokens, "menu"))
 				closeRight = TRUE;
+			if (g_getenv ("AWF_DEBUG") != NULL)
+				g_printf("tokens: %s %d %d\n", tokens, closeLeft, closeRight);
 			g_free (tokens);
 
 			// left
-			if (closeLeft) {
-				button = gtk_image_new_from_icon_name (GETTEXT_PACKAGE);
-				gtk_widget_add_css_class (button, "app-icon");
-				gtk_header_bar_pack_start (GTK_HEADER_BAR (headerbar), button);
-			}
+			headbarCloseLeft = gtk_image_new_from_icon_name (GETTEXT_PACKAGE);
+			gtk_widget_add_css_class (headbarCloseLeft, "app-icon");
+			gtk_widget_set_visible (headbarCloseLeft, closeLeft);
+			gtk_header_bar_pack_start (GTK_HEADER_BAR (headerbar), headbarCloseLeft);
 
 			button = gtk_menu_button_new ();
 			gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (button), G_MENU_MODEL (gmm));
@@ -804,11 +826,10 @@ static void create_window (gpointer app) {
 			gtk_header_bar_pack_start (GTK_HEADER_BAR (headerbar), button);
 
 			// right
-			if (closeRight) {
-				button = gtk_image_new_from_icon_name (GETTEXT_PACKAGE);
-				gtk_widget_add_css_class (button, "app-icon");
-				gtk_header_bar_pack_end (GTK_HEADER_BAR (headerbar), button);
-			}
+			headbarCloseRight = gtk_image_new_from_icon_name (GETTEXT_PACKAGE);
+			gtk_widget_add_css_class (headbarCloseRight, "app-icon");
+			gtk_widget_set_visible (headbarCloseRight, closeRight);
+			gtk_header_bar_pack_end (GTK_HEADER_BAR (headerbar), headbarCloseRight);
 
 			button = gtk_menu_button_new ();
 			gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (button), G_MENU_MODEL (gmm));
@@ -854,22 +875,32 @@ static void create_window (gpointer app) {
 	update_text_direction (current_direction);
 	g_signal_connect (window, "destroy", G_CALLBACK (quit), NULL);
 
-	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), "org.gnome.desktop.interface", FALSE))
-		g_signal_connect (g_settings_new("org.gnome.desktop.interface"), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.gnome.desktop.interface", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), "gtk-theme");
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.mate.interface", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), "gtk-theme");
 
-	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), "org.mate.interface", FALSE))
-		g_signal_connect (g_settings_new("org.mate.interface"), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.gnome.desktop.wm.preferences", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::button-layout", G_CALLBACK (notify_updated_gtktheme), "button-layout");
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.cinnamon.desktop.wm.preferences", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::button-layout", G_CALLBACK (notify_updated_gtktheme), "button-layout");
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.mate.Marco.general", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::button-layout", G_CALLBACK (notify_updated_gtktheme), "button-layout");
+	if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.mate.interface", FALSE))
+		g_signal_connect (g_settings_new (value), "changed::gtk-decoration-layout", G_CALLBACK (notify_updated_gtktheme), "gtk-decoration-layout");
 
-	g_timeout_add (1000, (GSourceFunc) show_menu_icons_delayed, NULL);
-
-	// @todo
-	//GtkEventController *event;
-	//event = gtk_event_controller_key_new ();
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 - 3.x - 4.x
+	//GtkEventController *event = gtk_event_controller_key_new ();
 	//g_signal_connect (event, "key-released", G_CALLBACK (accels_change), window);
 	//gtk_widget_add_controller (window, event);
 
 	gtk_widget_set_visible (window, TRUE);
+	if (headbarCloseLeft && headbarCloseRight) { // @todo not working here or in show_menu_icons_delayed
+		gtk_widget_set_visible (headbarCloseLeft, closeLeft);
+		gtk_widget_set_visible (headbarCloseRight, closeRight);
+	}
 	add_progressbar_and_entrybar ();
+	g_timeout_add (1000, (GSourceFunc) show_menu_icons_delayed, NULL);
 }
 
 static void create_widgets (GtkWidget *root) { // @common 50%
@@ -1273,7 +1304,7 @@ static void create_radiobuttons (GtkWidget *root) { // @common gtk2/3
 static void create_otherbuttons (GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4, GtkWidget *root5) {
 
 	GtkWidget *button1, *button2, *button3, *button4, *button5, *button6, *button7, *button8, *button9;
-	GtkWidget *button10, *button11, *button12, *button13, *button14;
+	GtkWidget *button10, *button11, *button12, *button13, *button14, *button15;
 
 	button1 = gtk_button_new_with_label ("Button 1");
 
@@ -1343,6 +1374,14 @@ static void create_otherbuttons (GtkWidget *root1, GtkWidget *root2, GtkWidget *
 	gtk_scale_button_set_value (GTK_SCALE_BUTTON (volume2), 0);
 	gtk_widget_set_sensitive (volume2, FALSE);
 
+	button15 = gtk_menu_button_new ();
+	gtk_menu_button_set_icon_name (GTK_MENU_BUTTON (button15), "open-menu-symbolic");
+	GMenu *menu = g_menu_new ();
+	g_menu_append_item (menu, g_menu_item_new ("Popover item 1", NULL));
+	g_menu_append_item (menu, g_menu_item_new ("Popover item 2", NULL));
+	g_menu_append_item (menu, g_menu_item_new ("Popover item 3", NULL));
+	gtk_menu_button_set_menu_model (GTK_MENU_BUTTON (button15), G_MENU_MODEL (menu));
+
 	// layout
 	add_to (GTK_BOX (root1), button1, FALSE, FALSE, 0, 0);
 	add_to (GTK_BOX (root1), button2, FALSE, FALSE, 0, 0);
@@ -1360,6 +1399,7 @@ static void create_otherbuttons (GtkWidget *root1, GtkWidget *root2, GtkWidget *
 	add_to (GTK_BOX (root4), button14, FALSE, FALSE, 0, 0);
 	add_to (GTK_BOX (root5), volume1, FALSE, FALSE, 0, 0);
 	add_to (GTK_BOX (root5), volume2, FALSE, FALSE, 0, 0);
+	add_to (GTK_BOX (root5), button15, FALSE, FALSE, 0, 0);
 }
 
 static void create_progressbars (GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4) {
@@ -2071,6 +2111,7 @@ static void create_traditional_menubar (GtkApplication *app, GMenu *root) {
 	GMenu *menu, *submenu, *section, *base;
 	GSimpleAction *action;
 	GList *iterator;
+	gboolean ok = FALSE;
 
 	// options
 	menu = g_menu_new ();
@@ -2161,21 +2202,25 @@ static void create_traditional_menubar (GtkApplication *app, GMenu *root) {
 		if (
 			(strcmp ((gchar*) iterator->data, "Mint-L") == 0) ||
 			(strcmp ((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0)
+			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0) ||
+			(strcmp ((gchar*) iterator->data, "Yaru") == 0)
 		) {
 			submenu = g_menu_new ();
 			g_menu_append_submenu (menu, iterator->data, G_MENU_MODEL (submenu));
 			base = submenu;
+			ok = TRUE;
 		}
-		else if (
+		else if (ok && (
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-L") ||
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y")
-		) {
+			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y") ||
+			g_str_has_prefix ((gchar*) iterator->data, "Yaru")
+		)) {
 			base = submenu;
 		}
 		else {
 			base = menu;
+			ok = FALSE;
 		}
 
 		if (g_hash_table_lookup (hash_user_theme, iterator->data))
@@ -2195,21 +2240,25 @@ static void create_traditional_menubar (GtkApplication *app, GMenu *root) {
 		if (
 			(strcmp ((gchar*) iterator->data, "Mint-L") == 0) ||
 			(strcmp ((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0)
+			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0) ||
+			(strcmp ((gchar*) iterator->data, "Yaru") == 0)
 		) {
 			submenu = g_menu_new ();
 			g_menu_append_submenu (menu, iterator->data, G_MENU_MODEL (submenu));
 			base = submenu;
+			ok = TRUE;
 		}
-		else if (
+		else if (ok && (
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-L") ||
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y")
-		) {
+			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y") ||
+			g_str_has_prefix ((gchar*) iterator->data, "Yaru")
+		)) {
 			base = submenu;
 		}
 		else {
 			base = menu;
+			ok = FALSE;
 		}
 
 		g_menu_append_item (base, g_menu_item_new (iterator->data, g_strdup_printf ("app.set-theme::%s", (gchar*) iterator->data)));
@@ -2242,7 +2291,7 @@ static void create_traditional_menubar (GtkApplication *app, GMenu *root) {
 static GMenuItem* create_menuitem (GtkApplication *app, GMenu *menu, gchar *text, gchar *accel, gchar *keymap, gchar *icon, GCallback function) {
 
 	GMenuItem *menuitem;
-	GSimpleAction *action;
+	GSimpleAction *action = NULL;
 	gchar *acckey[2] = { accel, NULL };
 	gchar *appkey = (keymap && function) ? g_strdup_printf ("app.%s", keymap) : "disabled";
 
@@ -2254,7 +2303,7 @@ static GMenuItem* create_menuitem (GtkApplication *app, GMenu *menu, gchar *text
 
 	menuitem = g_menu_item_new (text, appkey);
 
-	if (action && function)
+	if (function && action)
 		g_signal_connect (action, "activate", function, NULL);
 	if (accel)
 		g_menu_item_set_attribute (menuitem, "accel", "s", accel, NULL);
@@ -2325,7 +2374,7 @@ static void activate_action (GSimpleAction *action, GVariant *parameter, gpointe
 }
 
 static void accels_change (GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state) {
-	// @todo
+	// @todo - not triggered when menu is open
 }
 
 static void accels_save () {
@@ -2645,7 +2694,7 @@ static void dialog_scales () {
 // gtk-scroll-tabs for GTK 4 | so same 2.24 - 3.x - 4.x
 // @see https://github.com/mate-desktop/mate-control-center/blob/master/capplets/common/capplet-util.c
 // for on_scrolltabs source function is capplet_dialog_page_scroll_event_cb
-// of mate-appearance-properties from mate-control-center, GNU GPL 2.0+
+//  of mate-appearance-properties from mate-control-center, GNU GPL 2.0+
 
 static gboolean on_scrolltabs (GtkEventControllerScroll *event, double dx, double dy, GtkWidget *widget) {
 

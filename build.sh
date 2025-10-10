@@ -1,7 +1,7 @@
 #!/bin/bash
-# Debian: sudo apt install build-essential dh-make dh-autoreconf intltool libgtk2.0-dev libgtk-3-dev libgtk-4-dev libgtk-5-dev
-# Fedora: sudo dnf install autoconf automake gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils
-# openSUSE: sudo zypper install autoconf automake gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils
+# Debian: sudo apt install build-essential dh-make dh-autoreconf intltool libnotify-dev libgtk2.0-dev libgtk-3-dev libgtk-4-dev libgtk-5-dev
+# Fedora: sudo dnf install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils
+# openSUSE: sudo zypper install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils
 #
 # supported options for build.sh and configure.ac
 #  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5
