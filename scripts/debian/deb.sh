@@ -3,7 +3,7 @@
 
 
 cd "$(dirname "$0")"
-version="3.1.0"
+version="3.2.0"
 
 
 mkdir builder
@@ -31,7 +31,7 @@ fi
 
 
 # create packages for Debian and Ubuntu and MX Linux
-for serie in experimental unstable questing mx23 mx21; do
+for serie in experimental unstable questing mx25 mx23 mx21; do
 
 	printf "\n\n#################################################################### $serie ## awf-gtk ##\n\n"
 	if [ $serie = "experimental" ]; then
@@ -63,11 +63,11 @@ for serie in experimental unstable questing mx23 mx21; do
 		echo "=========================== buildpackage ($serie) =="
 		dpkg-buildpackage -us -uc
 	else
-		# debhelper: experimental:13 focal/mx19/mx21:12 bionic:9 xenial:9 trusty:9
+		# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
 		if [ $serie = "unstable" ]; then
 			mv debian/control.debian debian/control
 			sed -i -e 's/ --disable-gtk5/ --disable-gtk2 --disable-gtk5/g' -e 's/ "gtk2"//g' -e 's/ "gtk5"//g' debian/rules
-		elif [ $serie = "mx19" ] || [ $serie = "mx21" ]; then
+		elif [ $serie = "mx21" ]; then
 			mv debian/control.mxo debian/control
 			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
 		elif [ $serie = "focal" ]; then
@@ -100,7 +100,7 @@ for serie in experimental unstable questing mx23 mx21; do
 			sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
 			rm debian/*gtk5*
 			cat debian/clean | grep -v gtk5 | grep -v gtk6 > debian/clean
-		elif [ $serie = "mx21" ] || [ $serie = "mx19" ]; then
+		elif [ $serie = "mx21" ]; then
 			mv debian/changelog.mx debian/changelog
 			sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
 			rm debian/*gtk4* debian/*gtk5*

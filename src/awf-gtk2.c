@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated L/21/07/2025
+ * Updated D/05/10/2025
  *
  * Copyright 2020-2025 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -26,14 +26,15 @@
  *
  *
  * Translations update:
- *  https://github.com/GNOME/gtk/blob/3.24.49/po/fr.po
+ *  https://github.com/GNOME/gtk/blob/3.24.50/po/fr.po
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-gtk*.c
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7.0) with:
- *  Debian Testing 64                   (1536 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
- *  Fedora Rawhide 64                   (1536 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
+ *  Debian Testing 64                   (1536 MB) GTK 2.24/3.24/4.20 + GLIB 2.84 + Pango 1.56
+ *  Fedora Rawhide 64                   (1536 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.57
+ *  Ubuntu 25.04 Plucky Puffin 64       (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
  *  Ubuntu 24.10 Oracular Oriole 64     (4096 MB) GTK 2.24/3.24/4.16 + GLIB 2.82 + Pango 1.54
  *  Ubuntu 24.04 Noble Numbat 64        (4096 MB) GTK 2.24/3.24/4.14 + GLIB 2.80 + Pango 1.52
  *  Ubuntu 23.10 Mantic Minotaur 64     (3072 MB) GTK 2.24/3.24/4.12 + GLIB 2.78 + Pango 1.51
@@ -65,6 +66,7 @@
 #include <gdk/gdk.h>
 #include <libnotify/notify.h>
 #include <time.h>
+#include <locale.h>
 #include <getopt.h>
 #if GLIB_CHECK_VERSION (2,30,0)
 	#include <glib-unix.h>
@@ -133,8 +135,10 @@
 #define _gtk(String) dgettext (g_strdup_printf ("gtk%d0", GTK_MAJOR_VERSION), String)
 
 // global variables
-static GSList *list_system_theme = NULL;
-static GSList *list_user_theme = NULL;
+static GHashTable *hash_system_theme = NULL;
+static GHashTable *hash_user_theme = NULL;
+static GList *list_system_theme = NULL;
+static GList *list_user_theme = NULL;
 static GtkWidget *window = NULL, *menubar = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
 static GtkWidget *volume1 = NULL, *volume2 = NULL;
 static GtkWidget *progressbar1 = NULL, *progressbar2 = NULL, *progressbar3 = NULL, *progressbar4 = NULL, *progressbar8 = NULL, *progressbar9 = NULL;
@@ -149,7 +153,7 @@ static gboolean allow_update_theme = TRUE;
 static gboolean must_save_accels   = FALSE;
 
 // global functions
-static GSList* awf_load_theme (gchar *directory);
+static void awf_load_theme (GHashTable* hashtable, gchar *directory);
 static int awf_compare_theme (gconstpointer theme1, gconstpointer theme2);
 static void notify_updated_gtktheme (GSettings *settings, gchar *key, gpointer userdata);
 static void update_text_direction (int direction);
@@ -213,16 +217,20 @@ static void dialog_scales ();
 int main (int argc, gchar **argv) {
 
 	int opt = 0, status = 0;
-	GSList *iterator = NULL;
+	hash_system_theme = g_hash_table_new (&g_str_hash, &g_str_equal);
+	hash_user_theme = g_hash_table_new (&g_str_hash, &g_str_equal);
+	GList *iterator = NULL;
+	gchar *directory;
 
-	// load available themes
-	list_system_theme = awf_load_theme ("/usr/share/themes");
-	list_system_theme = g_slist_sort (list_system_theme, (GCompareFunc) awf_compare_theme);
+	// load available system themes (/usr/share/themes)
+	awf_load_theme (hash_system_theme, gtk_rc_get_theme_dir ());
+	list_system_theme = g_list_sort (g_hash_table_get_keys (hash_system_theme), (GCompareFunc) awf_compare_theme);
 
-	gchar *directory = g_build_path ("/", g_getenv ("HOME"), ".themes", NULL);
-	list_user_theme  = awf_load_theme (directory);
-	list_user_theme  = g_slist_sort (list_user_theme, (GCompareFunc) awf_compare_theme);
+	// load available user themes (HOME/.themes)
+	directory = g_build_path ("/", g_get_home_dir (), ".themes", NULL);
+	awf_load_theme (hash_user_theme, directory);
 	g_free (directory);
+	list_user_theme = g_list_sort (g_hash_table_get_keys (hash_user_theme), (GCompareFunc) awf_compare_theme);
 
 	// locale
 	setlocale (LC_ALL, "");
@@ -258,8 +266,7 @@ int main (int argc, gchar **argv) {
 				return status;
 			// --theme <theme> -t <theme>
 			case 't':
-				if (g_slist_find_custom (list_system_theme, optarg, &awf_compare_theme) ||
-					g_slist_find_custom (list_user_theme, optarg, &awf_compare_theme))
+				if (g_hash_table_lookup (hash_system_theme, optarg) || g_hash_table_lookup (hash_user_theme, optarg))
 					opt_theme = (gchar*) optarg;
 				break;
 			// --screenshot <filename> -s <filename>
@@ -300,7 +307,7 @@ int main (int argc, gchar **argv) {
 	}
 
 	// create and show window
-	// @code specdific for gtk2
+	// code specific for gtk2
 	#if GLIB_CHECK_VERSION (2,30,0)
 		g_unix_signal_add (SIGHUP, on_sighup, NULL);
 	#endif
@@ -316,12 +323,12 @@ static void quit () { // @common
 	exit (0);
 }
 
-static GSList* awf_load_theme (gchar *directory) { // @common
-
-	GSList *list = NULL;
-	g_return_val_if_fail (directory != NULL, NULL);
+static void awf_load_theme (GHashTable* hashtable, gchar *directory) { // @common
 
 	if (g_file_test (directory, G_FILE_TEST_IS_DIR)) {
+
+		if (g_getenv ("AWF_DEBUG") != NULL)
+			g_printf("theme dir: %s\n", directory);
 
 		GError *error = NULL;
 		GDir *dir = g_dir_open (directory, 0, &error);
@@ -336,7 +343,7 @@ static GSList* awf_load_theme (gchar *directory) { // @common
 				if (g_file_test (theme_path, G_FILE_TEST_IS_DIR)) {
 					gchar *theme_subpath = g_build_path ("/", theme_path, gtkdir, NULL);
 					if (g_file_test (theme_subpath, G_FILE_TEST_IS_DIR))
-						list = g_slist_prepend (list, theme);
+						g_hash_table_replace (hashtable, theme, theme);
 					g_free (theme_subpath);
 				}
 
@@ -354,24 +361,20 @@ static GSList* awf_load_theme (gchar *directory) { // @common
 			g_error_free (error);
 		}
 	}
-
-	if (list)
-		list = g_slist_reverse (list);
-
-	return list;
 }
 
 static int awf_compare_theme (gconstpointer theme1, gconstpointer theme2) { // @common
 	return g_strcmp0 ((gchar*) theme1, (gchar*) theme2);
 }
 
-static void notify_updated_gtktheme (GSettings *settings, gchar *key, gpointer userdata) { // @common
+static void notify_updated_gtktheme (GSettings *settings, gchar *key, gpointer userdata) { // @common 50%
 
 	gchar *new_theme = g_settings_get_string (settings, "gtk-theme");
 	g_usleep (G_USEC_PER_SEC / 2);
 
 	update_theme (new_theme);
 	find_and_check_menuradio (menubar, new_theme);
+	g_free (new_theme);
 }
 
 static void update_text_direction (int direction) { // @common 80%
@@ -424,9 +427,9 @@ static void update_theme (gchar *new_theme) { // @common
 	if (strcmp ((gchar*) new_theme, "refresh") == 0) {
 
 		gchar *default_theme = "None";
-		if (g_slist_find_custom (list_system_theme, "Default", &awf_compare_theme))
+		if (g_hash_table_lookup(hash_system_theme, "Default"))
 			default_theme = "Default";
-		else if (g_slist_find_custom (list_system_theme, "Raleigh", &awf_compare_theme))
+		else if (g_hash_table_lookup (hash_system_theme, "Raleigh"))
 			default_theme = "Raleigh";
 
 		if (default_theme) {
@@ -695,7 +698,7 @@ static gboolean take_screenshot (void *data) { // @common 50%
 static void create_window (gpointer app) {
 
 	GtkWidget *vbox_window, *widgets;
-	gchar *text;
+	gchar *text, *value;
 
 	// window
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -744,11 +747,10 @@ static void create_window (gpointer app) {
 	g_signal_connect (window, "destroy", G_CALLBACK (quit), NULL);
 
 	#if GLIB_CHECK_VERSION (2,32,0)
-		if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), "org.gnome.desktop.interface", FALSE))
-			g_signal_connect (g_settings_new("org.gnome.desktop.interface"), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
-
-		if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), "org.mate.interface", FALSE))
-			g_signal_connect (g_settings_new("org.mate.interface"), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
+		if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.gnome.desktop.interface", FALSE))
+			g_signal_connect (g_settings_new (value), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
+		if (g_settings_schema_source_lookup (g_settings_schema_source_get_default (), value = "org.mate.interface", FALSE))
+			g_signal_connect (g_settings_new (value), "changed::gtk-theme", G_CALLBACK (notify_updated_gtktheme), NULL);
 	#endif
 
 	gtk_widget_show_all (window);
@@ -1845,7 +1847,9 @@ static void create_traditional_menubar (GtkWidget *root) {
 
 	GtkWidget *menu, *submenu, *menuitem, *base;
 	GtkAccelGroup *accels = gtk_accel_group_new ();
-	GSList *iterator, *group = NULL;
+	GSList *group = NULL;
+	GList *iterator;
+	gboolean ok = FALSE;
 
 	gtk_window_add_accel_group (GTK_WINDOW (window), accels);
 
@@ -1910,23 +1914,27 @@ static void create_traditional_menubar (GtkWidget *root) {
 		if (
 			(strcmp ((gchar*) iterator->data, "Mint-L") == 0) ||
 			(strcmp ((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0)
+			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0) ||
+			(strcmp ((gchar*) iterator->data, "Yaru") == 0)
 		) {
 			submenu = create_menu (menu, iterator->data);
 			base = submenu;
+			ok = TRUE;
 		}
-		else if (
+		else if (ok && (
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-L") ||
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y")
-		) {
+			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y") ||
+			g_str_has_prefix ((gchar*) iterator->data, "Yaru")
+		)) {
 			base = submenu;
 		}
 		else {
 			base = menu;
+			ok = FALSE;
 		}
 
-		if (g_slist_find_custom (list_user_theme, iterator->data, &awf_compare_theme)) {
+		if (g_hash_table_lookup (hash_user_theme, iterator->data)) {
 			menuitem = create_menuitem_radio (base, iterator->data, FALSE, FALSE, TRUE, group);
 			group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (menuitem));
 			if (strcmp ((gchar*) current_theme, (gchar*) iterator->data) == 0)
@@ -1952,20 +1960,24 @@ static void create_traditional_menubar (GtkWidget *root) {
 		if (
 			(strcmp ((gchar*) iterator->data, "Mint-L") == 0) ||
 			(strcmp ((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0)
+			(strcmp ((gchar*) iterator->data, "Mint-Y") == 0) ||
+			(strcmp ((gchar*) iterator->data, "Yaru") == 0)
 		) {
 			submenu = create_menu (menu, iterator->data);
 			base = submenu;
+			ok = TRUE;
 		}
-		else if (
+		else if (ok && (
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-L") ||
 			g_str_has_prefix ((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y")
-		) {
+			g_str_has_prefix ((gchar*) iterator->data, "Mint-Y") ||
+			g_str_has_prefix ((gchar*) iterator->data, "Yaru")
+		)) {
 			base = submenu;
 		}
 		else {
 			base = menu;
+			ok = FALSE;
 		}
 
 		menuitem = create_menuitem_radio (base, iterator->data, FALSE, FALSE, FALSE, group);

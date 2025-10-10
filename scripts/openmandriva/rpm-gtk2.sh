@@ -3,7 +3,7 @@
 
 
 cd "$(dirname "$0")"
-version="3.1.0"
+version="3.2.0"
 gtk="gtk2"
 
 mkdir -p builder builder/{BUILD,RPMS,SRPMS}
@@ -29,12 +29,12 @@ else
 	tar czf $temp.tar.gz $temp
 	cd ..
 
-	mv builder/$temp.tar.gz awf-extended-$version.tar.gz
+	mv builder/$temp.tar.gz awf-$gtk-$version.tar.gz
 	chmod 644 awf-$gtk.spec
 fi
 
 # create package (rpm sign https://access.redhat.com/articles/3359321)
-cp -a awf-extended-$version.tar.gz awf-$gtk.spec builder/
+cp -a awf-$gtk-$version.tar.gz awf-$gtk.spec builder/
 cd builder/
 abb builda
 rpm --addsign RPMS/*/awf-$gtk*.rpm
@@ -52,4 +52,4 @@ echo "==========================="
 cd ..
 
 # cleanup
-rm -rf builder/*/ builder/*buildlog builder/*spec awf-extended-$version.tar.gz
+rm -rf builder/*/ builder/*buildlog builder/*spec awf-$gtk-$version.tar.gz

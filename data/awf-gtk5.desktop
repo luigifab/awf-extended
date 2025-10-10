@@ -6,6 +6,6 @@ Exec=awf-gtk5
 Icon=awf-gtk5
 Terminal=false
 Type=Application
-Keywords=gtk;
+Keywords=gtk;css;
 Categories=GTK;Development;
 StartupNotify=true

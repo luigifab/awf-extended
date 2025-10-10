@@ -1,4 +1,4 @@
-AC_INIT([A widget factory], [3.1.0])
+AC_INIT([A widget factory], [3.2.0])
 AC_CONFIG_SRCDIR([src/])
 AC_CONFIG_AUX_DIR([build-aux])
 
