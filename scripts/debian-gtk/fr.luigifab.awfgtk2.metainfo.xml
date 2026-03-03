@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+	<id>fr.luigifab.awfgtk2</id>
+	<name>awf-gtk2</name>
+	<project_license>GPL-3.0-or-later</project_license>
+	<metadata_license>MIT</metadata_license>
+	<summary>Theme preview application for GTK 2</summary>
+	<description>
+		<p>
+			A widget factory is a theme preview application for GTK and Qt. It
+			displays the various widget types in a single window allowing to see
+			the visual effect of the applied theme.
+		</p>
+	</description>
+	<url type="homepage">https://github.com/luigifab/awf-extended</url>
+	<launchable type="desktop-id">awf-gtk2.desktop</launchable>
+	<provides>
+		<binary>awf-gtk2</binary>
+	</provides>
+</component>

@@ -1,0 +1,34 @@
+Source: awf-qt
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 13), bash-completion, pkgconf, qtbase5-dev (>= 5.15.0), qt6-base-dev
+Rules-Requires-Root: no
+Standards-Version: 4.7.3
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-qt5
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: qt5-gtk-platformtheme, qt5-style-globalqss, qttranslations5-l10n, libqt5svg5,
+Suggests: libnotify-bin
+Description: theme preview application for Qt 5
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Qt 5.
+
+Package: awf-qt6
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: qt6-gtk-platformtheme, qt6-style-globalqss, qt6-translations-l10n, qt6-svg-plugins,
+Suggests: libnotify-bin
+Description: theme preview application for Qt 6
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Qt 6.

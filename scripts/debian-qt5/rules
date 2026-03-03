@@ -1,0 +1,19 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@ --with bash-completion
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-only-qt5
+
+execute_before_dh_install:
+	cp -ar data/icons/ icons-qt5/
+	for file in icons-qt5/*/*/awf.png; do mv $$file `dirname $$file`/awf-qt5.png; done
+	for file in icons-qt5/*/*/awf.svg; do mv $$file `dirname $$file`/awf-qt5.svg; done
+	for file in src/po/*.po; do \
+		code=`basename "$$file" .po`; \
+		mkdir -p locale-qt5/$$code/LC_MESSAGES/; \
+		msgfmt src/po/$$code.po -o locale-qt5/$$code/LC_MESSAGES/awf-qt5.mo; \
+	done
