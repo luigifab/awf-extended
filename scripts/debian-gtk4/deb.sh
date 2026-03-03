@@ -3,7 +3,7 @@
 
 
 cd "$(dirname "$0")"
-version="3.2.0"
+version="4.0.0"
 gtk="gtk4"
 
 mkdir builder
@@ -31,9 +31,9 @@ fi
 
 
 # create packages for Debian and Ubuntu
-for serie in experimental questing plucky noble jammy; do
+for serie in experimental resolute questing noble jammy; do
 
-	printf "\n\n#################################################################### $serie ## awf-gtk4 ##\n\n"
+	printf "\n\n################################################################### $serie ## awf-gtk4 ##\n\n"
 	if [ $serie = "experimental" ]; then
 		# copy for Ubuntu
 		cp -a builder/awf-extended-$version/ builder/awf-extended-$version+src/
@@ -51,7 +51,7 @@ for serie in experimental questing plucky noble jammy; do
 
 	rm -rf debian/*/*ex debian/*ex debian/*EX debian/README* debian/*doc*
 	cp scripts/debian-$gtk/* debian/
-	cp scripts/debian/*$gtk* scripts/debian/copyright scripts/debian/metadata scripts/debian/watch debian/
+	cp scripts/debian-gtk/*$gtk* scripts/debian-gtk/copyright scripts/debian-gtk/metadata scripts/debian-gtk/watch debian/
 	head -n -1 debian/*$gtk*.install > debian/install ; rm debian/awf-$gtk.install
 	rm -f debian/deb.sh
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata
@@ -68,7 +68,7 @@ for serie in experimental questing plucky noble jammy; do
 			mv debian/control.debian debian/control
 
 		elif [ $serie = "mx21" ]; then
-			mv debian/control.mx debian/control
+
 			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
 		elif [ $serie = "focal" ]; then
 			mv debian/control.ubuntu debian/control

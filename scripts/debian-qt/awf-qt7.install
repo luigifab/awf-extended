@@ -1,0 +1,5 @@
+data/awf-qt7.desktop                   usr/share/applications
+icons-qt7/*                            usr/share/icons/hicolor
+locale-qt7/*                           usr/share/locale
+debian/fr.luigifab.awfqt7.metainfo.xml usr/share/metainfo
+usr/bin/awf-qt7                        usr/bin

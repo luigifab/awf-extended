@@ -1,0 +1,41 @@
+.Dd 01/01/26
+.Dt AWF 1
+.Os Linux
+.Sh NAME
+.Nm awf-qt7
+.Nd Theme preview application for Qt 7.
+.Sh SYNOPSIS
+.Nm
+.Op Fl h
+.Op Fl v
+.Op Fl l
+.Op Fl t Ar theme
+.Op Fl s Ar filename
+.Op Fl -ltr
+.Op Fl -rtl
+.Sh DESCRIPTION
+A widget factory is a theme preview application for GTK and Qt. It
+displays the various widget types in a single window allowing to see
+the visual effect of the applied theme.
+.Sh OPTIONS
+.Bl -tag
+.It Fl h, Fl Fl help
+Show help.
+.It Fl v, Fl Fl version
+Show version number.
+.It Fl l
+List available themes.
+.It Fl t Ar theme, Fl Fl theme Ar theme
+Run with the specified theme.
+.It Fl s Ar filename, Fl Fl screenshot Ar filename
+Run and save a png screenshot on SIGHUP.
+.It Fl -ltr
+Start with text from left to right (Left-To-Right).
+.It Fl -rtl
+Start with text from right to left (Right-To-Left).
+.El
+.Sh FILES
+.Bl -tag -width "/home/user/.awf-accels" -compact
+.It Pa /home/user/.awf-accels
+Configuration of keyboard shortcuts.
+.El

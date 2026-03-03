@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=AWF Qt 7
+Comment=A widget factory is a theme preview application for GTK and Qt.
+Comment[fr]=La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt.
+Exec=awf-qt7
+Icon=awf-qt7
+Terminal=false
+Type=Application
+Keywords=qt;css;qss;
+Categories=Qt;Development;
+StartupNotify=true
+Name[fr_FR]=awf-qt7.desktop

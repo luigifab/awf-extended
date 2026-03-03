@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop-application">
+	<id>fr.luigifab.awfqt5</id>
+	<name>awf-qt5</name>
+	<project_license>GPL-3.0-or-later</project_license>
+	<metadata_license>MIT</metadata_license>
+	<summary>Theme preview application for Qt 5</summary>
+	<description>
+		<p>
+			A widget factory is a theme preview application for GTK and Qt. It
+			displays the various widget types in a single window allowing to see
+			the visual effect of the applied theme.
+		</p>
+	</description>
+	<url type="homepage">https://github.com/luigifab/awf-extended</url>
+	<launchable type="desktop-id">awf-qt5.desktop</launchable>
+	<provides>
+		<binary>awf-qt5</binary>
+	</provides>
+</component>

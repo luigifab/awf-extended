@@ -1,0 +1,22 @@
+Source: awf-qt7
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 13), bash-completion, pkgconf, qt7-base-dev
+Rules-Requires-Root: no
+Standards-Version: 4.7.3
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-qt7
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: qt7-gtk-platformtheme, qt7-style-globalqss, qt7-translations-l10n, qt7-svg-plugins
+Suggests: libnotify-bin
+Description: theme preview application for Qt 7
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Qt 7.

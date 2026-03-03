@@ -1,220 +1,344 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-10 10:47+0200\n"
+"POT-Creation-Date: 2026-03-01 13:59+0100\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: gtk-awf/src/awf-gtk2.c:300 gtk-awf/src/awf-gtk2.c:2265
-#: gtk-awf/src/awf-gtk3.c:311 gtk-awf/src/awf-gtk3.c:2655
-#: gtk-awf/src/awf-gtk4.c:301 gtk-awf/src/awf-gtk4.c:2503
+#: gtk-awf/src/awf-gtk2.c:305 gtk-awf/src/awf-gtk2.c:2313
+#: gtk-awf/src/awf-gtk3.c:312 gtk-awf/src/awf-gtk3.c:2683
+#: gtk-awf/src/awf-gtk4.c:302 gtk-awf/src/awf-gtk4.c:2623
 #, c-format
 msgid " started with gtk %d.%d.%d and glib %d.%d.%d and pango %s"
 msgstr " démarré avec gtk %d.%d.%d et glib %d.%d.%d et pango %s"
 
-#: gtk-awf/src/awf-gtk2.c:1883 gtk-awf/src/awf-gtk2.c:1887
-#: gtk-awf/src/awf-gtk2.c:1895 gtk-awf/src/awf-gtk2.c:1900
-#: gtk-awf/src/awf-gtk3.c:2235 gtk-awf/src/awf-gtk3.c:2239
-#: gtk-awf/src/awf-gtk3.c:2247 gtk-awf/src/awf-gtk3.c:2252
-#: gtk-awf/src/awf-gtk4.c:2148 gtk-awf/src/awf-gtk4.c:2162
-#: gtk-awf/src/awf-gtk4.c:2174 gtk-awf/src/awf-gtk4.c:2183
+#: gtk-awf/src/awf-qt5.cpp:505 gtk-awf/src/awf-qt5.cpp:2165
+#: gtk-awf/src/awf-qt6.cpp:505 gtk-awf/src/awf-qt6.cpp:2167
+msgid " started with qt %1"
+msgstr " démarré avec qt %1"
+
+#: gtk-awf/src/awf-gtk2.c:1911 gtk-awf/src/awf-gtk2.c:1915
+#: gtk-awf/src/awf-gtk2.c:1923 gtk-awf/src/awf-gtk2.c:1928
+#: gtk-awf/src/awf-gtk3.c:2242 gtk-awf/src/awf-gtk3.c:2246
+#: gtk-awf/src/awf-gtk3.c:2254 gtk-awf/src/awf-gtk3.c:2259
+#: gtk-awf/src/awf-gtk4.c:2203 gtk-awf/src/awf-gtk4.c:2217
+#: gtk-awf/src/awf-gtk4.c:2231 gtk-awf/src/awf-gtk4.c:2240
+#: gtk-awf/src/awf-qt5.cpp:1687 gtk-awf/src/awf-qt5.cpp:1691
+#: gtk-awf/src/awf-qt5.cpp:1700 gtk-awf/src/awf-qt5.cpp:1707
+#: gtk-awf/src/awf-qt6.cpp:1688 gtk-awf/src/awf-qt6.cpp:1692
+#: gtk-awf/src/awf-qt6.cpp:1701 gtk-awf/src/awf-qt6.cpp:1708
 msgid "(checked)"
 msgstr "(coché)"
 
-#: gtk-awf/src/awf-gtk2.c:1884 gtk-awf/src/awf-gtk2.c:1888
-#: gtk-awf/src/awf-gtk2.c:1896 gtk-awf/src/awf-gtk2.c:1901
-#: gtk-awf/src/awf-gtk3.c:2236 gtk-awf/src/awf-gtk3.c:2240
-#: gtk-awf/src/awf-gtk3.c:2248 gtk-awf/src/awf-gtk3.c:2253
+#: gtk-awf/src/awf-gtk2.c:1912 gtk-awf/src/awf-gtk2.c:1916
+#: gtk-awf/src/awf-gtk2.c:1924 gtk-awf/src/awf-gtk2.c:1929
+#: gtk-awf/src/awf-gtk3.c:2243 gtk-awf/src/awf-gtk3.c:2247
+#: gtk-awf/src/awf-gtk3.c:2255 gtk-awf/src/awf-gtk3.c:2260
+#: gtk-awf/src/awf-gtk4.c:2205 gtk-awf/src/awf-gtk4.c:2221
+#: gtk-awf/src/awf-gtk4.c:2232 gtk-awf/src/awf-gtk4.c:2241
+#: gtk-awf/src/awf-qt5.cpp:1688 gtk-awf/src/awf-qt5.cpp:1692
+#: gtk-awf/src/awf-qt5.cpp:1701 gtk-awf/src/awf-qt5.cpp:1708
+#: gtk-awf/src/awf-qt6.cpp:1689 gtk-awf/src/awf-qt6.cpp:1693
+#: gtk-awf/src/awf-qt6.cpp:1702 gtk-awf/src/awf-qt6.cpp:1709
 msgid "(inconsistent)"
 msgstr "(incohérent)"
 
-#: gtk-awf/src/awf-gtk2.c:1882 gtk-awf/src/awf-gtk2.c:1886
-#: gtk-awf/src/awf-gtk2.c:1893 gtk-awf/src/awf-gtk2.c:1898
-#: gtk-awf/src/awf-gtk3.c:2234 gtk-awf/src/awf-gtk3.c:2238
-#: gtk-awf/src/awf-gtk3.c:2245 gtk-awf/src/awf-gtk3.c:2250
-#: gtk-awf/src/awf-gtk4.c:2143 gtk-awf/src/awf-gtk4.c:2156
-#: gtk-awf/src/awf-gtk4.c:2173 gtk-awf/src/awf-gtk4.c:2182
+#: gtk-awf/src/awf-gtk2.c:1910 gtk-awf/src/awf-gtk2.c:1914
+#: gtk-awf/src/awf-gtk2.c:1921 gtk-awf/src/awf-gtk2.c:1926
+#: gtk-awf/src/awf-gtk3.c:2241 gtk-awf/src/awf-gtk3.c:2245
+#: gtk-awf/src/awf-gtk3.c:2252 gtk-awf/src/awf-gtk3.c:2257
+#: gtk-awf/src/awf-gtk4.c:2198 gtk-awf/src/awf-gtk4.c:2211
+#: gtk-awf/src/awf-gtk4.c:2230 gtk-awf/src/awf-gtk4.c:2239
+#: gtk-awf/src/awf-qt5.cpp:1686 gtk-awf/src/awf-qt5.cpp:1690
+#: gtk-awf/src/awf-qt5.cpp:1699 gtk-awf/src/awf-qt5.cpp:1706
+#: gtk-awf/src/awf-qt6.cpp:1687 gtk-awf/src/awf-qt6.cpp:1691
+#: gtk-awf/src/awf-qt6.cpp:1700 gtk-awf/src/awf-qt6.cpp:1707
 msgid "(unchecked)"
 msgstr "(décoché)"
 
-#: gtk-awf/src/awf-gtk2.c:289 gtk-awf/src/awf-gtk2.c:707
-#: gtk-awf/src/awf-gtk3.c:300 gtk-awf/src/awf-gtk3.c:814
-#: gtk-awf/src/awf-gtk4.c:290 gtk-awf/src/awf-gtk4.c:761
+#: gtk-awf/src/awf-gtk2.c:294 gtk-awf/src/awf-gtk2.c:694
+#: gtk-awf/src/awf-gtk3.c:301 gtk-awf/src/awf-gtk3.c:801
+#: gtk-awf/src/awf-gtk4.c:291 gtk-awf/src/awf-gtk4.c:761
 #, c-format
 msgid "A widget factory - GTK %d.%d"
 msgstr "La fabrique à widgets - GTK %d.%d"
 
-#: gtk-awf/src/awf-gtk2.c:599 gtk-awf/src/awf-gtk2.c:1320
-#: gtk-awf/src/awf-gtk2.c:2230 gtk-awf/src/awf-gtk2.c:2258
-#: gtk-awf/src/awf-gtk3.c:678 gtk-awf/src/awf-gtk3.c:1631
-#: gtk-awf/src/awf-gtk3.c:2606 gtk-awf/src/awf-gtk3.c:2648
-#: gtk-awf/src/awf-gtk4.c:634 gtk-awf/src/awf-gtk4.c:1566
-#: gtk-awf/src/awf-gtk4.c:2447 gtk-awf/src/awf-gtk4.c:2496
-msgid ""
-"A widget factory is a theme preview application for GTK. It displays the "
-"various widget types provided by GTK in a single window allowing to see the "
-"visual effect of the applied theme."
-msgstr ""
-"La fabrique à widgets est une application d'aperçu de thème pour GTK. Elle "
-"affiche les différents types de widgets fournis par GTK dans une seule "
-"fenêtre permettant de voir l'effet visuel du thème appliqué."
+#: gtk-awf/src/awf-qt5.cpp:497 gtk-awf/src/awf-qt5.cpp:514
+#: gtk-awf/src/awf-qt5.cpp:777 gtk-awf/src/awf-qt6.cpp:497
+#: gtk-awf/src/awf-qt6.cpp:514 gtk-awf/src/awf-qt6.cpp:776
+msgid "A widget factory - Qt %1.%2"
+msgstr "La fabrique à widgets - Qt %1.%2"
 
-#: gtk-awf/src/awf-gtk2.c:1866 gtk-awf/src/awf-gtk3.c:2218
-#: gtk-awf/src/awf-gtk4.c:2124
+#: gtk-awf/src/awf-gtk2.c:586 gtk-awf/src/awf-gtk2.c:1335
+#: gtk-awf/src/awf-gtk2.c:2279 gtk-awf/src/awf-gtk2.c:2306
+#: gtk-awf/src/awf-gtk3.c:665 gtk-awf/src/awf-gtk3.c:1626
+#: gtk-awf/src/awf-gtk3.c:2635 gtk-awf/src/awf-gtk3.c:2676
+#: gtk-awf/src/awf-gtk4.c:626 gtk-awf/src/awf-gtk4.c:1610
+#: gtk-awf/src/awf-gtk4.c:2568 gtk-awf/src/awf-gtk4.c:2616
+#: gtk-awf/src/awf-qt5.cpp:751 gtk-awf/src/awf-qt5.cpp:1422
+#: gtk-awf/src/awf-qt5.cpp:2143 gtk-awf/src/awf-qt5.cpp:2161
+#: gtk-awf/src/awf-qt6.cpp:750 gtk-awf/src/awf-qt6.cpp:1421
+#: gtk-awf/src/awf-qt6.cpp:2145 gtk-awf/src/awf-qt6.cpp:2163
+msgid ""
+"A widget factory is a theme preview application for GTK and Qt. It displays "
+"the various widget types in a single window allowing to see the visual "
+"effect of the applied theme."
+msgstr ""
+"La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt. "
+"Elle affiche les différents types de widgets dans une seule fenêtre "
+"permettant de voir l'effet visuel du thème appliqué."
+
+#: gtk-awf/src/awf-gtk2.c:1894 gtk-awf/src/awf-gtk3.c:2225
+#: gtk-awf/src/awf-gtk4.c:2179 gtk-awf/src/awf-qt5.cpp:1672
+#: gtk-awf/src/awf-qt6.cpp:1673
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: gtk-awf/src/awf-gtk2.c:1867 gtk-awf/src/awf-gtk3.c:2219
-#: gtk-awf/src/awf-gtk4.c:2125
-msgid "GtkScales"
-msgstr "GtkScales"
+#: gtk-awf/src/awf-gtk2.c:1137 gtk-awf/src/awf-gtk3.c:1351
+#: gtk-awf/src/awf-gtk4.c:1347 gtk-awf/src/awf-gtk4.c:1352
+#: gtk-awf/src/awf-qt5.cpp:1259 gtk-awf/src/awf-qt6.cpp:1258
+msgid "Choose a color"
+msgstr "Choisir une couleur"
 
-#: gtk-awf/src/awf-gtk2.c:1997 gtk-awf/src/awf-gtk3.c:2349
-#: gtk-awf/src/awf-gtk4.c:2280
+#: gtk-awf/src/awf-gtk2.c:1149 gtk-awf/src/awf-gtk3.c:1363
+#: gtk-awf/src/awf-gtk4.c:1369 gtk-awf/src/awf-qt5.cpp:1274
+#: gtk-awf/src/awf-qt6.cpp:1273
+msgid "Choose a file"
+msgstr "Choisir un fichier"
+
+#: gtk-awf/src/awf-gtk2.c:1154 gtk-awf/src/awf-gtk3.c:1368
+#: gtk-awf/src/awf-gtk4.c:1373 gtk-awf/src/awf-qt5.cpp:1281
+#: gtk-awf/src/awf-qt6.cpp:1280
+msgid "Choose a folder"
+msgstr "Choisir un dossier"
+
+#: gtk-awf/src/awf-gtk2.c:1143 gtk-awf/src/awf-gtk3.c:1357
+#: gtk-awf/src/awf-gtk4.c:1360 gtk-awf/src/awf-gtk4.c:1365
+#: gtk-awf/src/awf-qt5.cpp:1266 gtk-awf/src/awf-qt6.cpp:1265
+msgid "Choose a font"
+msgstr "Choisir une police"
+
+#: gtk-awf/src/awf-qt5.cpp:1749 gtk-awf/src/awf-qt5.cpp:1777
+#: gtk-awf/src/awf-qt6.cpp:1750 gtk-awf/src/awf-qt6.cpp:1778
+msgid "GlobalQSS not available"
+msgstr "GlobalQSS indisponible"
+
+#: gtk-awf/src/awf-gtk2.c:2029 gtk-awf/src/awf-gtk3.c:2360
+#: gtk-awf/src/awf-gtk4.c:2338 gtk-awf/src/awf-qt5.cpp:1787
+#: gtk-awf/src/awf-qt6.cpp:1788
 msgid "Left to Right (LTR)"
 msgstr "Gauche à droite (LTR)"
 
-#: gtk-awf/src/awf-gtk2.c:291 gtk-awf/src/awf-gtk3.c:302
-#: gtk-awf/src/awf-gtk3.c:339 gtk-awf/src/awf-gtk4.c:292
-#: gtk-awf/src/awf-gtk4.c:322
+#: gtk-awf/src/awf-gtk2.c:296 gtk-awf/src/awf-gtk3.c:303
+#: gtk-awf/src/awf-gtk3.c:343 gtk-awf/src/awf-gtk4.c:293
+#: gtk-awf/src/awf-gtk4.c:326 gtk-awf/src/awf-qt5.cpp:499
+#: gtk-awf/src/awf-qt5.cpp:517 gtk-awf/src/awf-qt6.cpp:499
+#: gtk-awf/src/awf-qt6.cpp:517
 msgid "List available themes."
 msgstr "Liste les thèmes disponibles."
 
-#: gtk-awf/src/awf-gtk2.c:1309 gtk-awf/src/awf-gtk2.c:1872
-#: gtk-awf/src/awf-gtk3.c:1608 gtk-awf/src/awf-gtk3.c:2224
-#: gtk-awf/src/awf-gtk4.c:1549 gtk-awf/src/awf-gtk4.c:2131
+#: gtk-awf/src/awf-gtk2.c:1324 gtk-awf/src/awf-gtk2.c:1900
+#: gtk-awf/src/awf-gtk3.c:1602 gtk-awf/src/awf-gtk3.c:2231
+#: gtk-awf/src/awf-gtk4.c:1592 gtk-awf/src/awf-gtk4.c:2186
+#: gtk-awf/src/awf-qt5.cpp:1413 gtk-awf/src/awf-qt5.cpp:1678
+#: gtk-awf/src/awf-qt6.cpp:1412 gtk-awf/src/awf-qt6.cpp:1679
 msgid "More..."
 msgstr "Plus..."
 
-#: gtk-awf/src/awf-gtk2.c:1954 gtk-awf/src/awf-gtk2.c:1991
-#: gtk-awf/src/awf-gtk3.c:2306 gtk-awf/src/awf-gtk3.c:2343
-#: gtk-awf/src/awf-gtk4.c:2233 gtk-awf/src/awf-gtk4.c:2268
+#: gtk-awf/src/awf-gtk2.c:1984 gtk-awf/src/awf-gtk2.c:2023
+#: gtk-awf/src/awf-gtk3.c:2315 gtk-awf/src/awf-gtk3.c:2354
+#: gtk-awf/src/awf-gtk4.c:2292 gtk-awf/src/awf-gtk4.c:2329
+#: gtk-awf/src/awf-qt5.cpp:1751 gtk-awf/src/awf-qt5.cpp:1779
+#: gtk-awf/src/awf-qt6.cpp:1752 gtk-awf/src/awf-qt6.cpp:1780
 msgid "No themes found"
 msgstr "Aucun thème trouvé"
 
-#: gtk-awf/src/awf-gtk2.c:2296 gtk-awf/src/awf-gtk3.c:2695
-#: gtk-awf/src/awf-gtk4.c:2548
+#: gtk-awf/src/awf-gtk2.c:2346 gtk-awf/src/awf-gtk3.c:2721
+#: gtk-awf/src/awf-gtk4.c:2668
 msgid "Ok"
 msgstr "Ok"
 
-#: gtk-awf/src/awf-gtk2.c:1863 gtk-awf/src/awf-gtk3.c:2215
-#: gtk-awf/src/awf-gtk4.c:2121
+#: gtk-awf/src/awf-gtk2.c:1891 gtk-awf/src/awf-gtk3.c:2222
+#: gtk-awf/src/awf-gtk4.c:2176 gtk-awf/src/awf-qt5.cpp:1669
+#: gtk-awf/src/awf-qt6.cpp:1670
 msgid "Open recent file"
 msgstr "Ouvrir un fichier récent"
 
-#: gtk-awf/src/awf-gtk2.c:2259 gtk-awf/src/awf-gtk3.c:2649
-#: gtk-awf/src/awf-gtk4.c:2497
+#: gtk-awf/src/awf-qt5.cpp:1675 gtk-awf/src/awf-qt6.cpp:1676
+msgid "Page Set&up"
+msgstr "Page Set&up"
+
+#: gtk-awf/src/awf-qt5.cpp:1674 gtk-awf/src/awf-qt6.cpp:1675
+msgid "Properties"
+msgstr "Properties"
+
+#: gtk-awf/src/awf-qt5.cpp:2162 gtk-awf/src/awf-qt6.cpp:2164
+msgid "Remove %1 file"
+msgstr "Supprimer le fichier %1"
+
+#: gtk-awf/src/awf-gtk2.c:2307 gtk-awf/src/awf-gtk3.c:2677
+#: gtk-awf/src/awf-gtk4.c:2617
 #, c-format
 msgid "Remove %s file"
 msgstr "Supprimer le fichier %s"
 
-#: gtk-awf/src/awf-gtk2.c:2003 gtk-awf/src/awf-gtk3.c:2355
-#: gtk-awf/src/awf-gtk4.c:2281
+#: gtk-awf/src/awf-gtk2.c:2035 gtk-awf/src/awf-gtk3.c:2366
+#: gtk-awf/src/awf-gtk4.c:2339 gtk-awf/src/awf-qt5.cpp:1792
+#: gtk-awf/src/awf-qt6.cpp:1793
 msgid "Right to Left (RTL)"
 msgstr "Droite à gauche (RTL)"
 
-#: gtk-awf/src/awf-gtk2.c:293 gtk-awf/src/awf-gtk3.c:304
-#: gtk-awf/src/awf-gtk3.c:347 gtk-awf/src/awf-gtk4.c:294
-#: gtk-awf/src/awf-gtk4.c:330
+#: gtk-awf/src/awf-qt5.cpp:501 gtk-awf/src/awf-qt5.cpp:519
+#: gtk-awf/src/awf-qt6.cpp:501 gtk-awf/src/awf-qt6.cpp:519
+msgid "Run and save a png screenshot on %1."
+msgstr "Démarre et enregistre une capture d'écran png lors du %1."
+
+#: gtk-awf/src/awf-gtk2.c:298 gtk-awf/src/awf-gtk3.c:305
+#: gtk-awf/src/awf-gtk3.c:350 gtk-awf/src/awf-gtk4.c:295
+#: gtk-awf/src/awf-gtk4.c:333
 #, c-format
 msgid "Run and save a png screenshot on %s."
 msgstr "Démarre et enregistre une capture d'écran png lors du %s."
 
-#: gtk-awf/src/awf-gtk2.c:292 gtk-awf/src/awf-gtk3.c:303
-#: gtk-awf/src/awf-gtk3.c:343 gtk-awf/src/awf-gtk4.c:293
-#: gtk-awf/src/awf-gtk4.c:326
+#: gtk-awf/src/awf-gtk2.c:297 gtk-awf/src/awf-gtk3.c:304
+#: gtk-awf/src/awf-gtk3.c:347 gtk-awf/src/awf-gtk4.c:294
+#: gtk-awf/src/awf-gtk4.c:330 gtk-awf/src/awf-qt5.cpp:500
+#: gtk-awf/src/awf-qt5.cpp:518 gtk-awf/src/awf-qt6.cpp:500
+#: gtk-awf/src/awf-qt6.cpp:518
 msgid "Run with the specified theme."
 msgstr "Démarre avec le thème spécifié."
 
-#: gtk-awf/src/awf-gtk2.c:290 gtk-awf/src/awf-gtk3.c:301
-#: gtk-awf/src/awf-gtk3.c:335 gtk-awf/src/awf-gtk4.c:291
-#: gtk-awf/src/awf-gtk4.c:318
+#: gtk-awf/src/awf-gtk2.c:295 gtk-awf/src/awf-gtk3.c:302
+#: gtk-awf/src/awf-gtk3.c:339 gtk-awf/src/awf-gtk4.c:292
+#: gtk-awf/src/awf-gtk4.c:322 gtk-awf/src/awf-qt5.cpp:498
+#: gtk-awf/src/awf-qt6.cpp:498
 msgid "Show version number."
 msgstr "Affiche le numéro de version."
 
-#: gtk-awf/src/awf-gtk2.c:294 gtk-awf/src/awf-gtk3.c:305
-#: gtk-awf/src/awf-gtk3.c:351 gtk-awf/src/awf-gtk4.c:295
-#: gtk-awf/src/awf-gtk4.c:334
+#: gtk-awf/src/awf-gtk2.c:299 gtk-awf/src/awf-gtk3.c:306
+#: gtk-awf/src/awf-gtk3.c:357 gtk-awf/src/awf-gtk4.c:296
+#: gtk-awf/src/awf-gtk4.c:340 gtk-awf/src/awf-qt5.cpp:502
+#: gtk-awf/src/awf-qt5.cpp:520 gtk-awf/src/awf-qt6.cpp:502
+#: gtk-awf/src/awf-qt6.cpp:520
 msgid "Start with text from left to right (Left-To-Right)."
 msgstr "Démarre avec le texte de gauche à droite (Left-To-Right)."
 
-#: gtk-awf/src/awf-gtk2.c:295 gtk-awf/src/awf-gtk3.c:306
-#: gtk-awf/src/awf-gtk3.c:355 gtk-awf/src/awf-gtk4.c:296
-#: gtk-awf/src/awf-gtk4.c:338
+#: gtk-awf/src/awf-gtk2.c:300 gtk-awf/src/awf-gtk3.c:307
+#: gtk-awf/src/awf-gtk3.c:361 gtk-awf/src/awf-gtk4.c:297
+#: gtk-awf/src/awf-gtk4.c:344 gtk-awf/src/awf-qt5.cpp:503
+#: gtk-awf/src/awf-qt5.cpp:521 gtk-awf/src/awf-qt6.cpp:503
+#: gtk-awf/src/awf-qt6.cpp:521
 msgid "Start with text from right to left (Right-To-Left)."
 msgstr "Démarre avec le texte de droite à gauche (Right-To-Left)."
 
-#: gtk-awf/src/awf-gtk2.c:460 gtk-awf/src/awf-gtk2.c:740
-#: gtk-awf/src/awf-gtk3.c:538 gtk-awf/src/awf-gtk3.c:934
-#: gtk-awf/src/awf-gtk4.c:498 gtk-awf/src/awf-gtk4.c:869
+#: gtk-awf/src/awf-qt5.cpp:586 gtk-awf/src/awf-qt5.cpp:808
+#: gtk-awf/src/awf-qt6.cpp:585 gtk-awf/src/awf-qt6.cpp:807
+msgid "Theme %1 loaded."
+msgstr "Thème %1 chargé."
+
+#: gtk-awf/src/awf-qt5.cpp:569 gtk-awf/src/awf-qt6.cpp:569
+msgid "Theme %1 reloaded."
+msgstr "Thème %1 rechargé."
+
+#: gtk-awf/src/awf-gtk2.c:442 gtk-awf/src/awf-gtk2.c:727
+#: gtk-awf/src/awf-gtk3.c:520 gtk-awf/src/awf-gtk3.c:921
+#: gtk-awf/src/awf-gtk4.c:483 gtk-awf/src/awf-gtk4.c:871
 #, c-format
 msgid "Theme %s loaded."
 msgstr "Thème %s chargé."
 
-#: gtk-awf/src/awf-gtk2.c:442 gtk-awf/src/awf-gtk3.c:520
-#: gtk-awf/src/awf-gtk4.c:480
+#: gtk-awf/src/awf-gtk2.c:425 gtk-awf/src/awf-gtk3.c:503
+#: gtk-awf/src/awf-gtk4.c:466
 #, c-format
 msgid "Theme %s reloaded."
 msgstr "Thème %s rechargé."
 
-#: gtk-awf/src/awf-gtk2.c:687 gtk-awf/src/awf-gtk3.c:789
+#: gtk-awf/src/awf-qt5.cpp:764 gtk-awf/src/awf-qt6.cpp:763
+msgid "Theme reloaded, then screenshot saved (%1)."
+msgstr "Thème rechargé, puis capture d'écran enregistrée (%1)."
+
+#: gtk-awf/src/awf-gtk2.c:673 gtk-awf/src/awf-gtk3.c:775
+#: gtk-awf/src/awf-gtk4.c:734
 #, c-format
 msgid "Theme reloaded, then screenshot saved (%s)."
 msgstr "Thème rechargé, puis capture d'écran enregistrée (%s)."
 
-#: gtk-awf/src/awf-gtk2.c:2298 gtk-awf/src/awf-gtk3.c:2697
-#: gtk-awf/src/awf-gtk4.c:2550
+#: gtk-awf/src/awf-gtk2.c:2348 gtk-awf/src/awf-gtk3.c:2723
+#: gtk-awf/src/awf-gtk4.c:2670
 msgid "This is a question bar."
 msgstr "Ceci est une barre de question."
 
-#: gtk-awf/src/awf-gtk2.c:2304 gtk-awf/src/awf-gtk3.c:2703
-#: gtk-awf/src/awf-gtk4.c:2556
+#: gtk-awf/src/awf-gtk2.c:2354 gtk-awf/src/awf-gtk3.c:2729
+#: gtk-awf/src/awf-gtk4.c:2676
 msgid "This is a warning bar."
 msgstr "Ceci est une barre d'avertissement."
 
-#: gtk-awf/src/awf-gtk2.c:2310 gtk-awf/src/awf-gtk3.c:2709
-#: gtk-awf/src/awf-gtk4.c:2562
+#: gtk-awf/src/awf-gtk2.c:2360 gtk-awf/src/awf-gtk3.c:2735
+#: gtk-awf/src/awf-gtk4.c:2682
 msgid "This is an error bar."
 msgstr "Ceci est une barre d'erreur."
 
-#: gtk-awf/src/awf-gtk2.c:2292 gtk-awf/src/awf-gtk3.c:2691
-#: gtk-awf/src/awf-gtk4.c:2544
+#: gtk-awf/src/awf-gtk2.c:2342 gtk-awf/src/awf-gtk3.c:2717
+#: gtk-awf/src/awf-gtk4.c:2664
 msgid "This is an info bar."
 msgstr "Ceci est une barre d'information."
 
-#: gtk-awf/src/awf-gtk2.c:2009 gtk-awf/src/awf-gtk3.c:2361
-#: gtk-awf/src/awf-gtk4.c:2285
+#: gtk-awf/src/awf-qt5.cpp:2195 gtk-awf/src/awf-qt6.cpp:2197
+msgid ""
+"Write QSS here... The style is applied immediately on top of the current "
+"theme."
+msgstr ""
+"Écrire le QSS ici... Le style est appliqué immédiatement au-dessus du thème "
+"actuel."
+
+#: gtk-awf/src/awf-gtk2.c:2041 gtk-awf/src/awf-gtk3.c:2372
+#: gtk-awf/src/awf-gtk4.c:2343
 msgid "_Help"
 msgstr "Aid_e"
 
-#: gtk-awf/src/awf-gtk2.c:1857 gtk-awf/src/awf-gtk3.c:2209
-#: gtk-awf/src/awf-gtk4.c:2118
+#: gtk-awf/src/awf-gtk2.c:1883 gtk-awf/src/awf-gtk3.c:2214
+#: gtk-awf/src/awf-gtk4.c:2173 gtk-awf/src/awf-qt5.cpp:1661
+#: gtk-awf/src/awf-qt6.cpp:1662
 msgid "_Options"
 msgstr "_Options"
 
-#: gtk-awf/src/awf-gtk2.c:1911 gtk-awf/src/awf-gtk3.c:2263
-#: gtk-awf/src/awf-gtk4.c:2199
+#: gtk-awf/src/awf-gtk4.c:2178 gtk-awf/src/awf-qt5.cpp:1671
+#: gtk-awf/src/awf-qt6.cpp:1672
+msgid "_Refresh"
+msgstr "A_ctualiser"
+
+#: gtk-awf/src/awf-gtk2.c:1939 gtk-awf/src/awf-gtk3.c:2270
+#: gtk-awf/src/awf-gtk4.c:2256 gtk-awf/src/awf-qt5.cpp:1718
+#: gtk-awf/src/awf-qt6.cpp:1719
 msgid "_System themes"
 msgstr "Thèmes _système"
 
-#: gtk-awf/src/awf-gtk2.c:1995 gtk-awf/src/awf-gtk3.c:2347
-#: gtk-awf/src/awf-gtk4.c:2279
+#: gtk-awf/src/awf-gtk2.c:2027 gtk-awf/src/awf-gtk3.c:2358
+#: gtk-awf/src/awf-gtk4.c:2337 gtk-awf/src/awf-qt5.cpp:1782
+#: gtk-awf/src/awf-qt6.cpp:1783
 msgid "_Text direction"
 msgstr "Direction du _texte"
 
-#: gtk-awf/src/awf-gtk2.c:1957 gtk-awf/src/awf-gtk3.c:2309
-#: gtk-awf/src/awf-gtk4.c:2237
+#: gtk-awf/src/awf-gtk2.c:1987 gtk-awf/src/awf-gtk3.c:2318
+#: gtk-awf/src/awf-gtk4.c:2296 gtk-awf/src/awf-qt5.cpp:1754
+#: gtk-awf/src/awf-qt6.cpp:1755
 msgid "_User themes"
 msgstr "Thèmes _utilisateur"
 
-#: gtk-awf/src/awf-gtk2.c:296 gtk-awf/src/awf-gtk2.c:2261
-#: gtk-awf/src/awf-gtk3.c:307 gtk-awf/src/awf-gtk3.c:2651
-#: gtk-awf/src/awf-gtk4.c:297 gtk-awf/src/awf-gtk4.c:2499
+#: gtk-awf/src/awf-gtk2.c:301 gtk-awf/src/awf-gtk2.c:2309
+#: gtk-awf/src/awf-gtk3.c:308 gtk-awf/src/awf-gtk3.c:2679
+#: gtk-awf/src/awf-gtk4.c:298 gtk-awf/src/awf-gtk4.c:2619
 #, c-format
 msgid "compiled with gtk %d.%d.%d and glib %d.%d.%d and pango %s"
 msgstr " compilé avec gtk %d.%d.%d et glib %d.%d.%d et pango %s"
 
-#: gtk-awf/src/awf-gtk2.c:2260 gtk-awf/src/awf-gtk3.c:2650
-#: gtk-awf/src/awf-gtk4.c:2498
+#: gtk-awf/src/awf-qt5.cpp:504 gtk-awf/src/awf-qt5.cpp:2164
+#: gtk-awf/src/awf-qt6.cpp:504 gtk-awf/src/awf-qt6.cpp:2166
+msgid "compiled with qt %1.%2.%3"
+msgstr " compilé avec qt %1.%2.%3"
+
+#: gtk-awf/src/awf-gtk2.c:2308 gtk-awf/src/awf-gtk3.c:2678
+#: gtk-awf/src/awf-gtk4.c:2618 gtk-awf/src/awf-qt5.cpp:2163
+#: gtk-awf/src/awf-qt6.cpp:2165
 msgid "to reset keyboard shortcuts."
 msgstr "pour réinitialiser les raccourcis clavier."
