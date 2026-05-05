@@ -3,10 +3,11 @@
 
 
 cd "$(dirname "$0")"
-version="4.0.0"
+export DH_QUIET=1
+version="4.1.0"
 
 
-mkdir builder
+mkdir -p builder
 rm -rf builder/*
 
 # copy to a tmp directory
@@ -33,7 +34,7 @@ fi
 # create packages for Debian and Ubuntu and MX Linux
 for serie in experimental unstable resolute questing mx25 mx23 mx21; do
 
-	printf "\n\n#################################################################### $serie ## awf-gtk ##\n\n"
+	printf "\n\n#################################################################### $serie ## awf-gtk\n\n"
 	if [ $serie = "experimental" ]; then
 		# copy for Ubuntu
 		cp -a builder/awf-extended-$version/ builder/awf-extended-$version+src/
@@ -56,77 +57,88 @@ for serie in experimental unstable resolute questing mx25 mx23 mx21; do
 
 
 
+	# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
 	if [ $serie = "experimental" ]; then
 		mv debian/control.ubuntu debian/control # yes
-		mv debian/changelog.debian debian/changelog
-		rm -f debian/*.mx debian/*.mxo debian/*.debian debian/*.ubuntu
-		echo "=========================== buildpackage ($serie) =="
-		dpkg-buildpackage -us -uc
+	elif [ $serie = "unstable" ]; then
+		mv debian/control.debian debian/control
+		sed -i -e 's/ --disable-gtk5/ --disable-gtk2 --disable-gtk5/g' -e 's/ "gtk2"//g' -e 's/ "gtk5"//g' debian/rules
+	elif [ $serie = "mx21" ]; then
+		mv debian/control.mxo debian/control
+		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
+	elif [ $serie = "focal" ]; then
+		mv debian/control.ubuntu debian/control
+		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
+	elif [ $serie = "bionic" ]; then
+		mv debian/control.ubuntu debian/control
+		sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
+		sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
+		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 9), dh-autoreconf/g' debian/control
+	elif [ $serie = "xenial" ]; then
+		mv debian/control.ubuntu debian/control
+		sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
+		sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
+		sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), dh-autoreconf/g' debian/control
+		sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
+		echo 9 > debian/compat
+	elif [ $serie = "trusty" ]; then
+		mv debian/control.ubuntu debian/control
+		sed -i 's/dh $@/dh $@ --with autotools_dev,autoreconf/g' debian/rules
+		sed -i 's/execute_before_dh_install:/override_dh_autotools-dev_updateconfig:/g' debian/rules
+		sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), autotools-dev, dh-autoreconf/g' debian/control
+		sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
+		echo 9 > debian/compat
 	else
-		# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
-		if [ $serie = "unstable" ]; then
-			mv debian/control.debian debian/control
-			sed -i -e 's/ --disable-gtk5/ --disable-gtk2 --disable-gtk5/g' -e 's/ "gtk2"//g' -e 's/ "gtk5"//g' debian/rules
-		elif [ $serie = "mx21" ]; then
-			mv debian/control.mxo debian/control
-			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
-		elif [ $serie = "focal" ]; then
-			mv debian/control.ubuntu debian/control
-			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
-		elif [ $serie = "bionic" ]; then
-			mv debian/control.ubuntu debian/control
-			sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
-			sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
-			sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 9), dh-autoreconf/g' debian/control
-		elif [ $serie = "xenial" ]; then
-			mv debian/control.ubuntu debian/control
-			sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
-			sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
-			sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), dh-autoreconf/g' debian/control
-			sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
-			echo 9 > debian/compat
-		elif [ $serie = "trusty" ]; then
-			mv debian/control.ubuntu debian/control
-			sed -i 's/dh $@/dh $@ --with autotools_dev,autoreconf/g' debian/rules
-			sed -i 's/execute_before_dh_install:/override_dh_autotools-dev_updateconfig:/g' debian/rules
-			sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), autotools-dev, dh-autoreconf/g' debian/control
-			sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
-			echo 9 > debian/compat
-		else
-			mv debian/control.ubuntu debian/control
-		fi
-		if [ $serie = "mx25" ] || [ $serie = "mx23" ]; then
-			mv debian/changelog.mx debian/changelog
-			sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
-			rm debian/*gtk5*
-			cat debian/clean | grep -v gtk5 | grep -v gtk6 > debian/clean
-		elif [ $serie = "mx21" ]; then
-			mv debian/changelog.mx debian/changelog
-			sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
-			rm debian/*gtk4* debian/*gtk5*
-			cat debian/clean | grep -v gtk4 | grep -v gtk5 > debian/clean
-		elif [ $serie = "unstable" ]; then
-			mv debian/changelog.debian debian/changelog
-			rm debian/*gtk2* debian/*gtk5*
-			cat debian/clean | grep -v gtk2 | grep -v gtk5 > debian/clean
-		else
-			mv debian/changelog.ubuntu debian/changelog
-			sed -i 's/experimental/'$serie'/g' debian/changelog
-			sed -i 's/-1) /-1+'$serie') /' debian/changelog
-			rm debian/*gtk5*
-			cat debian/clean | grep -v gtk5 | grep -v gtk6 > debian/clean
-		fi
-		rm -f debian/*.mx debian/*.mxo debian/*.debian debian/*.ubuntu
-		echo "=========================== buildpackage ($serie) =="
-		dpkg-buildpackage -us -uc -ui -d -S
+		mv debian/control.ubuntu debian/control
 	fi
-	cd ..
+
+	if [ $serie = "mx25" ] || [ $serie = "mx23" ]; then
+		mv debian/changelog.mx debian/changelog
+		sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
+		sed -i 's/ experimental; / mx; /' debian/changelog
+		sed -i 's/ unstable; / mx; /' debian/changelog
+		rm debian/*gtk5*
+		sed -i '/gtk5/d' debian/clean
+	elif [ $serie = "mx21" ]; then
+		mv debian/changelog.mx debian/changelog
+		sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
+		sed -i 's/ experimental; / mx; /' debian/changelog
+		sed -i 's/ unstable; / mx; /' debian/changelog
+		rm debian/*gtk4* debian/*gtk5*
+		sed -i '/gtk4/d;/gtk5/d' debian/clean
+	elif [ $serie = "experimental" ]; then
+		mv debian/changelog.debian debian/changelog
+		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
+		rm debian/*gtk5*
+		sed -i '/gtk5/d' debian/clean
+	elif [ $serie = "unstable" ]; then
+		mv debian/changelog.debian debian/changelog
+		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
+		rm debian/*gtk2* debian/*gtk5*
+		sed -i '/gtk2/d;/gtk5/d' debian/clean
+		#nano debian/control
+	else
+		mv debian/changelog.ubuntu debian/changelog
+		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
+		sed -i 's/-1) /-1+'$serie') /' debian/changelog
+		rm debian/*gtk5*
+		sed -i '/gtk5/d' debian/clean
+	fi
+	rm -f debian/*.mx debian/*.mxo debian/*.debian debian/*.ubuntu
 
 	if [ $serie = "experimental" ]; then
+		echo "===================== build package ($serie) =="
+		dpkg-buildpackage -us -uc
 		echo "=========================== lintian ($serie) =="
-		lintian -EviIL +pedantic awf-gtk_$version*.changes
-		rm *amd64.changes
-	elif [ $serie = "unstable" ]; then
+		lintian -EviIL +pedantic ../awf-gtk_$version*.changes
+		rm ../*amd64.changes
+	fi
+
+	echo "============== build source package ($serie) =="
+	dpkg-buildpackage -us -uc -ui -d -S
+	cd ..
+
+	if [ $serie = "experimental" ] || [ $serie = "unstable" ]; then
 		echo "=========================== debsign ($serie) =="
 		debsign awf-gtk*$version-*_source.changes
 	else
@@ -138,6 +150,6 @@ done
 
 printf "\n\n"
 rm builder/*dbgsym*deb
-ls -dlth "$PWD/"builder/*.deb "$PWD/"builder/*.changes
+ls -dlth "$PWD"/builder/*.deb "$PWD"/builder/*.changes
 printf "\n"
 rm -rf builder/*/

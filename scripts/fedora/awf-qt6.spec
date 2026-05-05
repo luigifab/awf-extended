@@ -1,5 +1,5 @@
 Name:          awf-qt6
-Version:       4.0.0
+Version:       4.1.0
 Release:       1%{?dist}
 Summary:       Theme preview application for Qt 6
 Summary(fr):   Application d'aperçu de thème pour Qt 6
@@ -78,6 +78,9 @@ done
 
 
 %changelog
+* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1
+- New upstream release
+
 * Tue Mar 03 2026 Fabrice Creuzot <code@luigifab.fr> - 4.0.0-1
 - Initial Fedora package release (Closes: rhbz#2428546)
 

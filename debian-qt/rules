@@ -19,3 +19,7 @@ execute_before_dh_install:
 			msgfmt src/po/$$code.po -o locale-$$engine/$$code/LC_MESSAGES/awf-$$engine.mo; \
 		done; \
 	done
+
+override_dh_clean:
+	rm -f src/awf-*.moc
+	dh_clean

@@ -1,5 +1,5 @@
 Name:          awf-qt5
-Version:       4.0.0
+Version:       4.1.0
 Release:       %mkrel 1
 Summary:       Theme preview application for Qt 5
 Summary(fr):   Application d'aperçu de thème pour Qt 5
@@ -14,8 +14,8 @@ BuildRequires: automake
 BuildRequires: desktop-file-utils
 BuildRequires: gcc-c++
 BuildRequires: gettext
-BuildRequires: qt5-devel >= 5.15.0
-Requires:      qt5 >= 5.15.0
+BuildRequires: qt5-devel
+Requires:      qt5
 Requires:      hicolor-icon-theme
 #ecommends:    qt5-gtk-platformtheme ?
 Recommends:    qt5-globalqss
@@ -78,6 +78,9 @@ done
 
 
 %changelog
+* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1.mga
+- New upstream release
+
 * Tue Mar 03 2026 Fabrice Creuzot <code@luigifab.fr> - 4.0.0-1.mga
 - Initial Mageia package release (Closes: mbz#32827)
 

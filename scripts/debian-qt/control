@@ -2,9 +2,9 @@ Source: awf-qt
 Section: x11
 Priority: optional
 Maintainer: Fabrice Creuzot <code@luigifab.fr>
-Build-Depends: debhelper-compat (= 13), bash-completion, pkgconf, qtbase5-dev (>= 5.15.0), qt6-base-dev
+Build-Depends: debhelper-compat (= 13), bash-completion, pkgconf, qtbase5-dev, qt6-base-dev
 Rules-Requires-Root: no
-Standards-Version: 4.7.3
+Standards-Version: 4.7.4
 Homepage: https://github.com/luigifab/awf-extended
 Vcs-Browser: https://github.com/luigifab/awf-extended
 Vcs-Git: https://github.com/luigifab/awf-extended.git

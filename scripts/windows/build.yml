@@ -1,0 +1,40 @@
+name: Build Windows packages
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build_msys2:
+    if: true
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            autoconf
+            automake
+            make
+            pkgconf
+            mingw-w64-x86_64-binutils
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-gettext
+            mingw-w64-x86_64-gtk2
+            mingw-w64-x86_64-gtk3
+            mingw-w64-x86_64-gtk4
+            mingw-w64-x86_64-qt5-base
+            mingw-w64-x86_64-qt5-winextras
+            mingw-w64-x86_64-qt5-translations
+            mingw-w64-x86_64-qt6-base
+            mingw-w64-x86_64-qt6-translations
+            mingw-w64-x86_64-nsis
+      - name: Build AWF
+        shell: msys2 {0}
+        run: bash scripts/windows/zip.sh
+      - name: Upload AWF
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-setups
+          path: scripts/windows/builder/setup-*.exe

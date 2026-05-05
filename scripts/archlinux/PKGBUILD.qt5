@@ -1,15 +1,15 @@
 pkgname=awf-qt5
-pkgver=4.0.0
+pkgver=4.1.0
 pkgrel=1
 pkgdesc="Theme preview application for Qt 5"
 arch=('x86_64')
 url='https://github.com/luigifab/awf-extended'
 license=('GPL3')
-depends=('qt5-base>=5.15.0' 'desktop-file-utils' 'hicolor-icon-theme')
+depends=('qt5-base' 'desktop-file-utils' 'hicolor-icon-theme')
+optdepends=('qt5-style-globalqss: for theme support')
 #makedepends=('autoconf' 'automake' 'desktop-file-utils' 'gcc' 'gettext' 'qt5-base')
-#conflicts=('awf-git')
 source=("https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz")
-sha256sums=("...")
+sha256sums=("SKIP")
 
 prepare() {
   mv "awf-extended-$pkgver" "$pkgname-$pkgver"
