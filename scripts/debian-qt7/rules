@@ -17,3 +17,7 @@ execute_before_dh_install:
 		mkdir -p locale-qt7/$$code/LC_MESSAGES/; \
 		msgfmt src/po/$$code.po -o locale-qt7/$$code/LC_MESSAGES/awf-qt7.mo; \
 	done
+
+override_dh_clean:
+	rm -f src/awf-qt7.moc
+	dh_clean

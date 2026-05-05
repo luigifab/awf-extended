@@ -1,5 +1,5 @@
 Name:          awf-qt5
-Version:       4.0.0
+Version:       4.1.0
 Release:       1%{?dist}
 Summary:       Theme preview application for Qt 5
 Summary(fr):   Application d'aperçu de thème pour Qt 5
@@ -13,8 +13,8 @@ BuildRequires: automake
 BuildRequires: desktop-file-utils
 BuildRequires: gcc-c++
 BuildRequires: gettext
-BuildRequires: qt5-qtbase-devel >= 5.15.0
-Requires:      qt5-qtbase >= 5.15.0
+BuildRequires: qt5-qtbase-devel
+Requires:      qt5-qtbase
 Requires:      hicolor-icon-theme
 #ecommends:    qt5-gtk-platformtheme = qt5-qtbase-gui
 Recommends:    qt5-globalqss
@@ -78,6 +78,9 @@ done
 
 
 %changelog
+* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1
+- New upstream release
+
 * Tue Mar 03 2026 Fabrice Creuzot <code@luigifab.fr> - 4.0.0-1
 - Initial Fedora package release (Closes: rhbz#2428546)
 

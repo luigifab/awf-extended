@@ -1,5 +1,5 @@
 Name:          awf-gtk5
-Version:       4.0.0
+Version:       4.1.0
 Release:       %mkrel 1
 Summary:       Theme preview application for GTK 5
 Summary(fr):   Application d'aperçu de thème pour GTK 5
@@ -78,8 +78,11 @@ done
 
 
 %changelog
-* Tue Mar 03 2026 Fabrice Creuzot <code@luigifab.fr> - 4.0.0-1.mga
+* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1.mga
 - Initial Mageia package release (Closes: mbz#32827)
+
+
+
 
 
 

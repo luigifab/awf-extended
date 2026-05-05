@@ -20,29 +20,29 @@
 # OR
 #  --enable-only-qt7
 
-rm -rf awf-gtk2 awf-gtk3 awf-gtk4 awf-gtk5 awf-qt5 awf-qt6 awf-qt7 builder/
+rm -rf awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt5* awf-qt6* awf-qt7* builder/
 
 # copy to a tmp directory
-mkdir builder builder/src
+mkdir builder builder/src builder/data
 cp /usr/share/common-licenses/GPL*3 builder/LICENSE
 cp configure.ac    builder/
 cp Makefile.am     builder/
 cp src/Makefile.am builder/src/
 cp src/awf-gtk*.c  builder/src/
 cp src/awf-qt*.cpp builder/src/
+cp src/awf.rc      builder/src/
+cp data/awf.ico    builder/data/
 
 # build
 cd builder/
-autoreconf -fi
-./configure "$@" && make -s
+autoreconf -fi && ./configure "$@" && make -s
 result=$?
+cd ..
 
 # final
 if [ $result -eq 0 ]; then
-	cp src/awf-gtk* src/awf-qt* ..
+	cp builder/src/awf-gtk* builder/src/awf-qt* .
+	rm -f awf-gtk*.c awf-qt*.cpp awf-qt*.moc awf-qt*.o
+	ls -altrh awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt5* awf-qt6* awf-qt7*
 fi
-cd ..
-if [ $result -eq 0 ]; then
-	ls -altrh awf-gtk2 awf-gtk3 awf-gtk4 awf-gtk5 awf-qt5 awf-qt6 awf-qt7
-fi
-rm -rf awf-gtk*.c awf-qt*.cpp builder/
+rm -rf builder/

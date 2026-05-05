@@ -1,5 +1,5 @@
 Name:          awf-qt7
-Version:       4.0.0
+Version:       4.1.0
 Release:       0
 Summary:       Theme preview application for Qt 7
 Summary(fr):   Application d'aperçu de thème pour Qt 7
@@ -78,8 +78,11 @@ done
 
 
 %changelog
-* Tue Mar 03 2026 Fabrice Creuzot <code@luigifab.fr> - 4.0.0-1
+* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1
 - Initial openSUSE package release
+
+
+
 
 
 

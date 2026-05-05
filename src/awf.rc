@@ -1,0 +1,79 @@
+#include <winver.h>
+
+#define GTK2 12
+#define GTK3 13
+#define GTK4 14
+#define GTK5 15
+#define QT5  25
+#define QT6  26
+#define QT7  27
+#if ENGINE == GTK2
+# define EXE_NAME "awf-gtk2\0"
+# define EXE_FILE "awf-gtk2.exe\0"
+#elif ENGINE == GTK3
+# define EXE_NAME "awf-gtk3\0"
+# define EXE_FILE "awf-gtk3.exe\0"
+#elif ENGINE == GTK4
+# define EXE_NAME "awf-gtk4\0"
+# define EXE_FILE "awf-gtk4.exe\0"
+#elif ENGINE == GTK5
+# define EXE_NAME "awf-gtk5\0"
+# define EXE_FILE "awf-gtk5.exe\0"
+#elif ENGINE == QT5
+# define EXE_NAME "awf-qt5\0"
+# define EXE_FILE "awf-qt5.exe\0"
+#elif ENGINE == QT6
+# define EXE_NAME "awf-qt6\0"
+# define EXE_FILE "awf-qt6.exe\0"
+#elif ENGINE == QT7
+# define EXE_NAME "awf-qt7\0"
+# define EXE_FILE "awf-qt7.exe\0"
+#endif
+
+IDI_ICON1 ICON "../data/awf.ico"
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION    4,0,0,0
+  PRODUCTVERSION 4,0,0,0
+  FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+  FILEFLAGS      0
+  FILEOS         VOS_NT_WINDOWS32
+  FILETYPE       VFT_APP
+  FILESUBTYPE    VFT_UNKNOWN
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "FileDescription",  "A widget factory 4.1.0\0"
+      VALUE "FileVersion",      "4.1.0\0"
+      VALUE "ProductName",      "A widget factory\0"
+      VALUE "ProductVersion",   "4.1.0\0"
+      VALUE "CompanyName",      "luigifab\0"
+      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
+      VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
+      VALUE "InternalName",     EXE_NAME
+      VALUE "OriginalFilename", EXE_FILE
+      VALUE "Comments",         "A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.\0"
+    END
+    BLOCK "040C04B0"
+    BEGIN
+      VALUE "FileDescription",  "La fabrique à widgets 4.1.0\0"
+      VALUE "FileVersion",      "4.1.0\0"
+      VALUE "ProductName",      "La fabrique à widgets\0"
+      VALUE "ProductVersion",   "4.1.0\0"
+      VALUE "CompanyName",      "luigifab\0"
+      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
+      VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
+      VALUE "InternalName",     EXE_NAME
+      VALUE "OriginalFilename", EXE_FILE
+      VALUE "Comments",         "La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt. Elle affiche les différents types de widgets dans une seule fenêtre permettant de voir l'effet visuel du thème appliqué.\0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 0x04B0, 0x040C, 0x04B0
+  END
+END

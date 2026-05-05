@@ -6,6 +6,11 @@ bin_PROGRAMS += awf-gtk@GTK5_SUFFIX@
 awf_gtk@GTK5_SUFFIX@_SOURCES = awf-gtk5.c
 awf_gtk@GTK5_SUFFIX@_CPPFLAGS = $(GTK5_CFLAGS) $(LIBNOTIFY_CFLAGS) -I/usr/include/gtk-5.0/unix-print
 awf_gtk@GTK5_SUFFIX@_LDADD = $(GTK5_LIBS) $(LIBNOTIFY_LIBS)
+if WINDOWS
+awf_gtk@GTK5_SUFFIX@_LDADD += awf-gtk5-res.o
+awf-gtk5-res.o: awf.rc
+	windres -c 65001 -DENGINE=GTK5 $< -o $@
+endif
 endif
 
 if GTK4
@@ -13,6 +18,11 @@ bin_PROGRAMS += awf-gtk@GTK4_SUFFIX@
 awf_gtk@GTK4_SUFFIX@_SOURCES = awf-gtk4.c
 awf_gtk@GTK4_SUFFIX@_CPPFLAGS = $(GTK4_CFLAGS) $(LIBNOTIFY_CFLAGS) -I/usr/include/gtk-4.0/unix-print
 awf_gtk@GTK4_SUFFIX@_LDADD = $(GTK4_LIBS) $(LIBNOTIFY_LIBS)
+if WINDOWS
+awf_gtk@GTK4_SUFFIX@_LDADD += awf-gtk4-res.o
+awf-gtk4-res.o: awf.rc
+	windres -c 65001 -DENGINE=GTK4 $< -o $@
+endif
 endif
 
 if GTK3
@@ -20,6 +30,11 @@ bin_PROGRAMS += awf-gtk@GTK3_SUFFIX@
 awf_gtk@GTK3_SUFFIX@_SOURCES = awf-gtk3.c
 awf_gtk@GTK3_SUFFIX@_CPPFLAGS = $(GTK3_CFLAGS) $(LIBNOTIFY_CFLAGS) -I/usr/include/gtk-3.0/unix-print
 awf_gtk@GTK3_SUFFIX@_LDADD = $(GTK3_LIBS) $(LIBNOTIFY_LIBS)
+if WINDOWS
+awf_gtk@GTK3_SUFFIX@_LDADD += awf-gtk3-res.o
+awf-gtk3-res.o: awf.rc
+	windres -c 65001 -DENGINE=GTK3 $< -o $@
+endif
 endif
 
 if GTK2
@@ -27,6 +42,11 @@ bin_PROGRAMS += awf-gtk@GTK2_SUFFIX@
 awf_gtk@GTK2_SUFFIX@_SOURCES = awf-gtk2.c
 awf_gtk@GTK2_SUFFIX@_CPPFLAGS = $(GTK2_CFLAGS) $(LIBNOTIFY_CFLAGS) -I/usr/include/gtk-unix-print-2.0
 awf_gtk@GTK2_SUFFIX@_LDADD = $(GTK2_LIBS) $(LIBNOTIFY_LIBS)
+if WINDOWS
+awf_gtk@GTK2_SUFFIX@_LDADD += awf-gtk2-res.o
+awf-gtk2-res.o: awf.rc
+	windres -c 65001 -DENGINE=GTK2 $< -o $@
+endif
 endif
 
 if QT7
@@ -38,6 +58,11 @@ awf-qt7.moc: awf-qt7.cpp
 awf_qt@QT7_SUFFIX@_SOURCES = awf-qt7.cpp
 awf_qt@QT7_SUFFIX@_CPPFLAGS = $(QT7_CFLAGS)
 awf_qt@QT7_SUFFIX@_LDADD = $(QT7_LIBS)
+if WINDOWS
+awf_qt@QT7_SUFFIX@_LDADD += awf-qt7-res.o -lintl
+awf-qt7-res.o: awf.rc
+	windres -c 65001 -DENGINE=QT7 $< -o $@
+endif
 endif
 
 if QT6
@@ -49,6 +74,11 @@ awf-qt6.moc: awf-qt6.cpp
 awf_qt@QT6_SUFFIX@_SOURCES = awf-qt6.cpp
 awf_qt@QT6_SUFFIX@_CPPFLAGS = $(QT6_CFLAGS)
 awf_qt@QT6_SUFFIX@_LDADD = $(QT6_LIBS)
+if WINDOWS
+awf_qt@QT6_SUFFIX@_LDADD += awf-qt6-res.o -lintl
+awf-qt6-res.o: awf.rc
+	windres -c 65001 -DENGINE=QT6 $< -o $@
+endif
 endif
 
 if QT5
@@ -60,4 +90,9 @@ awf-qt5.moc: awf-qt5.cpp
 awf_qt@QT5_SUFFIX@_SOURCES = awf-qt5.cpp
 awf_qt@QT5_SUFFIX@_CPPFLAGS = $(QT5_CFLAGS)
 awf_qt@QT5_SUFFIX@_LDADD = $(QT5_LIBS)
+if WINDOWS
+awf_qt@QT5_SUFFIX@_LDADD += awf-qt5-res.o -lintl
+awf-qt5-res.o: awf.rc
+	windres -c 65001 -DENGINE=QT5 $< -o $@
+endif
 endif
