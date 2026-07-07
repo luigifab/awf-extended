@@ -3,17 +3,11 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@ --with bash-completion
+	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -- --enable-only-gtk5
 
-execute_before_dh_install:
-	cp -ar data/icons/ icons-gtk5/
-	for file in icons-gtk5/*/*/awf.png; do mv $$file `dirname $$file`/awf-gtk5.png; done
-	for file in icons-gtk5/*/*/awf.svg; do mv $$file `dirname $$file`/awf-gtk5.svg; done
-	for file in src/po/*.po; do \
-		code=`basename "$$file" .po`; \
-		mkdir -p locale-gtk5/$$code/LC_MESSAGES/; \
-		msgfmt src/po/$$code.po -o locale-gtk5/$$code/LC_MESSAGES/awf-gtk5.mo; \
-	done
+override_dh_auto_install:
+	# 1 binary
+	dh_auto_install --destdir=debian/tmp

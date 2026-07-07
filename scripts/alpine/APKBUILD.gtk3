@@ -1,0 +1,29 @@
+pkgname=awf-gtk3
+pkgver=4.2.0
+pkgrel=1
+pkgdesc="Theme preview application for GTK 3"
+url="https://github.com/luigifab/awf-extended"
+license="GPL-3.0-or-later"
+arch="all"
+depends="gtk+3.0 libnotify hicolor-icon-theme"
+makedepends="autoconf automake desktop-file-utils hicolor-icon-theme gcc gettext gtk+3.0-dev libnotify-dev"
+subpackages="$pkgname-doc"
+source="awf-extended-$pkgver.tar.gz::https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz"
+builddir="$srcdir/awf-extended-$pkgver"
+
+build() {
+	autoreconf -fi
+	./configure \
+		--host=$CHOST \
+		--build=$CBUILD \
+		--prefix=/usr \
+		--mandir=/usr/share/man \
+		--enable-only-gtk3
+	make -s
+}
+
+package() {
+	make install DESTDIR="$pkgdir"
+	install -Dm644 README.md "$pkgdir"/usr/share/doc/$pkgname/README.md
+	#install -Dm644 LICENSE "$pkgdir"/usr/share/licenses/$pkgname/LICENSE
+}

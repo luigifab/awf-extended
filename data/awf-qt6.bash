@@ -6,15 +6,15 @@ _awf_qt6_complete() {
 	cur="${COMP_WORDS[COMP_CWORD]}"
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-	all_opts=(-h --help -v --version -l --list-themes -t --theme -s --screenshot --ltr --rtl)
-	single_opts=(-h --help -v --version -l --list-themes)
+	all_opts=(-h --help -v --version -l --list -t --theme -s --screenshot --ltr --rtl)
+	single_opts=(-h --help -v --version -l --list)
 	declare -A opt_aliases=(
 		[-h]=--help
 		[--help]=-h
 		[-v]=--version
 		[--version]=-v
-		[-l]=--list-themes
-		[--list-themes]=-l
+		[-l]=--list
+		[--list]=-l
 		[-t]=--theme
 		[--theme]=-t
 		[-s]=--screenshot
@@ -24,7 +24,7 @@ _awf_qt6_complete() {
 	)
 
 	case "$prev" in
-		-h|--help|-v|--version|-l|--list-themes)
+		-h|--help|-v|--version|-l|--list)
 			return 1 # stop
 			;;
 		-s|--screenshot)

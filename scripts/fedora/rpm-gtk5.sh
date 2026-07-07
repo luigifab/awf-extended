@@ -2,8 +2,8 @@
 # Fedora: sudo dnf install rpmdevtools rpm-sign autoconf automake libnotify-devel gtk5-devel desktop-file-utils aspell-fr enchant2-aspell
 # Fedora: configure: error: C compiler cannot create executables? remove and reinstall glibc-devel gcc
 
-cd "$(dirname "$0")"
-version="4.1.0"
+cd "$(dirname "$0")" || exit 1
+version="4.2.0"
 engine="gtk5"
 
 mkdir -p builder ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}

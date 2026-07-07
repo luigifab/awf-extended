@@ -1,5 +1,8 @@
-data/awf-gtk2.desktop                   usr/share/applications
-icons-gtk2/*                            usr/share/icons/hicolor
-locale-gtk2/*                           usr/share/locale
+usr/bin/awf-gtk2
+usr/share/applications/awf-gtk2.desktop
+usr/share/bash-completion/completions/awf-gtk2
+usr/share/icons/hicolor/*/apps/awf-gtk2.*
+usr/share/locale/*/LC_MESSAGES/awf-gtk2.mo
+usr/share/man/man1/awf-gtk2.1
+usr/share/man/*/man1/awf-gtk2.1
 debian/fr.luigifab.awfgtk2.metainfo.xml usr/share/metainfo
-usr/bin/awf-gtk2                        usr/bin

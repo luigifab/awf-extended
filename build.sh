@@ -3,7 +3,9 @@
 # Fedora: sudo dnf install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-qtbase-devel qt6-qtbase-devel qt7-qtbase-devel
 # openSUSE: sudo zypper install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-base-devel qt6-base-devel qt7-base-devel
 #
-# supported options for build.sh and configure.ac
+# supported options for build.sh/configure.ac
+#  none
+# OR
 #  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt5 --disable-qt6 --disable-qt7
 # OR
 #  --enable-only-gtk2
@@ -25,13 +27,19 @@ rm -rf awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt5* awf-qt6* awf-qt7* builde
 # copy to a tmp directory
 mkdir builder builder/src builder/data
 cp /usr/share/common-licenses/GPL*3 builder/LICENSE
-cp configure.ac    builder/
-cp Makefile.am     builder/
-cp src/Makefile.am builder/src/
-cp src/awf-gtk*.c  builder/src/
-cp src/awf-qt*.cpp builder/src/
-cp src/awf.rc      builder/src/
-cp data/awf.ico    builder/data/
+cp configure.ac      builder/
+cp Makefile.am       builder/
+cp src/Makefile.am   builder/src/
+cp src/awf-gtk*.c    builder/src/
+cp src/awf-qt*.cpp   builder/src/
+cp src/awf.rc        builder/src/
+# for windows
+cp data/awf.ico      builder/data/
+# for make install
+cp data/awf*.bash    builder/data/
+cp data/awf*.desktop builder/data/
+cp data/awf*.1       builder/data/
+cp -r data/icons     builder/data/
 
 # build
 cd builder/

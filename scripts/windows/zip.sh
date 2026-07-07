@@ -54,9 +54,9 @@
 #  cd /c/awf-gtk
 #  bash scripts/windows/zip.sh
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 originalpath="$PATH"
-version="4.1.0"
+version="4.2.0"
 
 rm -rf builder/*
 mkdir -p builder
@@ -127,7 +127,7 @@ for engine in "2" "3" "4"; do
 	export PATH=$ROOT/bin:$PATH
 	export PKG_CONFIG_PATH=$ROOT/lib/pkgconfig
 	export PKG_CONFIG_LIBDIR=$ROOT/lib/pkgconfig
-	autoreconf -fi && ./configure $host LDFLAGS="-mwindows" --enable-only-gtk$engine && make -s
+	autoreconf -fi && ./configure $host LDFLAGS="-mwindows" CFLAGS="-O2 -DNDEBUG" --enable-only-gtk$engine && make -s
 	result=$?
 
 	if [ $result -eq 0 ]; then
@@ -187,7 +187,7 @@ done
 
 for engine in "5" "6"; do
 
-	printf "\n\n############################################################# awf-qt$engine\n\n"
+	printf "\n\n############################################################ awf-qt$engine\n\n"
 	if [ -d "/mingw64" ]; then
 		ROOT=/mingw64
 		ROOTRANS=$ROOT/share/qt5/
@@ -205,7 +205,7 @@ for engine in "5" "6"; do
 	export PATH=$ROOT/bin:$PATH
 	export PKG_CONFIG_PATH=$ROOT/lib/pkgconfig
 	export PKG_CONFIG_LIBDIR=$ROOT/lib/pkgconfig
-	autoreconf -fi && ./configure $host LDFLAGS="-mwindows -static-libstdc++" --enable-only-qt$engine && make -s
+	autoreconf -fi && ./configure $host LDFLAGS="-mwindows -static-libstdc++" CXXFLAGS="-O2 -DNDEBUG" --enable-only-qt$engine && sed -i 's/-lQt5\([A-Za-z]*\)d\b/-lQt5\1/g' src/Makefile && make -s
 	result=$?
 
 	if [ $result -eq 0 ]; then
@@ -219,7 +219,7 @@ for engine in "5" "6"; do
 
 		echo " - plugins/platforms"
 		mkdir -p ../qt$engine/platforms
-		cp -a $ROOTPLUG/plugins/platforms/qwindows*.dll ../qt$engine/platforms/
+		cp -a $ROOTPLUG/plugins/platforms/qwindows.dll ../qt$engine/platforms/
 
 		echo " - translations"
 		cp -ar $ROOTRANS/translations/ ../qt$engine/

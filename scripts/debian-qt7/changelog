@@ -1,5 +1,5 @@
-awf-qt7 (4.1.0-1) experimental; urgency=low
+awf-qt7 (4.2.0-1) experimental; urgency=low
 
-  * Initial Debian package release (Closes: #...)
+  * New upstream release (Closes: #1129265)
 
- -- Fabrice Creuzot <code@luigifab.fr>  Tue, 05 May 2026 20:00:00 +0000
+ -- Fabrice Creuzot <code@luigifab.fr>  Tue, 07 Jul 2026 20:00:00 +0000

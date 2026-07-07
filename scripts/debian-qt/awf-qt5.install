@@ -1,5 +1,8 @@
-data/awf-qt5.desktop                   usr/share/applications
-icons-qt5/*                            usr/share/icons/hicolor
-locale-qt5/*                           usr/share/locale
+usr/bin/awf-qt5
+usr/share/applications/awf-qt5.desktop
+usr/share/bash-completion/completions/awf-qt5
+usr/share/icons/hicolor/*/apps/awf-qt5.*
+usr/share/locale/*/LC_MESSAGES/awf-qt5.mo
+usr/share/man/man1/awf-qt5.1
+usr/share/man/*/man1/awf-qt5.1
 debian/fr.luigifab.awfqt5.metainfo.xml usr/share/metainfo
-usr/bin/awf-qt5                        usr/bin

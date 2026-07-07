@@ -1,5 +1,0 @@
-data/awf-qt5.desktop                   usr/share/applications
-icons-qt5/*                            usr/share/icons/hicolor
-locale-qt5/*                           usr/share/locale
-debian/fr.luigifab.awfqt5.metainfo.xml usr/share/metainfo
-usr/bin/awf-qt5                        usr/bin

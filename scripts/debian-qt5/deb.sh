@@ -2,9 +2,9 @@
 # Debian: sudo apt install dpkg-dev devscripts build-essential dh-make dh-autoreconf intltool qtbase5-dev
 
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 export DH_QUIET=1
-version="4.1.0"
+version="4.2.0"
 engine="qt5"
 
 mkdir -p builder
@@ -32,7 +32,7 @@ fi
 
 
 # create packages for Debian and Ubuntu
-for serie in experimental resolute questing noble jammy; do
+for serie in experimental stonking resolute questing noble jammy focal bionic; do
 
 	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"
 	if [ $serie = "experimental" ]; then
@@ -54,7 +54,7 @@ for serie in experimental resolute questing noble jammy; do
 	cp scripts/debian-$engine/* debian/
 	cp scripts/debian-qt/*$engine* scripts/debian-qt/copyright scripts/debian-qt/metadata debian/
 	head -n -1 debian/*$engine*.install > debian/install ; rm debian/awf-$engine.install
-	rm -f debian/deb.sh
+	rm -f debian/*.sh
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata
 
 	# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
@@ -97,7 +97,6 @@ for serie in experimental resolute questing noble jammy; do
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
 		mv debian/changelog.debian debian/changelog
 	else
-		mv debian/changelog.ubuntu debian/changelog
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
 		sed -i 's/-1) /-1+'$serie') /' debian/changelog
 	fi
@@ -107,11 +106,12 @@ for serie in experimental resolute questing noble jammy; do
 		echo "===================== build package ($serie) =="
 		dpkg-buildpackage -us -uc
 		echo "=========================== lintian ($serie) =="
-		lintian -EviIL +pedantic ../awf-${qt}_$version*.changes
+		lintian -EviIL +pedantic ../awf-${engine}_$version*.changes
 		rm ../*amd64.changes
 	fi
 
 	echo "============== build source package ($serie) =="
+	rm -f debian/*.sh
 	dpkg-buildpackage -us -uc -ui -d -S
 	cd ..
 

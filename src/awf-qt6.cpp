@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/01/05/2026
+ * Updated J/02/07/2026
  *
  * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -39,10 +39,9 @@
  *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) Qt 5.15/6.8
  *  Ubuntu 24.10 Oracular Oriole 64    (4096 MB) Qt 5.15/6.6
  *  Ubuntu 24.04 Noble Numbat 64       (4096 MB) Qt 5.15/6.4
- *  Ubuntu 23.10 Mantic Minotaur 64    (3072 MB) Qt 5.15/6.4*
- *  Ubuntu 23.04 Lunar Lobster 64      (3072 MB) Qt 5.15/6.4*
+ *  Ubuntu 23.10 Mantic Minotaur 64    (3072 MB) Qt 5.15/6.4
+ *  Ubuntu 23.04 Lunar Lobster 64      (3072 MB) Qt 5.15/6.4
  *  Ubuntu 22.10 Kinetic Kudu 64       (2176 MB) Qt 5.15/6.3
- *  Ubuntu 22.04 Jammy Jellyfish 64    (2176 MB) Qt 5.15/6.2 (ko)
  *  Windows XP SP3 MinGW/msys          (2048 MB) Qt 5.3
  */
 
@@ -57,13 +56,13 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QButtonGroup>
+#include <QCalendarWidget>
 #include <QCheckBox>
 #include <QClipboard>
 #include <QColorDialog>
 #include <QComboBox>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
-#include <QCommandLinkButton>
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
@@ -178,7 +177,7 @@ static QMainWindow *window = null;
 static QDialog *inspector = null;
 static QLineEdit *toolbarentry = null;
 static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
-static QSlider *scale1 = null, *scale2 = null, *scale3 = null, *scale4 = null, *scale5 = null, *scale6 = null, *scale7 = null;
+static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
 static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
 static int current_direction    = 0;
 static QString current_theme    = "auto";
@@ -223,7 +222,7 @@ static QString generateTooltipRecursive(QWidget *widget) {
 	return tooltip;
 }
 
-class AwfHBoxLayout : public QHBoxLayout {
+class AwfHBox : public QHBoxLayout {
 public:
 	using QHBoxLayout::QHBoxLayout;
 	void addWidget(QWidget *widget) {
@@ -232,7 +231,7 @@ public:
 	}
 };
 
-class AwfVBoxLayout : public QVBoxLayout {
+class AwfVBox : public QVBoxLayout {
 public:
 	using QVBoxLayout::QVBoxLayout;
 	void addWidget(QWidget *widget) {
@@ -248,13 +247,24 @@ public:
 		widget->setToolTip(generateTooltipRecursive(widget));
 		return QToolBar::addWidget(widget);
 	}
+
+protected:
+	void keyPressEvent(QKeyEvent *e) override {
+		if ((e->key() == Qt::Key_Return) || (e->key() == Qt::Key_Enter)) {
+			if (auto *b = qobject_cast<QAbstractButton*>(focusWidget())) {
+				b->click();
+				return;
+			}
+		}
+		QToolBar::keyPressEvent(e);
+	}
 };
 
 // global functions
 static QIcon get_icon(QString name);
 static void awf_load_theme(QStringList& themes, QString directory);
 static void update_text_direction(int direction);
-static void update_theme(QString new_theme);
+static void update_theme(QString newTheme);
 static void update_statusbar(QString message);
 static void update_values(QAbstractSlider *range);
 static void update_widgets();
@@ -263,24 +273,24 @@ static bool findAndCheckMenu(QList<QAction*> actions, QString search);
 static void on_sighup(int signum);
 static bool take_screenshot();
 static void create_window();
-static void create_widgets(AwfVBoxLayout *root);
+static void create_widgets(AwfVBox *root);
 static void create_toolbar(AwfToolBar *toolbar);
-static void create_combos_entries(AwfVBoxLayout *root);
-static void create_spinbuttons(AwfHBoxLayout *root);
-static void create_checkbuttons(AwfVBoxLayout *root);
-static void create_radiobuttons(AwfVBoxLayout *root);
-static void create_otherbuttons(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfHBoxLayout *root3, AwfHBoxLayout *root4, AwfHBoxLayout *root5);
-static void create_progressbars(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfHBoxLayout *root3, AwfVBoxLayout *root4);
-static void create_labels(AwfHBoxLayout *root);
-static void create_spinners(AwfHBoxLayout *root);
-static void create_expander(AwfVBoxLayout *root);
-static void create_frames(AwfHBoxLayout *root1, AwfHBoxLayout *root2);
-static void create_notebooks(AwfHBoxLayout *root1, AwfHBoxLayout *root2);
+static void create_combos_entries(AwfVBox *root);
+static void create_spinbuttons(AwfHBox *root);
+static void create_checkbuttons(AwfVBox *root);
+static void create_radiobuttons(AwfVBox *root);
+static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5);
+static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4);
+static void create_labels(AwfHBox *root);
+static void create_spinners(AwfHBox *root);
+static void create_expander(AwfVBox *root);
+static void create_frames(AwfHBox *root1, AwfHBox *root2);
+static void create_notebooks(AwfHBox *root1, AwfHBox *root2);
 static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *content, bool close);
-static void create_treview(AwfVBoxLayout *root);
-static void create_scales();
-static QSlider* create_horizontal_scale(int value, bool draw, bool inverted, QSlider::TickPosition position);
-static QSlider* create_vertical_scale(int value, bool draw, bool inverted, QSlider::TickPosition position);
+static void create_treeview(AwfVBox *root);
+static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position);
+static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
+static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
 static void create_traditional_menubar(QMenuBar *root);
 static void accels_load();
 static bool accels_change(QObject *obj, QEvent *event);
@@ -296,7 +306,7 @@ static void dialog_print();
 static void dialog_about();
 static void dialog_inspector();
 static void dialog_calendar();
-static void dialog_scales();
+static void dialog_sliders();
 
 
 // other
@@ -304,49 +314,63 @@ static void dialog_scales();
 class AwfMainWindow : public QMainWindow {
 	Q_OBJECT
 
+public:
+	bool eventFilter(QObject *obj, QEvent *event) override {
+		// disable statusbar update on menubar hover
+		if (event->type() == QEvent::StatusTip)
+			return true;
+		return QMainWindow::eventFilter(obj, event);
+	}
+
 protected:
 	void changeEvent(QEvent *e) override {
-
+		// check current theme in menus on desktop theme change from globalqss style plugin
 		if (qEnvironmentVariableIsSet("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
-
-			QString new_theme = QString::fromUtf8(qgetenv("GQSS_THEME"));
+			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
 			if (awf_debug)
-				printf("SIGNAL_theme_update: %s\n", new_theme.toUtf8().constData());
-
-			findAndCheckMenu(menuBar()->actions().mid(1), new_theme);
+				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
+			findAndCheckMenu(menuBar()->actions().mid(1), newTheme);
 		}
-
 		QMainWindow::changeEvent(e);
 	}
 };
 
 class AwfTreeView : public QTreeView {
 	Q_OBJECT
-	Q_PROPERTY(QString columnWidths READ getColumnWidths WRITE setColumnWidths)
+	Q_PROPERTY(QString columnWidths               READ getColumnWidths               WRITE setColumnWidths)
+	Q_PROPERTY(QColor  sortedColumnColor          READ getSortedColumnColor          WRITE setSortedColumnColor)
+	Q_PROPERTY(QColor  alternateSortedColumnColor READ getAlternateSortedColumnColor WRITE setAlternateSortedColumnColor)
+
+	int m_sortedColumn = -1;
+	QColor m_color;
+	QColor m_altColor;
+
+	// to have the same display as awf-gtk - alternateSortedColumnColor does not work
+	// AwfTreeView { qproperty-sortedColumnColor:#EEE;  qproperty-alternateSortedColumnColor:#DDD; }
+protected:
+	void drawRow(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
+		if (m_color.isValid() && m_altColor.isValid() && (m_sortedColumn >= 0)) {
+			QColor c = (index.row() % 2 != 0) ? m_altColor : m_color;
+			painter->fillRect(visualRect(index.sibling(index.row(), m_sortedColumn)), c);
+		}
+		QTreeView::drawRow(painter, option, index);
+	}
 
 public:
 	explicit AwfTreeView(QWidget* parent = null) : QTreeView(parent) {
-
-		/* connect(header(), &QHeaderView::sortIndicatorChanged, this, [this](int column, Qt::SortOrder) {
-
-			QString normalColor = getSortedColumnColor(), altColor = getAlternateSortedColumnColor();
-			if (!normalColor.isEmpty()) {
-
-				QAbstractItemModel* m = model();
-				QVariant color;
-
-				for (int c = 0; c < m->columnCount(); ++c)
-					for (int r = 0; r < m->rowCount(); ++r)
-						m->setData(m->index(r, c), QVariant(), Qt::BackgroundRole);
-
-				for (int r = 0; r < m->rowCount(); ++r) {
-					color = QVariant(QColor(altColor.isEmpty() ? normalColor : ((r % 2 == 0) ? normalColor : altColor)));
-					m->setData(m->index(r, column), color, Qt::BackgroundRole);
-				}
-			}
-		}); */
+		connect(header(), &QHeaderView::sortIndicatorChanged, this, [this](int column, Qt::SortOrder) {
+			m_sortedColumn = column;
+			viewport()->update();
+		});
 	}
 
+	QColor getSortedColumnColor() { return m_color; }
+	QColor getAlternateSortedColumnColor() { return m_altColor; }
+	void setSortedColumnColor(QColor color) { m_color = color; }
+	void setAlternateSortedColumnColor(QColor color) { m_altColor = color; }
+
+	// to have the same display as awf-gtk
+	// AwfTreeView { qproperty-columnWidths:"10,20..." }
 	QString getColumnWidths() {
 		QStringList list;
 		for (int i = 0; i < 11; ++i)
@@ -449,8 +473,10 @@ private:
 
 class AwfShortcutFilter : public QObject {
 public:
+	explicit AwfShortcutFilter(QObject *parent) : QObject(parent) {}
+
 	bool eventFilter(QObject *obj, QEvent *event) override {
-		return (accels_change(obj, event)) ? true : QObject::eventFilter(obj, event);
+		return accels_change(obj, event) ? true : QObject::eventFilter(obj, event);
 	}
 };
 
@@ -460,7 +486,7 @@ public:
 int main(int argc, char **argv) {
 
 	if (awf_trace)
-		printf("» main()\n");
+		printf("\033[36m[trace]\033[00m main()\n");
 
 	int opt = 0, status = 0;
 	QApplication app(argc, argv);
@@ -507,7 +533,7 @@ int main(int argc, char **argv) {
 	static struct option options[] = {
 		{"help",        no_argument, null, 'x'},
 		{"version",     no_argument, null, 'v'},
-		{"list-themes", no_argument, null, 'l'},
+		{"list",        no_argument, null, 'l'},
 		{"theme",       required_argument, null, 't'},
 		{"screenshot",  required_argument, null, 's'},
 		{"ltr",         no_argument, null, 'y'},
@@ -515,14 +541,14 @@ int main(int argc, char **argv) {
 		{null, 0, null, 0}
 	};
 
-	QString cpp;
+	QString cppVersion;
 	while ((opt = getopt_long(argc, argv, "hvlt:s:xyz", options, null)) != -1) {
 		switch (opt) {
 			// --version -v
 			case 'v':
 				printf("%s\n", VERSION);
 				return status;
-			// --list-themes -l
+			// --list -l
 			case 'l':
 				for (QString theme : list_system_theme)
 					printf("%s\n", theme.toUtf8().constData());
@@ -551,36 +577,40 @@ int main(int argc, char **argv) {
 			case 'h':
 			default:
 				switch (__cplusplus) {
-					case 199711L: cpp = "C++98";  break;
-					case 201103L: cpp = "C++11";  break;
-					case 201402L: cpp = "C++14";  break;
-					case 201703L: cpp = "C++17";  break;
-					case 202002L: cpp = "C++20";  break;
-					case 202302L: cpp = "C++23";  break;
-					default:      cpp = "C++ (" + QString::number(__cplusplus) + ")"; break;
+					case 199711L: cppVersion = "C++98";  break;
+					case 201103L: cppVersion = "C++11";  break;
+					case 201402L: cppVersion = "C++14";  break;
+					case 201703L: cppVersion = "C++17";  break;
+					case 202002L: cppVersion = "C++20";  break;
+					case 202302L: cppVersion = "C++23";  break;
+					default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
 				}
 				printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
 					qPrintable(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR)),
 					"-v            ", qPrintable(_app("Show version number.")),
 					"-l            ", qPrintable(_app("List available themes.")),
 					"-t <theme>    ", qPrintable(_app("Run with the specified theme.")),
-					"-s <filename> ", qPrintable(QString(_app("Run and save a png screenshot on %1.")).arg("SIGHUP")),
+					"-s <filename> ", qPrintable(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP")),
 					"--ltr         ", qPrintable(_app("Run with text from left to right (Left-To-Right).")),
 					"--rtl         ", qPrintable(_app("Run with text from right to left (Right-To-Left).")),
-					qPrintable(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cpp).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH)),
+					qPrintable(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH)),
 					qPrintable(QString(_app(" started with qt %1")).arg(qVersion())));
 				return status;
 		}
 	}
+
+	// --rtl via -reverse/--reverse
+	if ((current_direction == 0) && (qApp->layoutDirection() == Qt::RightToLeft))
+		current_direction = 3;
 
 	// create and show window
 	QCommandLineParser parser;
 	parser.setApplicationDescription(_app("A widget factory - Qt %1.%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	parser.addHelpOption();
 	parser.addVersionOption(); // << "v" << "version", _app("Show version number.")));
-	parser.addOption(QCommandLineOption(QStringList() << "l" << "list-themes", _app("List available themes.")));
+	parser.addOption(QCommandLineOption(QStringList() << "l" << "list", _app("List available themes.")));
 	parser.addOption(QCommandLineOption(QStringList() << "t" << "theme", _app("Run with the specified theme."), "theme"));
-	parser.addOption(QCommandLineOption(QStringList() << "s" << "screenshot", QString(_app("Run and save a png screenshot on %1.").arg("SIGHUP")), "filename"));
+	parser.addOption(QCommandLineOption(QStringList() << "s" << "screenshot", QString(_app("Run and save a screenshot on %1 (PNG).").arg("SIGHUP")), "filename"));
 	parser.addOption(QCommandLineOption(QStringList() << "y" << "ltr", _app("Run with text from left to right (Left-To-Right).")));
 	parser.addOption(QCommandLineOption(QStringList() << "z" << "rtl", _app("Run with text from right to left (Right-To-Left).")));
 	parser.process(app);
@@ -613,13 +643,13 @@ static QIcon get_icon(QString name) {
 static void awf_load_theme(QStringList& themes, QString directory) {
 
 	if (awf_trace)
-		printf("» awf_load_theme(%s)\n", directory.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m awf_load_theme(%s)\n", directory.toUtf8().constData());
 
 	QDir dir(directory);
 	if (dir.exists()) {
 
 		if (awf_debug)
-			printf("themes_dir: %s\n", directory.toUtf8().constData());
+			printf("\033[33m[debug]\033[00m themes_dir: %s\n", directory.toUtf8().constData());
 
 		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 		for (QString theme : entries) {
@@ -632,32 +662,34 @@ static void awf_load_theme(QStringList& themes, QString directory) {
 static void update_text_direction(int direction) { // ok
 
 	if (awf_trace)
-		printf("» update_text_direction()\n");
+		printf("\033[36m[trace]\033[00m update_text_direction()\n");
 
 	if ((direction == 1) && (qApp->layoutDirection() != Qt::LeftToRight)) {
 		current_direction = 1;
 		notebook3->setTabPosition(QTabWidget::West);
 		notebook4->setTabPosition(QTabWidget::East);
 		qApp->setLayoutDirection(Qt::LeftToRight);
+		update_theme("refresh");
 	}
-	else if ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft)) {
+	else if ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft) || (direction == 3)) {
 		current_direction = 2;
 		notebook3->setTabPosition(QTabWidget::East);
 		notebook4->setTabPosition(QTabWidget::West);
 		qApp->setLayoutDirection(Qt::RightToLeft);
+		update_theme("refresh");
 	}
 }
 
-static void update_theme(QString new_theme) { // ok
+static void update_theme(QString newTheme) { // ok
 
 	if (awf_gqss) {
 
 		if (awf_trace)
-			printf("» update_theme(%s)*\n", new_theme.toUtf8().constData());
+			printf("\033[36m[trace]\033[00m update_theme(%s)*\n", newTheme.toUtf8().constData());
 		if (awf_debug)
-			printf("update_theme_before: %s » %s\n", current_theme.toUtf8().constData(), new_theme.toUtf8().constData());
+			printf("\033[33m[debug]\033[00m update_theme_before: %s » %s\n", current_theme.toUtf8().constData(), newTheme.toUtf8().constData());
 
-		if (new_theme == "refresh") {
+		if (newTheme == "refresh") {
 
 			qputenv("GQSS_RELOAD", "yes");
 			QApplication::style()->polish(qApp);
@@ -675,22 +707,22 @@ static void update_theme(QString new_theme) { // ok
 			}
 
 			if (awf_debug)
-				printf("update_theme_after1: %s\n", current_theme.toUtf8().constData());
+				printf("\033[33m[debug]\033[00m update_theme_after1: %s\n", current_theme.toUtf8().constData());
 		}
-		else if (new_theme == "auto") {
+		else if (newTheme == "auto") {
 
 			current_theme = QString::fromUtf8(qgetenv("GQSS_THEME"));
 			window->adjustSize();
 
 			if (awf_debug)
-				printf("update_theme_after2: %s\n", current_theme.toUtf8().constData());
+				printf("\033[33m[debug]\033[00m update_theme_after2: %s\n", current_theme.toUtf8().constData());
 		}
-		else if (current_theme != new_theme) {
+		else if (current_theme != newTheme) {
 
-			current_theme = new_theme;
+			current_theme = newTheme;
 
 			qputenv("GQSS_RELOAD", "yes");
-			qputenv("GQSS_THEME", new_theme.toUtf8());
+			qputenv("GQSS_THEME", newTheme.toUtf8());
 			if (!qEnvironmentVariableIsSet("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
 				QApplication::style()->polish(qApp);
 				QApplication::processEvents();
@@ -700,7 +732,7 @@ static void update_theme(QString new_theme) { // ok
 			update_statusbar(_app("Theme %1 loaded.").arg(current_theme));
 
 			if (awf_debug)
-				printf("update_theme_after3: %s\n", current_theme.toUtf8().constData());
+				printf("\033[33m[debug]\033[00m update_theme_after3: %s\n", current_theme.toUtf8().constData());
 		}
 
 		original_style = "!^!";
@@ -710,7 +742,7 @@ static void update_theme(QString new_theme) { // ok
 static void update_statusbar(QString message) { // ok
 
 	if (awf_trace)
-		printf("» update_statusbar(%s)\n", message.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m update_statusbar(%s)\n", message.toUtf8().constData());
 
 	if (window && window->statusBar()) {
 
@@ -740,7 +772,7 @@ static void update_values(QAbstractSlider *range) { // ok
 		allow_update_values = false;
 		int value = range->value();
 		//if (awf_trace)
-		//	printf("» update_values(%d)*\n", value);
+		//	printf("\033[36m[trace]\033[00m update_values(%d)*\n", value);
 
 		progress1->setValue(value);
 		progress2->setValue(value);
@@ -749,13 +781,13 @@ static void update_values(QAbstractSlider *range) { // ok
 		progress8->setValue(value);
 		progress9->setValue(value);
 
-		if (scale1 != range) scale1->setValue(value);
-		if (scale2 != range) scale2->setValue(value);
-		if (scale3 != range) scale3->setValue(value);
-		if (scale4 != range) scale4->setValue(value);
-		if (scale5 != range) scale5->setValue(value);
-		if (scale6 != range) scale6->setValue(value);
-		if (scale7 != range) scale7->setValue(value);
+		if (slider1 != range) slider1->setValue(value);
+		if (slider2 != range) slider2->setValue(value);
+		if (slider3 != range) slider3->setValue(value);
+		if (slider4 != range) slider4->setValue(value);
+		if (slider5 != range) slider5->setValue(value);
+		if (slider6 != range) slider6->setValue(value);
+		if (slider7 != range) slider7->setValue(value);
 
 		// text
 		progress8->setTextVisible(value > 50);
@@ -775,7 +807,7 @@ static void update_values(QAbstractSlider *range) { // ok
 static void update_widgets() { // ok
 
 	if (awf_trace)
-		printf("» update_widgets()\n");
+		printf("\033[36m[trace]\033[00m update_widgets()\n");
 
 	// function called when user click on [+] toolbar button
 	// when toggle = true, the [+] toolbar button is NOT checked
@@ -797,10 +829,10 @@ static void update_widgets() { // ok
 	}
 
 	// enabled or not
-	scale2->setEnabled(toggle);
-	scale4->setEnabled(toggle);
-	scale6->setEnabled(toggle);
-	scale7->setEnabled(toggle);
+	slider2->setEnabled(toggle);
+	slider4->setEnabled(toggle);
+	slider6->setEnabled(toggle);
+	slider7->setEnabled(toggle);
 	progress2->setEnabled(toggle);
 	progress4->setEnabled(toggle);
 
@@ -894,7 +926,7 @@ static void update_widgets() { // ok
 static void display_notification() { // ok
 
 	if (awf_trace)
-		printf("» display_notification()\n");
+		printf("\033[36m[trace]\033[00m display_notification()\n");
 
 	#if defined (Q_OS_UNIX)
 		signal(SIGCHLD, SIG_IGN);
@@ -908,7 +940,7 @@ static void display_notification() { // ok
 static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
 
 	if (awf_trace)
-		printf("» findAndCheckMenu()\n");
+		printf("\033[36m[trace]\033[00m findAndCheckMenu()\n");
 
 	for (QAction *action : actions) {
 		if (action->menu()) {
@@ -929,7 +961,7 @@ static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
 static void on_sighup(int signum) { // ok
 
 	if (awf_trace)
-		printf("» on_sighup()\n");
+		printf("\033[36m[trace]\033[00m on_sighup()\n");
 
 	QMetaObject::invokeMethod(qApp, [](){ update_theme("refresh"); }, Qt::QueuedConnection);
 }
@@ -937,7 +969,7 @@ static void on_sighup(int signum) { // ok
 static bool take_screenshot() { // ok (without window borders)
 
 	if (awf_trace)
-		printf("» take_screenshot()\n");
+		printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
 	QPixmap pixmap = window->grab();
 	return pixmap.save(opt_screenshot, "PNG", 0); // 0 = 9
@@ -949,13 +981,14 @@ static bool take_screenshot() { // ok (without window borders)
 static void create_window() {
 
 	if (awf_trace)
-		printf("» create_window()\n");
+		printf("\033[36m[trace]\033[00m create_window()\n");
 
 	// window
 	QApplication::setApplicationName("awf");
 	window = new AwfMainWindow;
 	window->setWindowTitle(_app("A widget factory - Qt %1.%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	window->setObjectName("AwfMainWindow");
+	window->installEventFilter(window);
 
 	#if defined (Q_OS_UNIX)
 		QApplication::setWindowIcon(QIcon::fromTheme(GETTEXT_PACKAGE));
@@ -976,7 +1009,7 @@ static void create_window() {
 		current_direction = (qApp->layoutDirection() == Qt::LeftToRight) ? 1 : 2;
 
 	// layout
-	AwfVBoxLayout *layout = new AwfVBoxLayout;
+	AwfVBox *layout = new AwfVBox;
 	QWidget *central = new QWidget;
 	window->setCentralWidget(central);
 		layout->setSpacing(0);
@@ -1016,6 +1049,8 @@ static void create_window() {
 	#endif
 
 	window->show();
+	window->setAttribute(Qt::WA_DeleteOnClose);
+	toolbar->widgetForAction(toolbar->actions().constFirst())->setFocus(Qt::TabFocusReason); // focus on the first toolbar button
 	QObject::connect(qApp, &QCoreApplication::aboutToQuit, accels_save);
 
 	#if defined (Q_OS_WIN) || defined (_WIN32)
@@ -1023,63 +1058,63 @@ static void create_window() {
 	#endif
 }
 
-static void create_widgets(AwfVBoxLayout *root) { // todo
+static void create_widgets(AwfVBox *root) { // todo
 
 	if (awf_trace)
-		printf("» create_widgets()\n");
+		printf("\033[36m[trace]\033[00m create_widgets()\n");
 
-	auto *hbox_columns = new AwfHBoxLayout;
-	hbox_columns->setSpacing(0);         hbox_columns->setContentsMargins(0,0,0,0);
+	AwfHBox *hboxColumns = new AwfHBox;
+	hboxColumns->setSpacing(0);    hboxColumns->setContentsMargins(0,0,0,0);
 
-	auto *vbox_column1 = new AwfVBoxLayout, *vbox_combo_entry = new AwfVBoxLayout, *vbox_check = new AwfVBoxLayout, *vbox_radio = new AwfVBoxLayout;
-	auto *hbox_spin = new AwfHBoxLayout, *hbox_check_radio = new AwfHBoxLayout;
-	vbox_column1->setSpacing(0);         vbox_column1->setContentsMargins(5,5,5,5);
-	vbox_combo_entry->setSpacing(3);     vbox_combo_entry->setContentsMargins(5,5,5,5);
-	hbox_spin->setSpacing(0);            hbox_spin->setContentsMargins(5,5,5,5);
-	hbox_check_radio->setSpacing(0);     hbox_check_radio->setContentsMargins(5,5,5,5);
-	vbox_check->setSpacing(0);           vbox_check->setContentsMargins(0,0,0,0);
-	vbox_radio->setSpacing(0);           vbox_radio->setContentsMargins(0,0,0,0);
+	AwfVBox *vboxColumn1 = new AwfVBox, *vboxComboEntry = new AwfVBox, *vboxCheck = new AwfVBox, *vboxRadio = new AwfVBox;
+	AwfHBox *hboxSpin = new AwfHBox, *hboxCheckRadio = new AwfHBox;
+	vboxColumn1->setSpacing(0);    vboxColumn1->setContentsMargins(5,5,5,5);
+	vboxComboEntry->setSpacing(3); vboxComboEntry->setContentsMargins(5,5,5,5);
+	hboxSpin->setSpacing(0);       hboxSpin->setContentsMargins(5,5,5,5);
+	hboxCheckRadio->setSpacing(0); hboxCheckRadio->setContentsMargins(5,5,5,5);
+	vboxCheck->setSpacing(0);      vboxCheck->setContentsMargins(0,0,0,0);
+	vboxRadio->setSpacing(0);      vboxRadio->setContentsMargins(0,0,0,0);
 
-	auto *vbox_column2 = new AwfVBoxLayout, *vbox_buttons = new AwfVBoxLayout;
-	auto *hbox_btns1 = new AwfHBoxLayout, *hbox_btns2 = new AwfHBoxLayout, *hbox_btns3 = new AwfHBoxLayout, *hbox_btns4 = new AwfHBoxLayout;
-	vbox_column2->setSpacing(0);         vbox_column2->setContentsMargins(5,5,5,5);
-	vbox_buttons->setSpacing(3);         vbox_buttons->setContentsMargins(5,5,5,5);
-	hbox_btns1->setSpacing(3);           hbox_btns1->setContentsMargins(5,5,5,5);
-	hbox_btns2->setSpacing(3);           hbox_btns2->setContentsMargins(5,5,5,5);
-	hbox_btns3->setSpacing(3);           hbox_btns3->setContentsMargins(5,5,5,5);
-	hbox_btns4->setSpacing(3);           hbox_btns4->setContentsMargins(5,5,5,5);
+	AwfVBox *vboxColumn2 = new AwfVBox, *vboxButtons = new AwfVBox;
+	AwfHBox *hboxBtns1 = new AwfHBox, *hboxBtns2 = new AwfHBox, *hboxBtns3 = new AwfHBox, *hboxBtns4 = new AwfHBox;
+	vboxColumn2->setSpacing(0);    vboxColumn2->setContentsMargins(5,5,5,5);
+	vboxButtons->setSpacing(3);    vboxButtons->setContentsMargins(5,5,5,5);
+	hboxBtns1->setSpacing(3);      hboxBtns1->setContentsMargins(5,5,5,5);
+	hboxBtns2->setSpacing(3);      hboxBtns2->setContentsMargins(5,5,5,5);
+	hboxBtns3->setSpacing(3);      hboxBtns3->setContentsMargins(5,5,5,5);
+	hboxBtns4->setSpacing(3);      hboxBtns4->setContentsMargins(5,5,5,5);
 
-	auto *vbox_column3 = new AwfVBoxLayout, *vbox_progress1 = new AwfVBoxLayout, *vbox_progress2 = new AwfVBoxLayout;
-	auto *hbox_progress1 = new AwfHBoxLayout, *hbox_progress2 = new AwfHBoxLayout;
-	vbox_column3->setSpacing(0);         vbox_column3->setContentsMargins(5,5,5,5);
-	vbox_progress1->setSpacing(10);   vbox_progress1->setContentsMargins(6,6,6,6);
-	vbox_progress2->setSpacing(10);   vbox_progress2->setContentsMargins(5,5,5,5);
-	hbox_progress1->setSpacing(10);   hbox_progress1->setContentsMargins(5,5,5,5);
-	hbox_progress2->setSpacing(10);   hbox_progress2->setContentsMargins(5,5,5,5);
+	AwfVBox *vboxColumn3 = new AwfVBox, *vboxProgress1 = new AwfVBox, *vboxProgress2 = new AwfVBox;
+	AwfHBox *hboxProgress1 = new AwfHBox, *hboxProgress2 = new AwfHBox;
+	vboxColumn3->setSpacing(0);    vboxColumn3->setContentsMargins(5,5,5,5);
+	vboxProgress1->setSpacing(10); vboxProgress1->setContentsMargins(6,6,6,6);
+	vboxProgress2->setSpacing(10); vboxProgress2->setContentsMargins(5,5,5,5);
+	hboxProgress1->setSpacing(10); hboxProgress1->setContentsMargins(5,5,5,5);
+	hboxProgress2->setSpacing(10); hboxProgress2->setContentsMargins(5,5,5,5);
 
-	auto *vbox_column4 = new AwfVBoxLayout, *vbox_others = new AwfVBoxLayout;
-	auto *hbox_label = new AwfHBoxLayout, *hbox_spinner = new AwfHBoxLayout;
-	vbox_column4->setSpacing(0);         vbox_column4->setContentsMargins(5,5,5,5);
-	vbox_others->setSpacing(3);          vbox_others->setContentsMargins(5,5,5,5);
-	hbox_label->setSpacing(0);           hbox_label->setContentsMargins(5,5,5,5);
-	hbox_spinner->setSpacing(0);         hbox_spinner->setContentsMargins(5,5,5,5);
+	AwfVBox *vboxColumn4 = new AwfVBox, *vboxOthers = new AwfVBox;
+	AwfHBox *hboxLabel = new AwfHBox, *hboxSpinner = new AwfHBox;
+	vboxColumn4->setSpacing(0);    vboxColumn4->setContentsMargins(5,5,5,5);
+	vboxOthers->setSpacing(3);     vboxOthers->setContentsMargins(5,5,5,5);
+	hboxLabel->setSpacing(0);      hboxLabel->setContentsMargins(5,5,5,5);
+	hboxSpinner->setSpacing(0);    hboxSpinner->setContentsMargins(5,5,5,5);
 
-	auto *vpane = new QSplitter(Qt::Vertical), *hpane1 = new QSplitter(Qt::Horizontal), *hpane2 = new QSplitter(Qt::Horizontal);
+	QSplitter *vpane = new QSplitter(Qt::Vertical), *hpane1 = new QSplitter(Qt::Horizontal), *hpane2 = new QSplitter(Qt::Horizontal);
 	vpane->setContentsMargins(0,0,0,0);
 	hpane1->setContentsMargins(0,0,0,0);
 	hpane2->setContentsMargins(0,0,0,0);
 
-	auto *wbox_frame1 = new QWidget, *wbox_frame2 = new QWidget, *wbox_notebook1 = new QWidget, *wbox_notebook2 = new QWidget;
-	wbox_frame1->setContentsMargins(0,0,0,0);
-	wbox_frame2->setContentsMargins(0,0,0,0);
-	wbox_notebook1->setContentsMargins(0,0,0,0);
-	wbox_notebook2->setContentsMargins(0,0,0,0);
+	QWidget *wboxFrame1 = new QWidget, *wboxFrame2 = new QWidget, *wboxNotebook1 = new QWidget, *wboxNotebook2 = new QWidget;
+	wboxFrame1->setContentsMargins(0,0,0,0);
+	wboxFrame2->setContentsMargins(0,0,0,0);
+	wboxNotebook1->setContentsMargins(0,0,0,0);
+	wboxNotebook2->setContentsMargins(0,0,0,0);
 
-	auto *hbox_frame1 = new AwfHBoxLayout, *hbox_frame2 = new AwfHBoxLayout, *hbox_notebook1 = new AwfHBoxLayout, *hbox_notebook2 = new AwfHBoxLayout;
-	hbox_frame1->setSpacing(3);          hbox_frame1->setContentsMargins(10,10,10,10);
-	hbox_frame2->setSpacing(3);          hbox_frame2->setContentsMargins(10,10,10,10);
-	hbox_notebook1->setSpacing(3);       hbox_notebook1->setContentsMargins(10,10,10,10);
-	hbox_notebook2->setSpacing(3);       hbox_notebook2->setContentsMargins(10,10,10,10);
+	AwfHBox *hboxFrame1 = new AwfHBox, *hboxFrame2 = new AwfHBox, *hboxNotebook1 = new AwfHBox, *hboxNotebook2 = new AwfHBox;
+	hboxFrame1->setSpacing(3);     hboxFrame1->setContentsMargins(10,10,10,10);
+	hboxFrame2->setSpacing(3);     hboxFrame2->setContentsMargins(10,10,10,10);
+	hboxNotebook1->setSpacing(3);  hboxNotebook1->setContentsMargins(10,10,10,10);
+	hboxNotebook2->setSpacing(3);  hboxNotebook2->setContentsMargins(10,10,10,10);
 
 	QFrame *sep1 = new QFrame, *sep2 = new QFrame, *sep3 = new QFrame, *sep4 = new QFrame;
 	sep1->setFrameShape(awf_gqss ? QFrame::NoFrame : QFrame::VLine);
@@ -1096,53 +1131,53 @@ static void create_widgets(AwfVBoxLayout *root) { // todo
 	sep4->setProperty("class", "separator horizontal");
 
 	// columns layout
-	root->addLayout(hbox_columns);
+	root->addLayout(hboxColumns);
 
 		// column 1
-		hbox_columns->addLayout(vbox_column1);
-			vbox_column1->addLayout(vbox_combo_entry);
-				create_combos_entries(vbox_combo_entry);
-			vbox_column1->addLayout(hbox_spin);
-				create_spinbuttons(hbox_spin);
-			vbox_column1->addLayout(hbox_check_radio);
-				hbox_check_radio->addLayout(vbox_check);
-					create_checkbuttons(vbox_check);
-				hbox_check_radio->addLayout(vbox_radio);
-					create_radiobuttons(vbox_radio);
-			vbox_column1->addStretch();
-		hbox_columns->addWidget(sep1);
+		hboxColumns->addLayout(vboxColumn1);
+			vboxColumn1->addLayout(vboxComboEntry);
+				create_combos_entries(vboxComboEntry);
+			vboxColumn1->addLayout(hboxSpin);
+				create_spinbuttons(hboxSpin);
+			vboxColumn1->addLayout(hboxCheckRadio);
+				hboxCheckRadio->addLayout(vboxCheck);
+					create_checkbuttons(vboxCheck);
+				hboxCheckRadio->addLayout(vboxRadio);
+					create_radiobuttons(vboxRadio);
+			vboxColumn1->addStretch();
+		hboxColumns->addWidget(sep1);
 
 		// column 2
-		hbox_columns->addLayout(vbox_column2);
-			vbox_column2->addLayout(vbox_buttons);
-			vbox_column2->addLayout(hbox_btns1);
-			vbox_column2->addLayout(hbox_btns2);
-			vbox_column2->addLayout(hbox_btns3);
-			vbox_column2->addLayout(hbox_btns4);
-				create_otherbuttons(vbox_buttons, hbox_btns1, hbox_btns2, hbox_btns3, hbox_btns4);
-			vbox_column2->addStretch();
-		hbox_columns->addWidget(sep2);
+		hboxColumns->addLayout(vboxColumn2);
+			vboxColumn2->addLayout(vboxButtons);
+			vboxColumn2->addLayout(hboxBtns1);
+			vboxColumn2->addLayout(hboxBtns2);
+			vboxColumn2->addLayout(hboxBtns3);
+			vboxColumn2->addLayout(hboxBtns4);
+				create_otherbuttons(vboxButtons, hboxBtns1, hboxBtns2, hboxBtns3, hboxBtns4);
+			vboxColumn2->addStretch();
+		hboxColumns->addWidget(sep2);
 
 		// column 3
-		hbox_columns->addLayout(vbox_column3);
-			vbox_column3->addLayout(vbox_progress1);
-			vbox_column3->addLayout(hbox_progress1);
-			vbox_column3->addLayout(hbox_progress2);
-			vbox_column3->addLayout(vbox_progress2);
-				create_progressbars(vbox_progress1, hbox_progress1, hbox_progress2, vbox_progress2);
-			vbox_column3->addStretch();
-		hbox_columns->addWidget(sep3);
+		hboxColumns->addLayout(vboxColumn3);
+			vboxColumn3->addLayout(vboxProgress1);
+			vboxColumn3->addLayout(hboxProgress1);
+			vboxColumn3->addLayout(hboxProgress2);
+			vboxColumn3->addLayout(vboxProgress2);
+				create_progressbars(vboxProgress1, hboxProgress1, hboxProgress2, vboxProgress2);
+			vboxColumn3->addStretch();
+		hboxColumns->addWidget(sep3);
 
 		// column 4
-		hbox_columns->addLayout(vbox_column4);
-			vbox_column4->addLayout(vbox_others);
-				create_treview(vbox_others);
-				vbox_others->addLayout(hbox_label);
-					create_labels(hbox_label);
-				vbox_others->addLayout(hbox_spinner);
-					create_spinners(hbox_spinner);
-				create_expander(vbox_others);
-			vbox_column4->addStretch();
+		hboxColumns->addLayout(vboxColumn4);
+			vboxColumn4->addLayout(vboxOthers);
+				create_treeview(vboxOthers);
+				vboxOthers->addLayout(hboxLabel);
+					create_labels(hboxLabel);
+				vboxOthers->addLayout(hboxSpinner);
+					create_spinners(hboxSpinner);
+				create_expander(vboxOthers);
+			vboxColumn4->addStretch();
 
 	root->addWidget(sep4);
 
@@ -1151,34 +1186,34 @@ static void create_widgets(AwfVBoxLayout *root) { // todo
 
 		vpane->addWidget(hpane1);
 
-			wbox_frame1->setMinimumHeight(70); // The 70
-			wbox_frame1->setLayout(hbox_frame1);
-			hpane1->addWidget(wbox_frame1);
+			wboxFrame1->setMinimumHeight(70); // The 70
+			wboxFrame1->setLayout(hboxFrame1);
+			hpane1->addWidget(wboxFrame1);
 
-			wbox_frame2->setMinimumHeight(70); // The 70
-			wbox_frame2->setLayout(hbox_frame2);
-			hpane1->addWidget(wbox_frame2);
+			wboxFrame2->setMinimumHeight(70); // The 70
+			wboxFrame2->setLayout(hboxFrame2);
+			hpane1->addWidget(wboxFrame2);
 
-			create_frames(hbox_frame1, hbox_frame2);
+			create_frames(hboxFrame1, hboxFrame2);
 
 		vpane->addWidget(hpane2);
 
-			//wbox_notebook1->setMinimumHeight(120); // The 120
-			wbox_notebook1->setLayout(hbox_notebook1);
-			hpane2->addWidget(wbox_notebook1);
+			//wboxNotebook1->setMinimumHeight(120); // The 120
+			wboxNotebook1->setLayout(hboxNotebook1);
+			hpane2->addWidget(wboxNotebook1);
 
-			//wbox_notebook2->setMinimumHeight(120); // The 120
-			wbox_notebook2->setLayout(hbox_notebook2);
-			hpane2->addWidget(wbox_notebook2);
+			//wboxNotebook2->setMinimumHeight(120); // The 120
+			wboxNotebook2->setLayout(hboxNotebook2);
+			hpane2->addWidget(wboxNotebook2);
 
-			create_notebooks(hbox_notebook1, hbox_notebook2);
-			hpane2->setSizes({wbox_notebook1->sizeHint().width(), 10000});
+			create_notebooks(hboxNotebook1, hboxNotebook2);
+			hpane2->setSizes({wboxNotebook1->sizeHint().width(), 10000});
 }
 
 static void create_toolbar(AwfToolBar *toolbar) { // ok
 
 	if (awf_trace)
-		printf("» create_toolbar()\n");
+		printf("\033[36m[trace]\033[00m create_toolbar()\n");
 
 	QToolButton *tool1, *tool2, *tool3, *tool4, *tool5, *tool6, *tool7, *tool8, *tool9;
 	QAction *action1, *action2;
@@ -1282,10 +1317,10 @@ static void create_toolbar(AwfToolBar *toolbar) { // ok
 	progress8->setProperty("action", QVariant::fromValue<QObject*>(action2));
 }
 
-static void create_combos_entries(AwfVBoxLayout *root) { // ok
+static void create_combos_entries(AwfVBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_combos_entries()\n");
+		printf("\033[36m[trace]\033[00m create_combos_entries()\n");
 
 	QComboBox *combo1, *combo2, *combo3, *combo4;
 	QLineEdit *entry1, *entry2, *entry3, *entry4;
@@ -1341,10 +1376,10 @@ static void create_combos_entries(AwfVBoxLayout *root) { // ok
 	root->addWidget(entry4);
 }
 
-static void create_spinbuttons(AwfHBoxLayout *root) { // ok
+static void create_spinbuttons(AwfHBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_spinbuttons()\n");
+		printf("\033[36m[trace]\033[00m create_spinbuttons()\n");
 
 	QSpinBox *spinbutton1, *spinbutton2;
 
@@ -1370,10 +1405,10 @@ static void create_spinbuttons(AwfHBoxLayout *root) { // ok
 	root->addWidget(spinbutton2);
 }
 
-static void create_checkbuttons(AwfVBoxLayout *root) { // ok
+static void create_checkbuttons(AwfVBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_checkbuttons()\n");
+		printf("\033[36m[trace]\033[00m create_checkbuttons()\n");
 
 	QCheckBox *checkbutton1, *checkbutton2, *checkbutton3, *checkbutton4, *checkbutton5, *checkbutton6;
 
@@ -1408,10 +1443,10 @@ static void create_checkbuttons(AwfVBoxLayout *root) { // ok
 	root->addWidget(checkbutton6);
 }
 
-static void create_radiobuttons(AwfVBoxLayout *root) { // ok
+static void create_radiobuttons(AwfVBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_radiobuttons()\n");
+		printf("\033[36m[trace]\033[00m create_radiobuttons()\n");
 
 	QRadioButton *radiobutton1, *radiobutton2, *radiobutton3, *radiobutton4, *radiobutton5, *radiobutton6;
 	QButtonGroup *group1, *group2;
@@ -1456,10 +1491,10 @@ static void create_radiobuttons(AwfVBoxLayout *root) { // ok
 	root->addWidget(radiobutton6);
 }
 
-static void create_otherbuttons(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfHBoxLayout *root3, AwfHBoxLayout *root4, AwfHBoxLayout *root5) { //ok
+static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5) { //ok
 
 	if (awf_trace)
-		printf("» create_otherbuttons()\n");
+		printf("\033[36m[trace]\033[00m create_otherbuttons()\n");
 
 	// QPushButton
 	QPushButton *button1, *button2, *button3, *button4;
@@ -1540,10 +1575,10 @@ static void create_otherbuttons(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfH
 	root5->addStretch();
 }
 
-static void create_progressbars(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfHBoxLayout *root3, AwfVBoxLayout *root4) { // ok
+static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4) { // ok
 
 	if (awf_trace)
-		printf("» create_progressbars()\n");
+		printf("\033[36m[trace]\033[00m create_progressbars()\n");
 
 	// QProgressBar
 	progress1 = new QProgressBar;
@@ -1581,51 +1616,48 @@ static void create_progressbars(AwfVBoxLayout *root1, AwfHBoxLayout *root2, AwfH
 	}
 
 	// QSlider
-	scale1 = create_horizontal_scale(50, false, false, QSlider::NoTicks);
-	QObject::connect(scale1, &QSlider::valueChanged, [=](){ update_values(scale1); });
+	slider1 = create_horizontal_slider(50, false, false, QSlider::NoTicks);
+	QObject::connect(slider1, &QSlider::valueChanged, [=](){ update_values(slider1); });
 
-	scale2 = create_horizontal_scale(50, false, true, QSlider::NoTicks);
-	QObject::connect(scale2, &QSlider::valueChanged, [=](){ update_values(scale2); });
+	slider2 = create_horizontal_slider(50, false, true, QSlider::NoTicks);
+	QObject::connect(slider2, &QSlider::valueChanged, [=](){ update_values(slider2); });
 
-	scale3 = create_vertical_scale(50, false, !false, QSlider::NoTicks);
-	QObject::connect(scale3, &QSlider::valueChanged, [=](){ update_values(scale3); });
+	slider3 = create_vertical_slider(50, false, !false, QSlider::NoTicks);
+	QObject::connect(slider3, &QSlider::valueChanged, [=](){ update_values(slider3); });
 
-	scale4 = create_vertical_scale(50, false, !true, QSlider::NoTicks);
-	QObject::connect(scale4, &QSlider::valueChanged, [=](){ update_values(scale4); });
+	slider4 = create_vertical_slider(50, false, !true, QSlider::NoTicks);
+	QObject::connect(slider4, &QSlider::valueChanged, [=](){ update_values(slider4); });
 
-	scale5 = create_vertical_scale(50, false, !false, QSlider::TicksAbove);
-	scale5->setProperty("hasTicks", "TicksAbove");
-	QObject::connect(scale5, &QSlider::valueChanged, [=](){ update_values(scale5); });
+	slider5 = create_vertical_slider(50, false, !false, QSlider::TicksAbove);
+	QObject::connect(slider5, &QSlider::valueChanged, [=](){ update_values(slider5); });
 
-	scale6 = create_vertical_scale(50, false, !true, QSlider::TicksBelow);
-	scale6->setProperty("hasTicks", "TicksBelow");
-	QObject::connect(scale6, &QSlider::valueChanged, [=](){ update_values(scale6); });
+	slider6 = create_vertical_slider(50, false, !true, QSlider::TicksBelow);
+	QObject::connect(slider6, &QSlider::valueChanged, [=](){ update_values(slider6); });
 
-	scale7 = create_vertical_scale(50, false, !true, QSlider::TicksBothSides);
-	scale7->setProperty("hasTicks", "TicksBothSides");
-	QObject::connect(scale7, &QSlider::valueChanged, [=](){ update_values(scale7); });
+	slider7 = create_vertical_slider(50, false, !true, QSlider::TicksBothSides);
+	QObject::connect(slider7, &QSlider::valueChanged, [=](){ update_values(slider7); });
 
 	// layout
 	root1->addWidget(progress1);
 	root1->addWidget(progress2);
-	root1->addWidget(scale1);
-	root1->addWidget(scale2);
+	root1->addWidget(slider1);
+	root1->addWidget(slider2);
 	root2->addWidget(progress3);
 	root2->addWidget(progress4);
 	root2->addStretch();
-	root3->addWidget(scale3);
-	root3->addWidget(scale5);
-	root3->addWidget(scale6);
-	root3->addWidget(scale4);
-	root3->addWidget(scale7);
+	root3->addWidget(slider3);
+	root3->addWidget(slider5);
+	root3->addWidget(slider6);
+	root3->addWidget(slider4);
+	root3->addWidget(slider7);
 	root3->addStretch();
 	root4->addStretch();
 }
 
-static void create_labels(AwfHBoxLayout *root) { // ok
+static void create_labels(AwfHBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_labels()\n");
+		printf("\033[36m[trace]\033[00m create_labels()\n");
 
 	QLabel *label1, *label2;
 
@@ -1642,14 +1674,14 @@ static void create_labels(AwfHBoxLayout *root) { // ok
 	root->addStretch();
 }
 
-static void create_spinners(AwfHBoxLayout *root) {
+static void create_spinners(AwfHBox *root) {
 
 }
 
-static void create_expander(AwfVBoxLayout *root) { // todo
+static void create_expander(AwfVBox *root) { // todo
 
 	if (awf_trace)
-		printf("» create_expander()\n");
+		printf("\033[36m[trace]\033[00m create_expander()\n");
 
 	QGroupBox *expander;
 	QTextEdit *text;
@@ -1667,15 +1699,15 @@ static void create_expander(AwfVBoxLayout *root) { // todo
 	text->setText(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.") + " " + _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 
 	// layout
-	AwfVBoxLayout *expanderLayout = new AwfVBoxLayout(expander);
+	AwfVBox *expanderLayout = new AwfVBox(expander);
 	expanderLayout->addWidget(text);
 	root->addWidget(expander);
 }
 
-static void create_frames(AwfHBoxLayout *root1, AwfHBoxLayout *root2) { // todo
+static void create_frames(AwfHBox *root1, AwfHBox *root2) { // todo
 
 	if (awf_trace)
-		printf("» create_frames()\n");
+		printf("\033[36m[trace]\033[00m create_frames()\n");
 
 	QGroupBox *frame1, *frame2, *frame3, *frame4;
 
@@ -1700,10 +1732,10 @@ static void create_frames(AwfHBoxLayout *root1, AwfHBoxLayout *root2) { // todo
 	root2->addWidget(frame4);
 }
 
-static void create_notebooks(AwfHBoxLayout *root1, AwfHBoxLayout *root2) { // ok
+static void create_notebooks(AwfHBox *root1, AwfHBox *root2) { // ok
 
 	if (awf_trace)
-		printf("» create_notebooks()\n");
+		printf("\033[36m[trace]\033[00m create_notebooks()\n");
 
 	// QTabWidget
 	notebook1 = new QTabWidget;
@@ -1779,7 +1811,7 @@ static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *con
 			btn->setIconSize(QSize(16, 16));
 			btn->setAutoRaise(true); // flat
 
-			AwfHBoxLayout *hbox = new AwfHBoxLayout(layout);
+			AwfHBox *hbox = new AwfHBox(layout);
 			hbox->setContentsMargins(0, 0, 0, 0);
 			hbox->addWidget(new QLabel(text));
 			hbox->addWidget(btn);
@@ -1803,10 +1835,10 @@ static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *con
 	}
 }
 
-static void create_treview(AwfVBoxLayout *root) { // ok
+static void create_treeview(AwfVBox *root) { // ok
 
 	if (awf_trace)
-		printf("» create_treview()\n");
+		printf("\033[36m[trace]\033[00m create_treeview()\n");
 
 	QStandardItemModel *model = new QStandardItemModel;
 	model->setColumnCount(11);
@@ -1866,48 +1898,134 @@ static void create_treview(AwfVBoxLayout *root) { // ok
 	root->addWidget(view);
 }
 
-static void create_scales() {
-
-}
-
-static QSlider* create_horizontal_scale(int value, bool draw, bool inverted, QSlider::TickPosition position) { // todo
+static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) { // ok
 
 	if (awf_trace)
-		printf("» create_horizontal_scale()\n");
+		printf("\033[36m[trace]\033[00m create_sliders()\n");
 
-	QSlider *scale = new QSlider(Qt::Horizontal);
+	AwfHBox *hbox = new AwfHBox;
+	AwfVBox *vbox1 = new AwfVBox, *vbox2 = new AwfVBox, *vbox3 = new AwfVBox;
+	AwfHBox *hboxa = new AwfHBox, *hboxb = new AwfHBox;
+	QSlider *slider1v, *slider2v, *slider3v, *slider4v, *slider5v, *slider6v, *slider7v, *slider8v, *slider9v, *slider10v, *slider11v, *slider12v;
+	QSlider *slider1h, *slider2h, *slider3h, *slider4h, *slider5h, *slider6h, *slider7h, *slider8h, *slider9h, *slider10h, *slider11h, *slider12h;
+	int value = slider1->value();
 
-	scale->setRange(0, 100);
-	scale->setValue(value);
-	scale->setInvertedAppearance(inverted);
-	if (inverted)
-		scale->setProperty("isInverted", true);
-	// @todo draw
-	scale->setTickPosition(position);
-	scale->setFixedWidth(186); // The 186
-	scale->setTracking(true);
+	// vertical sliders
+	slider1v = create_vertical_slider(value, false, false, position);
+	slider2v = create_vertical_slider(value, false, false, position);
+	slider3v = create_vertical_slider(value, false, false, position);
+	slider4v = create_vertical_slider(value, true, false, position);
+	slider5v = create_vertical_slider(value, true, false, position);
+	slider6v = create_vertical_slider(value, true, false, position);
+	slider7v = create_vertical_slider(value, false, true, position);
+	slider8v = create_vertical_slider(value, false, true, position);
+	slider9v = create_vertical_slider(value, false, true, position);
+	slider10v = create_vertical_slider(value, true, true, position);
+	slider11v = create_vertical_slider(value, true, true, position);
+	slider12v = create_vertical_slider(value, true, true, position);
 
-	return scale;
+	// horizontal sliders
+	slider1h = create_horizontal_slider(value, false, false, position);
+	slider2h = create_horizontal_slider(value, false, false, position);
+	slider3h = create_horizontal_slider(value, false, false, position);
+	slider4h = create_horizontal_slider(value, true, false, position);
+	slider5h = create_horizontal_slider(value, true, false, position);
+	slider6h = create_horizontal_slider(value, true, false, position);
+	slider7h = create_horizontal_slider(value, false, true, position);
+	slider8h = create_horizontal_slider(value, false, true, position);
+	slider9h = create_horizontal_slider(value, false, true, position);
+	slider10h = create_horizontal_slider(value, true, true, position);
+	slider11h = create_horizontal_slider(value, true, true, position);
+	slider12h = create_horizontal_slider(value, true, true, position);
+
+	// layout
+	hbox->addLayout(vbox1);
+		vbox1->addWidget(slider1h);
+		vbox1->addWidget(slider2h);
+		vbox1->addWidget(slider3h);
+		vbox1->addWidget(slider4h);
+		vbox1->addWidget(slider5h);
+		vbox1->addWidget(slider6h);
+	hbox->addLayout(vbox2);
+		vbox2->addLayout(hboxa);
+			hboxa->addWidget(slider1v);
+			hboxa->addWidget(slider2v);
+			hboxa->addWidget(slider3v);
+			hboxa->addWidget(slider7v);
+			hboxa->addWidget(slider8v);
+			hboxa->addWidget(slider9v);
+		vbox2->addLayout(hboxb);
+			hboxb->addWidget(slider4v);
+			hboxb->addWidget(slider5v);
+			hboxb->addWidget(slider6v);
+			hboxb->addWidget(slider10v);
+			hboxb->addWidget(slider11v);
+			hboxb->addWidget(slider12v);
+	hbox->addLayout(vbox3);
+		vbox3->addWidget(slider7h);
+		vbox3->addWidget(slider8h);
+		vbox3->addWidget(slider9h);
+		vbox3->addWidget(slider10h);
+		vbox3->addWidget(slider11h);
+		vbox3->addWidget(slider12h);
+
+	QWidget *container = new QWidget;
+	container->setLayout(hbox);
+	create_notebook_tab(notebook, text, container, false);
 }
 
-static QSlider* create_vertical_scale(int value, bool draw, bool inverted, QSlider::TickPosition position) { // todo
+static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
 
 	if (awf_trace)
-		printf("» create_vertical_scale()\n");
+		printf("\033[36m[trace]\033[00m create_horizontal_slider()\n");
 
-	QSlider *scale = new QSlider(Qt::Vertical);
+	QSlider *slider = new QSlider(Qt::Horizontal);
 
-	scale->setRange(0, 100);
-	scale->setValue(value);
-	scale->setInvertedAppearance(inverted);
+	slider->setRange(0, 100);
+	slider->setValue(value);
+	slider->setInvertedAppearance(inverted);
 	if (inverted)
-		scale->setProperty("isInverted", true);
-	// @todo draw
-	scale->setTickPosition(position);
-	scale->setFixedHeight(100); // The 100
-	scale->setTracking(true);
+		slider->setProperty("isInverted", true);
+	// draw does not exists
+	slider->setTickPosition(position);
+	slider->setFixedWidth(186); // The 186
+	slider->setTracking(true);
 
-	return scale;
+	switch (position) {
+		case QSlider::NoTicks:        slider->setProperty("hasTicks", "NoTicks"); break;
+		case QSlider::TicksAbove:     slider->setProperty("hasTicks", "TicksAbove"); break;
+		case QSlider::TicksBelow:     slider->setProperty("hasTicks", "TicksBelow"); break;
+		case QSlider::TicksBothSides: slider->setProperty("hasTicks", "TicksBothSides"); break;
+	}
+
+	return slider;
+}
+
+static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
+
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m create_vertical_slider()\n");
+
+	QSlider *slider = new QSlider(Qt::Vertical);
+
+	slider->setRange(0, 100);
+	slider->setValue(value);
+	slider->setInvertedAppearance(inverted);
+	if (inverted)
+		slider->setProperty("isInverted", true);
+	// draw does not exists
+	slider->setTickPosition(position);
+	slider->setFixedHeight(100); // The 100
+	slider->setTracking(true);
+
+	switch (position) {
+		case QSlider::NoTicks:        slider->setProperty("hasTicks", "NoTicks"); break;
+		case QSlider::TicksAbove:     slider->setProperty("hasTicks", "TicksAbove"); break;
+		case QSlider::TicksBelow:     slider->setProperty("hasTicks", "TicksBelow"); break;
+		case QSlider::TicksBothSides: slider->setProperty("hasTicks", "TicksBothSides"); break;
+	}
+
+	return slider;
 }
 
 
@@ -1916,20 +2034,21 @@ static QSlider* create_vertical_scale(int value, bool draw, bool inverted, QSlid
 static void create_traditional_menubar(QMenuBar *root) {
 
 	if (awf_trace)
-		printf("» create_traditional_menubar()\n");
+		printf("\033[36m[trace]\033[00m create_traditional_menubar()\n");
 
-	static AwfShortcutFilter *g_shortcutFilter = new AwfShortcutFilter;
+	static AwfShortcutFilter *shortcutFilter = new AwfShortcutFilter(window);
 	QMenu *menu, *submenu, *base;
 	QActionGroup *group;
 	QAction *menuitem;
-	bool ok = false, noRefresh = !awf_gqss, noPrint = false;
+	bool ok, noRefresh = !awf_gqss, noPrint = false;
+
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
 	#endif
 
 	// options
 	menu = root->addMenu(_app("_Options"));
-	menu->installEventFilter(g_shortcutFilter);
+	menu->installEventFilter(shortcutFilter);
 
 		// @todo option command line?
 		if (qEnvironmentVariableIsSet("AWF_TEAROFF"))
@@ -1940,16 +2059,20 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, get_icon("document-save"), _qt("QFileDialog", "&Save"), false, AWF_ACCEL_SAVE, AWF_SAVE, dialog_save);
 		create_menuitem(menu, get_icon("view-refresh"), _app("_Refresh"), noRefresh, AWF_ACCEL_REFR, AWF_REFR, [](){ on_sighup(0); });
 		create_menuitem(menu, QIcon(), _app("Calendar"), false, AWF_ACCEL_CALE, AWF_CALE, dialog_calendar);
-		create_menuitem(menu, QIcon(), "QSliders", false, AWF_ACCEL_SCAL, AWF_SCAL, dialog_scales);
+		create_menuitem(menu, QIcon(), "Sliders", false, AWF_ACCEL_SCAL, AWF_SCAL, dialog_sliders);
 		create_menuitem(menu, get_icon("document-properties"), _app("Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
 		create_menuitem(menu, get_icon("document-page-setup"),_app("Page Set&up"), noPrint, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, get_icon("document-print"), _qt("QPrintDialog", "&Print"), noPrint, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
 		submenu = menu->addMenu(_app("More..."));
+		submenu->installEventFilter(shortcutFilter);
 
 			create_menuitem(submenu, get_icon("edit-cut"), _qt("QLineEdit", "Cu&t"), false, AWF_ACCEL_MCUT, AWF_MCUT, null);
 			create_menuitem(submenu, get_icon("edit-copy"), _qt("QLineEdit", "&Copy"), false, AWF_ACCEL_MCOP, AWF_MCOP, null);
 			create_menuitem(submenu, get_icon("edit-paste"), _qt("QLineEdit", "&Paste"), false, AWF_ACCEL_MPAS, AWF_MPAS, null);
+
+		submenu = menu->addMenu(_app("Less..."));
+		submenu->setEnabled(false);
 
 		menu->addSeparator();
 
@@ -1983,6 +2106,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 			create_menuitem(menu, get_icon("application-exit"), _qt("QCocoaMenuItem", "Quit"), false, AWF_ACCEL_QUIT, AWF_QUIT, qApp->quit);
 
 	// system themes
+	ok = false;
 	group = new QActionGroup(window);
 	group->setExclusive(true);
 	menu  = root->addMenu(_app("_System themes"));
@@ -2021,6 +2145,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
 	// user themes
+	ok = false;
 	menu = root->addMenu(_app("_User themes"));
 	for (QString theme : list_user_theme) {
 
@@ -2066,7 +2191,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 	// help
 	menu = root->addMenu(_qt("QWizard", "&Help"));
-	menu->installEventFilter(g_shortcutFilter);
+	menu->installEventFilter(shortcutFilter);
 
 		create_menuitem(menu, QIcon(), "QtInspector", false, AWF_ACCEL_INSP, AWF_INSP, dialog_inspector);
 		create_menuitem(menu, get_icon("help-about"), _qt("QCocoaMenuItem", "About"), false, AWF_ACCEL_ABOU, AWF_ABOU, dialog_about);
@@ -2078,7 +2203,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 static QAction* create_menuitem_check(QMenu *menu, QString text, bool chk, bool ist, bool dsb) {
 
 	if (awf_trace)
-		printf("» create_menuitem_check(%s)\n", text.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m create_menuitem_check(%s)\n", text.toUtf8().constData());
 
 	QAction *menuitem;
 
@@ -2095,7 +2220,7 @@ static QAction* create_menuitem_check(QMenu *menu, QString text, bool chk, bool 
 static QAction* create_menuitem_radio(QMenu *menu, QString text, bool chk, bool ist, bool dsb, QActionGroup *group) {
 
 	if (awf_trace)
-		printf("» create_menuitem_radio(%s)\n", text.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m create_menuitem_radio(%s)\n", text.toUtf8().constData());
 
 	QAction *menuitem;
 
@@ -2112,7 +2237,7 @@ static QAction* create_menuitem_radio(QMenu *menu, QString text, bool chk, bool 
 static QAction* create_menuitem(QMenu *menu, QIcon icon, QString text, bool dsb, QKeySequence acl, QString kmp, std::function<void()> function) {
 
 	if (awf_trace)
-		printf("» create_menuitem(%s)\n", text.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m create_menuitem(%s)\n", text.toUtf8().constData());
 
 	QAction *menuitem;
 
@@ -2133,7 +2258,7 @@ static QAction* create_menuitem(QMenu *menu, QIcon icon, QString text, bool dsb,
 static void accels_load() { // ok
 
 	if (awf_trace)
-		printf("» accels_load()\n");
+		printf("\033[36m[trace]\033[00m accels_load()\n");
 
 	QString oldPath = QDir::homePath() + "/.awf-gtk-accels";
 	if (QFile::exists(oldPath))
@@ -2211,7 +2336,7 @@ static void accels_load() { // ok
 				continue;
 
 			if (awf_debug)
-				printf("accels_foundInFile: %s %s\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
+				printf("\033[33m[debug]\033[00m accels_foundInFile: %s %s\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
 
 			accels.insert(kmp, acl);
 		}
@@ -2250,7 +2375,7 @@ static void accels_load() { // ok
 			acl = accels.value(kmp);
 
 			if (awf_debug)
-				printf("accels_foundInMenu: %s %s\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
+				printf("\033[33m[debug]\033[00m accels_foundInMenu: %s %s\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
 
 			if (acl.isEmpty()) {
 				actions.value(kmp)->setProperty("shortcutModified", true);
@@ -2262,7 +2387,7 @@ static void accels_load() { // ok
 				Qt::Key key = parseKey(acl);
 
 				if (key == Qt::Key_unknown) {
-					printf("accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
+					printf("\033[33m[debug]\033[00m accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
 				}
 				else {
 					actions.value(kmp)->setProperty("shortcutModified", true);
@@ -2293,7 +2418,7 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 		return false;
 
 	if (awf_trace)
-		printf("» accels_change()\n");
+		printf("\033[36m[trace]\033[00m accels_change()\n");
 
 	Qt::KeyboardModifiers mods = keyEvent->modifiers();
 	bool del = (key == Qt::Key_Delete) || (key == Qt::Key_Backspace);
@@ -2301,13 +2426,36 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 		del ||
 		// f1..12
 		((key >= Qt::Key_F1) && (key <= Qt::Key_F12)) ||
-		// crtl/shift/super/alt + ?
+		// ctrl/shift/super/alt + ?
 		mods
 	) {
 		must_save_accels = true;
 		QKeySequence seq = del ? QKeySequence() : QKeySequence(mods | key);
+
+		// check and remove existing keyboard shortcut
+		if (!del) {
+			for (QAction *menuAction : window->menuBar()->actions()) {
+
+				QMenu *menu = menuAction->menu();
+				if (!menu)
+					continue;
+
+				for (QAction *action : menu->actions()) {
+					if ((action != menuitem) && (action->shortcut() == seq)) {
+						action->setProperty("shortcutModified", true);
+						action->setShortcut(QKeySequence());
+					}
+				}
+			}
+		}
+
+		// set new keyboard shortcut
 		menuitem->setProperty("shortcutModified", true);
 		menuitem->setShortcut(seq);
+
+		if (awf_debug)
+			printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : seq.toString(QKeySequence::PortableText).toUtf8().constData());
+
 		return true;
 	}
 
@@ -2317,7 +2465,7 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 static void accels_save() { // ok
 
 	if (awf_trace)
-		printf("» accels_save()\n");
+		printf("\033[36m[trace]\033[00m accels_save()\n");
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
 	// gtk_accel_map_save
@@ -2418,27 +2566,31 @@ static void accels_save() { // ok
 static void dialog_open() { // ok
 
 	if (awf_trace)
-		printf("» dialog_open()\n");
+		printf("\033[36m[trace]\033[00m dialog_open()\n");
 
-	QFileDialog::getOpenFileNames(window, "QFileDialog:Open");
+	QFileDialog::getOpenFileNames(window,
+		QString("%1 - Qt %2.%3").arg("QFileDialog:Open").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR),
+		QDir::homePath());
 }
 
 static void dialog_save() { // ok
 
 	if (awf_trace)
-		printf("» dialog_save()\n");
+		printf("\033[36m[trace]\033[00m dialog_save()\n");
 
-	QFileDialog::getSaveFileName(window, "QFileDialog:Save");
+	QFileDialog::getSaveFileName(window,
+		QString("%1 - Qt %2.%3").arg("QFileDialog:Save").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR),
+		QDir::homePath());
 }
 
 static void dialog_message() { // ok
 
 	if (awf_trace)
-		printf("» dialog_message()\n");
+		printf("\033[36m[trace]\033[00m dialog_message()\n");
 
 	QMessageBox msgBox(window);
 	msgBox.setIcon(QMessageBox::Information);
-	msgBox.setWindowTitle("QMessageBox");
+	msgBox.setWindowTitle(QString("%1 - Qt %2.%3").arg("QMessageBox").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	msgBox.setText("QMessageBox");
 	msgBox.setInformativeText(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 	msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -2448,7 +2600,7 @@ static void dialog_message() { // ok
 static void dialog_page_setup() { // ok
 
 	if (awf_trace)
-		printf("» dialog_page_setup()\n");
+		printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
 
 	QPrinter printer;
 	QPageSetupDialog(&printer, window).exec();
@@ -2457,7 +2609,7 @@ static void dialog_page_setup() { // ok
 static void dialog_print() { // ok
 
 	if (awf_trace)
-		printf("» dialog_print()\n");
+		printf("\033[36m[trace]\033[00m dialog_print()\n");
 
 	QPrinter printer;
 	QPrintDialog(&printer, window).exec();
@@ -2466,24 +2618,24 @@ static void dialog_print() { // ok
 static void dialog_about() { // ok
 
 	if (awf_trace)
-		printf("» dialog_about()\n");
+		printf("\033[36m[trace]\033[00m dialog_about()\n");
 
-	QString cpp;
+	QString cppVersion;
 	switch (__cplusplus) {
-		case 199711L: cpp = "C++98";  break;
-		case 201103L: cpp = "C++11";  break;
-		case 201402L: cpp = "C++14";  break;
-		case 201703L: cpp = "C++17";  break;
-		case 202002L: cpp = "C++20";  break;
-		case 202302L: cpp = "C++23";  break;
-		default:      cpp = "C++ (" + QString::number(__cplusplus) + ")"; break;
+		case 199711L: cppVersion = "C++98";  break;
+		case 201103L: cppVersion = "C++11";  break;
+		case 201402L: cppVersion = "C++14";  break;
+		case 201703L: cppVersion = "C++17";  break;
+		case 202002L: cppVersion = "C++20";  break;
+		case 202302L: cppVersion = "C++23";  break;
+		default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
 	}
 
 	QString t1 = QString("%1<br><br>%2 %3<br><br>%4<br>%5<br><i><small>QT_QPA_PLATFORMTHEME=%6 QT_STYLE_OVERRIDE=%7</small></i>")
 		.arg(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."))
 		.arg(QString(_app("Remove %1 file")).arg("~/.awf-accels"))
 		.arg(_app("to reset keyboard shortcuts."))
-		.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cpp).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
+		.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
 		.arg(QString(_app(" started with qt %1")).arg(qVersion()))
 		.arg(QString::fromUtf8(qgetenv("QT_QPA_PLATFORMTHEME")))
 		.arg(QString::fromUtf8(qgetenv("QT_STYLE_OVERRIDE")));
@@ -2494,7 +2646,7 @@ static void dialog_about() { // ok
 		.arg(t1)
 		.arg("<a href=\"https://github.com/luigifab/awf-extended\">https://github.com/luigifab/awf-extended</a>")
 		.arg("Copyright © 2020-2026 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
-		.arg(_app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version."));
+		.arg(_app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."));
 
 	QMessageBox::about(window, _qt("QCocoaMenuItem", "About"), t2);
 }
@@ -2502,7 +2654,7 @@ static void dialog_about() { // ok
 static void dialog_inspector() { // ok
 
 	if (awf_trace)
-		printf("» dialog_inspector()\n");
+		printf("\033[36m[trace]\033[00m dialog_inspector()\n");
 
 	if (inspector) {
 		inspector->raise();
@@ -2511,7 +2663,7 @@ static void dialog_inspector() { // ok
 	else {
 		inspector = new QDialog(window, Qt::Window);
 		inspector->setAttribute(Qt::WA_DeleteOnClose);
-		inspector->setWindowTitle("QtInspector");
+		inspector->setWindowTitle(QString("%1 - Qt %2.%3").arg("QtInspector").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 		inspector->resize(500, 400);
 
 		QTextEdit *textEdit = new QTextEdit;
@@ -2527,12 +2679,12 @@ static void dialog_inspector() { // ok
 		QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
 		btnClose->setIcon(get_icon("dialog-close"));
 
-		AwfHBoxLayout *buttonLayout = new AwfHBoxLayout;
+		AwfHBox *buttonLayout = new AwfHBox;
 		buttonLayout->addWidget(btnCopy);
 		buttonLayout->addWidget(btnClear);
 		buttonLayout->addWidget(btnClose);
 
-		AwfVBoxLayout *mainLayout = new AwfVBoxLayout;
+		AwfVBox *mainLayout = new AwfVBox;
 		mainLayout->addWidget(textEdit);
 		mainLayout->addLayout(buttonLayout);
 		inspector->setLayout(mainLayout);
@@ -2552,6 +2704,7 @@ static void dialog_inspector() { // ok
 			QString text = textEdit->toPlainText();
 			if (!text.isEmpty())
 				QApplication::clipboard()->setText(text);
+			textEdit->setFocus();
 		});
 
 		QObject::connect(btnClear, &QPushButton::clicked, inspector, [=](){
@@ -2560,10 +2713,12 @@ static void dialog_inspector() { // ok
 				original_style = qApp->styleSheet();
 
 			qApp->setStyleSheet(original_style);
-			original_style = "!^!";
+			if (awf_gqss)
+				original_style = "!^!";
 
 			QSignalBlocker blocker(textEdit);
 			textEdit->clear();
+			textEdit->setFocus();
 		});
 
 		QObject::connect(inspector, &QWidget::destroyed, window, [=](){
@@ -2572,7 +2727,8 @@ static void dialog_inspector() { // ok
 				original_style = qApp->styleSheet();
 
 			qApp->setStyleSheet(original_style);
-			original_style = "!^!";
+			if (awf_gqss)
+				original_style = "!^!";
 
 			inspector = null;
 		});
@@ -2600,31 +2756,75 @@ static void dialog_inspector() { // ok
 	}
 }
 
-static void dialog_calendar() {
+static void dialog_calendar() { // ok
 
 	if (awf_trace)
-		printf("» dialog_calendar()\n");
+		printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
 	QWidget *dialog = new QDialog(window, Qt::Window | Qt::Dialog);
 	dialog->setWindowModality(Qt::ApplicationModal);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle("QDialog");
+	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	dialog->setObjectName("AwfDialogWindow");
-	dialog->setFixedSize(500, 400);
+
+	// QCalendar
+	QCalendarWidget *calendar = new QCalendarWidget;
+	calendar->setGridVisible(true);
+
+	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
+	btnClose->setIcon(get_icon("dialog-close"));
+	QObject::connect(btnClose, &QPushButton::clicked, dialog, [=](){
+		dialog->close();
+	});
+
+	AwfHBox *buttonLayout = new AwfHBox;
+	buttonLayout->addStretch();
+	buttonLayout->addWidget(btnClose);
+
+	AwfVBox *mainLayout = new AwfVBox;
+	mainLayout->addWidget(calendar);
+	mainLayout->addLayout(buttonLayout);
+	dialog->setLayout(mainLayout);
+
 	dialog->show();
 }
 
-static void dialog_scales() {
+static void dialog_sliders() { // ok
 
 	if (awf_trace)
-		printf("» dialog_scales()\n");
+		printf("\033[36m[trace]\033[00m dialog_sliders()\n");
 
 	QWidget *dialog = new QDialog(window, Qt::Window | Qt::Dialog);
 	dialog->setWindowModality(Qt::ApplicationModal);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle("QDialog");
+	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	dialog->setObjectName("AwfDialogWindow");
-	dialog->setFixedSize(500, 400);
+
+	// QTabWidget
+	QTabWidget *notebook = new QTabWidget;
+	notebook->setTabPosition(QTabWidget::North);
+	notebook->setTabsClosable(false);
+	notebook->setUsesScrollButtons(false);
+	notebook->tabBar()->setExpanding(false);
+	notebook->tabBar()->setMovable(false);
+		create_sliders(notebook, "top/left", QSlider::TicksAbove);
+		create_sliders(notebook, "bottom/right", QSlider::TicksBelow);
+
+	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
+	btnClose->setIcon(get_icon("dialog-close"));
+	QObject::connect(btnClose, &QPushButton::clicked, dialog, [=](){
+		dialog->close();
+	});
+
+	AwfHBox *buttonLayout = new AwfHBox;
+	buttonLayout->addStretch();
+	buttonLayout->addWidget(btnClose);
+
+	AwfVBox *mainLayout = new AwfVBox;
+	mainLayout->addWidget(notebook);
+	mainLayout->addLayout(buttonLayout);
+	dialog->setLayout(mainLayout);
+
 	dialog->show();
 }
 

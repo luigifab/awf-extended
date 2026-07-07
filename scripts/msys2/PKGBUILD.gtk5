@@ -1,0 +1,46 @@
+_realname=awf-gtk5
+binname=$_realname
+mingw_arch=('mingw64' 'ucrt64' 'clang64' 'clangarm64')
+msys2_repository_url='https://github.com/luigifab/awf-extended'
+
+pkgbase=mingw-w64-$_realname
+pkgname=${MINGW_PACKAGE_PREFIX}-$_realname
+pkgver=4.2.0
+pkgrel=1
+pkgdesc='Theme preview application for GTK 5 (mingw-w64)'
+url='https://github.com/luigifab/awf-extended'
+license=('spdx:GPL-3.0-or-later')
+arch=('any')
+depends=("${MINGW_PACKAGE_PREFIX}-gtk5" "${MINGW_PACKAGE_PREFIX}-hicolor-icon-theme")
+makedepends=("${MINGW_PACKAGE_PREFIX}-autotools" "${MINGW_PACKAGE_PREFIX}-cc" "${MINGW_PACKAGE_PREFIX}-gettext-tools")
+#makedepends=('autoconf' 'automake' 'desktop-file-utils' 'gcc' 'gettext' 'gtk5')
+source=("https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  if [ -d "awf-extended-$pkgver" ]; then
+    mv "awf-extended-$pkgver" "$pkgname-$pkgver"
+  fi
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  autoreconf -fi
+  cd ..
+  mkdir -p "build-${MSYSTEM}" && cd "build-${MSYSTEM}"
+  ../$pkgname-$pkgver/configure LDFLAGS="-mwindows" \
+    --prefix="${MINGW_PREFIX}" \
+    --build="${MINGW_CHOST}" \
+    --host="${MINGW_CHOST}" \
+    --target="${MINGW_CHOST}" \
+    --enable-only-gtk5
+  make -s
+  cd ..
+}
+
+package() {
+  cd "build-${MSYSTEM}"
+  make install DESTDIR="$pkgdir"
+  #install -Dpm 644 "../$pkgname-$pkgver/README.md" "$pkgdir/${MINGW_PREFIX}/share/doc/$binname/README.md"
+  install -Dpm 644  "../$pkgname-$pkgver/LICENSE" "$pkgdir/${MINGW_PREFIX}/share/licenses/$binname/LICENSE"
+}

@@ -1,5 +1,5 @@
 Name:          awf-qt7
-Version:       4.1.0
+Version:       4.2.0
 Release:       %mkrel 1
 Summary:       Theme preview application for Qt 7
 Summary(fr):   Application d'aperçu de thème pour Qt 7
@@ -19,7 +19,7 @@ Requires:      qt7
 Requires:      hicolor-icon-theme
 #ecommends:    qt7-gtk-platformtheme ?
 Recommends:    qt7-globalqss
-Recommends:    qtsvg6
+Recommends:    qtsvg7
 Suggests:      libnotify >= 0.7.0
 
 %description %{expand:
@@ -47,23 +47,6 @@ autoreconf -fi
 
 %install
 %make_install
-install -dm 755 %{buildroot}%{_datadir}/applications/
-desktop-file-install --dir=%{buildroot}%{_datadir}/applications/ data/%{name}.desktop
-
-install -dm 755 %{buildroot}%{_datadir}/icons/hicolor/
-for file in data/icons/*/*/awf.png; do mv $file ${file/\/awf.png/\/%{name}.png}; done
-for file in data/icons/*/*/awf.svg; do mv $file ${file/\/awf.svg/\/%{name}.svg}; done
-cp -a data/icons/* %{buildroot}%{_datadir}/icons/hicolor/
-
-install -Dpm 644 data/%{name}.bash %{buildroot}%{_datadir}/bash-completion/completions/%{name}
-install -Dpm 644 data/%{name}.1 %{buildroot}%{_mandir}/man1/%{name}.1
-install -Dpm 644 data/%{name}.fr.1 %{buildroot}%{_mandir}/fr/man1/%{name}.1
-
-for file in src/po/*.po; do
-  code=$(basename "$file" .po)
-  install -dm 755 %{buildroot}%{_datadir}/locale/$code/LC_MESSAGES/
-  msgfmt src/po/$code.po -o %{buildroot}%{_datadir}/locale/$code/LC_MESSAGES/%{name}.mo
-done
 %find_lang %{name} --with-man
 
 %files -f %{name}.lang
@@ -78,8 +61,12 @@ done
 
 
 %changelog
-* Tue May 05 2026 Fabrice Creuzot <code@luigifab.fr> - 4.1.0-1.mga
+* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1.mga
 - Initial Mageia package release (Closes: mbz#32827)
+
+
+
+
 
 
 
