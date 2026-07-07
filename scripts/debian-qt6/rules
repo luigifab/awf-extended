@@ -3,21 +3,11 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@ --with bash-completion
+	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -- --enable-only-qt6
 
-execute_before_dh_install:
-	cp -ar data/icons/ icons-qt6/
-	for file in icons-qt6/*/*/awf.png; do mv $$file `dirname $$file`/awf-qt6.png; done
-	for file in icons-qt6/*/*/awf.svg; do mv $$file `dirname $$file`/awf-qt6.svg; done
-	for file in src/po/*.po; do \
-		code=`basename "$$file" .po`; \
-		mkdir -p locale-qt6/$$code/LC_MESSAGES/; \
-		msgfmt src/po/$$code.po -o locale-qt6/$$code/LC_MESSAGES/awf-qt6.mo; \
-	done
-
-override_dh_clean:
-	rm -f src/awf-qt6.moc
-	dh_clean
+override_dh_auto_install:
+	# 1 binary
+	dh_auto_install --destdir=debian/tmp

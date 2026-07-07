@@ -1,5 +1,8 @@
-data/awf-gtk5.desktop                   usr/share/applications
-icons-gtk5/*                            usr/share/icons/hicolor
-locale-gtk5/*                           usr/share/locale
+usr/bin/awf-gtk5
+usr/share/applications/awf-gtk5.desktop
+usr/share/bash-completion/completions/awf-gtk5
+usr/share/icons/hicolor/*/apps/awf-gtk5.*
+usr/share/locale/*/LC_MESSAGES/awf-gtk5.mo
+usr/share/man/man1/awf-gtk5.1
+usr/share/man/*/man1/awf-gtk5.1
 debian/fr.luigifab.awfgtk5.metainfo.xml usr/share/metainfo
-usr/bin/awf-gtk5                        usr/bin

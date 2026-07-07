@@ -12,7 +12,7 @@ Vcs-Git: https://github.com/luigifab/awf-extended.git
 Package: awf-qt5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: qt5-gtk-platformtheme, qt5-style-globalqss, qttranslations5-l10n, libqt5svg5,
+Recommends: qt5-gtk-platformtheme, qt5-style-globalqss, qttranslations5-l10n, libqt5svg5
 Suggests: libnotify-bin
 Description: theme preview application for Qt 5
  A widget factory is a theme preview application for GTK and Qt. It
@@ -24,7 +24,7 @@ Description: theme preview application for Qt 5
 Package: awf-qt6
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: qt6-gtk-platformtheme, qt6-style-globalqss, qt6-translations-l10n, qt6-svg-plugins,
+Recommends: qt6-gtk-platformtheme, qt6-style-globalqss, qt6-translations-l10n, qt6-svg-plugins
 Suggests: libnotify-bin
 Description: theme preview application for Qt 6
  A widget factory is a theme preview application for GTK and Qt. It

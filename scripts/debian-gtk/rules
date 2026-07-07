@@ -3,19 +3,7 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@ --with bash-completion
+	dh $@
 
 override_dh_auto_configure:
 	dh_auto_configure -- --disable-gtk5 --disable-qt5 --disable-qt6 --disable-qt7
-
-execute_before_dh_install:
-	for engine in "gtk2" "gtk3" "gtk4"; do \
-		cp -ar data/icons/ icons-$$engine/; \
-		for file in icons-$$engine/*/*/awf.png; do mv $$file `dirname $$file`/awf-$$engine.png; done; \
-		for file in icons-$$engine/*/*/awf.svg; do mv $$file `dirname $$file`/awf-$$engine.svg; done; \
-		for file in src/po/*.po; do \
-			code=`basename "$$file" .po`; \
-			mkdir -p locale-$$engine/$$code/LC_MESSAGES/; \
-			msgfmt src/po/$$code.po -o locale-$$engine/$$code/LC_MESSAGES/awf-$$engine.mo; \
-		done; \
-	done

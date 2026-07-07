@@ -1,3 +1,10 @@
+awf-gtk (4.2.0-1) mx; urgency=low
+
+  * New upstream release
+  * Use make install
+
+ -- Fabrice Creuzot <code@luigifab.fr>  Tue, 07 Jul 2026 20:00:00 +0000
+
 awf-gtk (4.1.0-1) mx; urgency=low
 
   * New upstream release
@@ -33,6 +40,7 @@ awf-gtk (3.0.0-1) mx; urgency=low
 awf-gtk (2.9.0-1) mx; urgency=low
 
   * New upstream release
+  * Fix building error with GLIB 2.83 and/or with GCC 15
 
  -- Fabrice Creuzot <code@luigifab.fr>  Fri, 04 Apr 2025 20:00:00 +0000
 

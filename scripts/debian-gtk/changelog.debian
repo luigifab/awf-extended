@@ -1,6 +1,15 @@
+awf-gtk (4.2.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Use make install
+
+ -- Fabrice Creuzot <code@luigifab.fr>  Tue, 07 Jul 2026 20:00:00 +0000
+
 awf-gtk (4.1.0-1) unstable; urgency=low
 
   * New upstream release
+  * Standards-Version: 4.7.4 (routine-update)
+  * d/watch: update to version 5
 
  -- Fabrice Creuzot <code@luigifab.fr>  Tue, 05 May 2026 20:00:00 +0000
 

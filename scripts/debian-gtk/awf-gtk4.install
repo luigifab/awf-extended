@@ -1,5 +1,8 @@
-data/awf-gtk4.desktop                   usr/share/applications
-icons-gtk4/*                            usr/share/icons/hicolor
-locale-gtk4/*                           usr/share/locale
+usr/bin/awf-gtk4
+usr/share/applications/awf-gtk4.desktop
+usr/share/bash-completion/completions/awf-gtk4
+usr/share/icons/hicolor/*/apps/awf-gtk4.*
+usr/share/locale/*/LC_MESSAGES/awf-gtk4.mo
+usr/share/man/man1/awf-gtk4.1
+usr/share/man/*/man1/awf-gtk4.1
 debian/fr.luigifab.awfgtk4.metainfo.xml usr/share/metainfo
-usr/bin/awf-gtk4                        usr/bin

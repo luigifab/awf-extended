@@ -2,9 +2,9 @@
 # Debian: sudo apt install dpkg-dev devscripts build-essential dh-make dh-autoreconf intltool qtbase5-dev qt6-base-dev
 
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")" || exit 1
 export DH_QUIET=1
-version="4.1.0"
+version="4.2.0"
 
 
 mkdir -p builder
@@ -32,7 +32,7 @@ fi
 
 
 # create packages for Debian and Ubuntu and MX Linux
-for serie in experimental resolute questing noble mx25 mx23; do
+for serie in experimental stonking resolute questing noble mx25 mx23 mx21; do
 
 	printf "\n\n##################################################################### $serie ## awf-qt\n\n"
 	if [ $serie = "experimental" ]; then
@@ -52,7 +52,7 @@ for serie in experimental resolute questing noble mx25 mx23; do
 
 	rm -rf debian/*/*ex debian/*ex debian/*EX debian/README* debian/*doc*
 	cp scripts/debian-qt/* debian/
-	rm -f debian/deb.sh
+	rm -f debian/*.sh
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata
 
 
@@ -66,6 +66,8 @@ for serie in experimental resolute questing noble mx25 mx23; do
 	elif [ $serie = "mx21" ]; then
 		mv debian/control.mxo debian/control
 		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
+		sed -i -e 's/ --disable-qt7/ --disable-qt6 --disable-qt7/g' debian/rules
+		printf '\noverride_dh_auto_install:\n\tdh_auto_install --destdir=debian/tmp\n' >> debian/rules # 1 binary
 	elif [ $serie = "focal" ]; then
 		mv debian/control.ubuntu debian/control
 		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
@@ -98,31 +100,24 @@ for serie in experimental resolute questing noble mx25 mx23; do
 		sed -i 's/ experimental; / mx; /' debian/changelog
 		sed -i 's/ unstable; / mx; /' debian/changelog
 		rm debian/*qt7*
-		sed -i '/qt7/d' debian/clean
 	elif [ $serie = "mx21" ]; then
 		mv debian/changelog.mx debian/changelog
 		sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
 		sed -i 's/ experimental; / mx; /' debian/changelog
 		sed -i 's/ unstable; / mx; /' debian/changelog
 		rm debian/*qt6* debian/*qt7*
-		sed -i '/qt6/d;/qt7/d' debian/clean
 	elif [ $serie = "experimental" ]; then
 		mv debian/changelog.debian debian/changelog
-		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
 		rm debian/*qt7*
-		sed -i '/qt7/d' debian/clean
-		#nano debian/control
 	elif [ $serie = "unstable" ]; then
 		mv debian/changelog.debian debian/changelog
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
+		sed -i '/Priority:/d;/Rules-Requires-Root:/d' debian/control
 		rm debian/*qt7*
-		sed -i '/qt7/d' debian/clean
 	else
-		mv debian/changelog.ubuntu debian/changelog
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
 		sed -i 's/-1) /-1+'$serie') /' debian/changelog
 		rm debian/*qt7*
-		sed -i '/qt7/d' debian/clean
 	fi
 	rm -f debian/*.mx debian/*.mxo debian/*.debian debian/*.ubuntu
 
@@ -135,6 +130,7 @@ for serie in experimental resolute questing noble mx25 mx23; do
 	fi
 
 	echo "============== build source package ($serie) =="
+	rm -f debian/*.sh
 	dpkg-buildpackage -us -uc -ui -d -S
 	cd ..
 

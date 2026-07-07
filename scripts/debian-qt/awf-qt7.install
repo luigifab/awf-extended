@@ -1,5 +1,8 @@
-data/awf-qt7.desktop                   usr/share/applications
-icons-qt7/*                            usr/share/icons/hicolor
-locale-qt7/*                           usr/share/locale
+usr/bin/awf-qt7
+usr/share/applications/awf-qt7.desktop
+usr/share/bash-completion/completions/awf-qt7
+usr/share/icons/hicolor/*/apps/awf-qt7.*
+usr/share/locale/*/LC_MESSAGES/awf-qt7.mo
+usr/share/man/man1/awf-qt7.1
+usr/share/man/*/man1/awf-qt7.1
 debian/fr.luigifab.awfqt7.metainfo.xml usr/share/metainfo
-usr/bin/awf-qt7                        usr/bin
