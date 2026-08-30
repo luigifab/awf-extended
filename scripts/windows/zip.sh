@@ -56,7 +56,7 @@
 
 cd "$(dirname "$0")" || exit 1
 originalpath="$PATH"
-version="4.2.0"
+version="4.3.0"
 
 rm -rf builder/*
 mkdir -p builder

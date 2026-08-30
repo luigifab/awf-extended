@@ -4,7 +4,7 @@
 
 cd "$(dirname "$0")" || exit 1
 export DH_QUIET=1
-version="4.2.0"
+version="4.3.0"
 
 
 mkdir -p builder
@@ -32,7 +32,7 @@ fi
 
 
 # create packages for Debian and Ubuntu and MX Linux
-for serie in experimental unstable stonking resolute questing noble jammy mx25 mx23 mx21; do
+for serie in experimental unstable stonking resolute noble jammy mx25 mx23; do
 
 	printf "\n\n#################################################################### $serie ## awf-gtk\n\n"
 	if [ $serie = "experimental" ]; then
@@ -57,37 +57,32 @@ for serie in experimental unstable stonking resolute questing noble jammy mx25 m
 
 
 
-	# debhelper: experimental:13 focal/mx21:12 bionic:9 xenial:9 trusty:9
+	# debhelper: experimental:13 focal:12 bionic:9 xenial:9 trusty:9
 	if [ $serie = "experimental" ]; then
 		mv debian/control.ubuntu debian/control # yes
 	elif [ $serie = "unstable" ]; then
 		mv debian/control.debian debian/control
 		sed -i -e 's/ --disable-gtk5/ --disable-gtk2 --disable-gtk5/g' debian/rules
-	elif [ $serie = "mx21" ]; then
-		mv debian/control.mxo debian/control
-		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
-
-
 	elif [ $serie = "focal" ]; then
 		mv debian/control.ubuntu debian/control
-		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 12)/g' debian/control
+		sed -i 's/debhelper-compat (= 14)/debhelper-compat (= 12)/g' debian/control
 	elif [ $serie = "bionic" ]; then
 		mv debian/control.ubuntu debian/control
 		sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
 		sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
-		sed -i 's/debhelper-compat (= 13)/debhelper-compat (= 9), dh-autoreconf/g' debian/control
+		sed -i 's/debhelper-compat (= 14)/debhelper-compat (= 9), dh-autoreconf/g' debian/control
 	elif [ $serie = "xenial" ]; then
 		mv debian/control.ubuntu debian/control
 		sed -i 's/dh $@/dh $@ --with autoreconf/g' debian/rules
 		sed -i 's/execute_before_dh_install:/override_dh_update_autotools_config:/g' debian/rules
-		sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), dh-autoreconf/g' debian/control
+		sed -i 's/debhelper-compat (= 14)/debhelper (>= 9), dh-autoreconf/g' debian/control
 		sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
 		echo 9 > debian/compat
 	elif [ $serie = "trusty" ]; then
 		mv debian/control.ubuntu debian/control
 		sed -i 's/dh $@/dh $@ --with autotools_dev,autoreconf/g' debian/rules
 		sed -i 's/execute_before_dh_install:/override_dh_autotools-dev_updateconfig:/g' debian/rules
-		sed -i 's/debhelper-compat (= 13)/debhelper (>= 9), autotools-dev, dh-autoreconf/g' debian/control
+		sed -i 's/debhelper-compat (= 14)/debhelper (>= 9), autotools-dev, dh-autoreconf/g' debian/control
 		sed -i ':a;N;$!ba;s/Rules-Requires-Root: no\n//g' debian/control
 		echo 9 > debian/compat
 	else
@@ -100,12 +95,6 @@ for serie in experimental unstable stonking resolute questing noble jammy mx25 m
 		sed -i 's/ experimental; / mx; /' debian/changelog
 		sed -i 's/ unstable; / mx; /' debian/changelog
 		rm debian/*gtk5*
-	elif [ $serie = "mx21" ]; then
-		mv debian/changelog.mx debian/changelog
-		sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
-		sed -i 's/ experimental; / mx; /' debian/changelog
-		sed -i 's/ unstable; / mx; /' debian/changelog
-		rm debian/*gtk4* debian/*gtk5*
 	elif [ $serie = "experimental" ]; then
 		mv debian/changelog.debian debian/changelog
 		rm debian/*gtk5*
@@ -119,7 +108,7 @@ for serie in experimental unstable stonking resolute questing noble jammy mx25 m
 		sed -i 's/-1) /-1+'$serie') /' debian/changelog
 		rm debian/*gtk5*
 	fi
-	rm -f debian/*.mx debian/*.mxo debian/*.debian debian/*.ubuntu
+	rm -f debian/*.mx debian/*.debian debian/*.ubuntu
 
 	if [ $serie = "experimental" ]; then
 		echo "===================== build package ($serie) =="

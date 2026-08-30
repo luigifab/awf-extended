@@ -151,14 +151,17 @@ man_MANS += $(srcdir)/../data/awf-qt5.1
 endif
 
 # install (translated man pages/icons/locales/bash-completion)
+# test -z "$(EXEEXT)" = check if EXEEXT is empty
 install-data-hook:
 	for app in $(bin_PROGRAMS); do \
 		app=$${app%$(EXEEXT)}; \
 		install -Dpm 644 $(srcdir)/../data/$$app.fr.1 $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
-		install -Dpm 644 $(srcdir)/../data/icons/scalable/apps/awf.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
-		for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
-			install -Dpm 644 $(srcdir)/../data/icons/$$size/apps/awf.png $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
-		done; \
+		if test -z "$(EXEEXT)"; then \
+			install -Dpm 644 $(srcdir)/../data/icons/scalable/apps/awf.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
+			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
+				install -Dpm 644 $(srcdir)/../data/icons/$$size/apps/awf.png $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
+			done; \
+		fi; \
 		for file in $(srcdir)/po/*.po; do \
 			code=`basename $$file .po`; \
 			install -dm 755 $(DESTDIR)$(datadir)/locale/$$code/LC_MESSAGES/; \
@@ -171,10 +174,12 @@ install-data-hook:
 uninstall-hook:
 	for app in awf-gtk5 awf-gtk4 awf-gtk3 awf-gtk2 awf-qt7 awf-qt6 awf-qt5; do \
 		rm -f $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
-		rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
-		for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
-			rm -f $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
-		done; \
+		if test -z "$(EXEEXT)"; then \
+			rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
+			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
+				rm -f $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
+			done; \
+		fi; \
 		for file in $(srcdir)/po/*.po; do \
 			code=`basename $$file .po`; \
 			rm -f $(DESTDIR)$(datadir)/locale/$$code/LC_MESSAGES/$$app.mo; \

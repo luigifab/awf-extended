@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated J/02/07/2026
+ * Updated D/30/08/2026
  *
  * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -268,6 +268,7 @@ static void update_theme(QString newTheme);
 static void update_statusbar(QString message);
 static void update_values(QAbstractSlider *range);
 static void update_widgets();
+static void update_notebooks();
 static void display_notification();
 static bool findAndCheckMenu(QList<QAction*> actions, QString search);
 static void on_sighup(int signum);
@@ -671,7 +672,7 @@ static void update_text_direction(int direction) { // ok
 		qApp->setLayoutDirection(Qt::LeftToRight);
 		update_theme("refresh");
 	}
-	else if ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft) || (direction == 3)) {
+	else if ((direction == 3) || ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft))) {
 		current_direction = 2;
 		notebook3->setTabPosition(QTabWidget::East);
 		notebook4->setTabPosition(QTabWidget::West);
@@ -693,6 +694,10 @@ static void update_theme(QString newTheme) { // ok
 
 			qputenv("GQSS_RELOAD", "yes");
 			QApplication::style()->polish(qApp);
+
+			update_notebooks();
+			window->setMinimumHeight(0);
+			window->setMinimumWidth(0);
 			QApplication::processEvents();
 			window->adjustSize();
 
@@ -728,7 +733,14 @@ static void update_theme(QString newTheme) { // ok
 				QApplication::processEvents();
 			}
 
+			if (notebook1)
+				update_notebooks();
+
+			window->setMinimumHeight(0);
+			window->setMinimumWidth(0);
+			QApplication::processEvents();
 			window->adjustSize();
+
 			update_statusbar(_app("Theme %1 loaded.").arg(current_theme));
 
 			if (awf_debug)
@@ -809,9 +821,10 @@ static void update_widgets() { // ok
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_widgets()\n");
 
+	notebook1->window()->setUpdatesEnabled(false);
+
 	// function called when user click on [+] toolbar button
 	// when toggle = true, the [+] toolbar button is NOT checked
-	int width1, width2, height1, height2;
 	bool toggle = notebook1->tabBar()->usesScrollButtons();
 
 	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
@@ -873,23 +886,45 @@ static void update_widgets() { // ok
 		notebook2->tabBar()->setUsesScrollButtons(false);
 		notebook3->tabBar()->setUsesScrollButtons(false);
 		notebook4->tabBar()->setUsesScrollButtons(false);
-		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width());
-		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width());
-		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height());
-		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height());
 	}
 	else {
-		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width() / 2);
-		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width() / 2);
-		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height() / 2);
-		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height() / 2);
 		notebook1->tabBar()->setUsesScrollButtons(true);
 		notebook2->tabBar()->setUsesScrollButtons(true);
 		notebook3->tabBar()->setUsesScrollButtons(true);
 		notebook4->tabBar()->setUsesScrollButtons(true);
 	}
 
-	// auto width and height @todo
+	update_notebooks();
+	window->setMinimumHeight(0);
+	window->setMinimumWidth(0);
+	QApplication::processEvents();
+	window->adjustSize();
+
+	notebook1->window()->setUpdatesEnabled(true);
+}
+
+static void update_notebooks() { // ok
+
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m update_notebooks()\n");
+
+	// auto width and height for notebooks
+	bool toggle = notebook1->tabBar()->usesScrollButtons();
+	int width1, width2, height1, height2;
+
+	if (toggle) {
+		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width() / 2);
+		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width() / 2);
+		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height() / 2);
+		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height() / 2);
+	}
+	else {
+		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width());
+		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width());
+		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height());
+		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height());
+	}
+
 	notebook1->updateGeometry();
 	notebook2->updateGeometry();
 	notebook3->updateGeometry();
@@ -917,10 +952,6 @@ static void update_widgets() { // ok
 	sizes[1] = qMax(height1, height2);
 	vpane->setSizes(sizes);
 	vpane->updateGeometry();
-
-	window->setMinimumHeight(0);
-	window->setMinimumWidth(0);
-	window->adjustSize();
 }
 
 static void display_notification() { // ok
@@ -2040,7 +2071,9 @@ static void create_traditional_menubar(QMenuBar *root) {
 	QMenu *menu, *submenu, *base;
 	QActionGroup *group;
 	QAction *menuitem;
-	bool ok, noRefresh = !awf_gqss, noPrint = false;
+	QString theme;
+	int i, total, count, look;
+	bool mini, is_user, noRefresh = !awf_gqss, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
@@ -2106,36 +2139,47 @@ static void create_traditional_menubar(QMenuBar *root) {
 			create_menuitem(menu, get_icon("application-exit"), _qt("QCocoaMenuItem", "Quit"), false, AWF_ACCEL_QUIT, AWF_QUIT, qApp->quit);
 
 	// system themes
-	ok = false;
-	group = new QActionGroup(window);
-	group->setExclusive(true);
+	group = new QActionGroup(window); group->setExclusive(true);
 	menu  = root->addMenu(_app("_System themes"));
-	for (QString theme : list_system_theme) {
+	total = list_system_theme.size();
+	mini  = total > 15;
+	for (i = 0; i < total; ) {
 
-		if (theme == "Azertyuiop") {
-			submenu = menu->addMenu(theme);
-			base = submenu;
-			ok = true;
+		// count how many following contiguous elements have list_system_theme[i] as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = i + 1;
+			while ((look < total) && list_system_theme[look].startsWith(list_system_theme[i])) {
+				count++;
+				look++;
+			}
 		}
-		else if (ok && theme.startsWith("Azertyuiop")) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = menu->addMenu(list_system_theme[i]);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = false;
 		}
 
-		if (list_user_theme.contains(theme)) {
-			menuitem = create_menuitem_radio(base, theme, false, false, true, group);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			theme   = list_system_theme[i];
+			is_user = list_user_theme.contains(theme);
+
+			menuitem = create_menuitem_radio(base, theme, false, false, is_user, group);
 			if (theme == current_theme)
 				menuitem->setChecked(true);
 			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
-		}
-		else {
-			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-			if (theme == current_theme)
-				menuitem->setChecked(true);
-			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+
+			i++;
 		}
 	}
 
@@ -2145,27 +2189,46 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
 	// user themes
-	ok = false;
-	menu = root->addMenu(_app("_User themes"));
-	for (QString theme : list_user_theme) {
+	menu  = root->addMenu(_app("_User themes"));
+	total = list_user_theme.size();
+	mini  = total > 15;
+	for (i = 0; i < total; ) {
 
-		if (theme == "Azertyuiop") {
-			submenu = menu->addMenu(theme);
-			base = submenu;
-			ok = true;
+		// count how many following contiguous elements have list_user_theme[i] as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = i + 1;
+			while ((look < total) && list_user_theme[look].startsWith(list_user_theme[i])) {
+				count++;
+				look++;
+			}
 		}
-		else if (ok && theme.startsWith("Azertyuiop")) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = menu->addMenu(list_user_theme[i]);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = false;
 		}
 
-		menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-		if (theme == current_theme)
-			menuitem->setChecked(true);
-		QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			theme = list_user_theme[i];
+
+			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
+			if (theme == current_theme)
+				menuitem->setChecked(true);
+			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+
+			i++;
+		}
 	}
 
 	if (noRefresh)

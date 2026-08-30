@@ -1,5 +1,5 @@
 Name:          awf-gtk2
-Version:       4.2.0
+Version:       4.3.0
 Release:       %mkrel 1
 Summary:       Theme preview application for GTK 2
 Summary(fr):   Application d'aperçu de thème pour GTK 2
@@ -38,7 +38,7 @@ Ce paquet fournit le programme pour GTK 2.}
 
 
 %prep
-%autosetup -q -n awf-extended-%{version}
+%setup -q -n awf-extended-%{version}
 
 %build
 autoreconf -fi
@@ -61,7 +61,10 @@ autoreconf -fi
 
 
 %changelog
-* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1pclos2027
+- New upstream release
+
+* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1pclos2026
 - New upstream release
 - Use make install
 

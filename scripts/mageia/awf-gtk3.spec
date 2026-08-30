@@ -1,5 +1,5 @@
 Name:          awf-gtk3
-Version:       4.2.0
+Version:       4.3.0
 Release:       %mkrel 1
 Summary:       Theme preview application for GTK 3
 Summary(fr):   Application d'aperçu de thème pour GTK 3
@@ -61,6 +61,9 @@ autoreconf -fi
 
 
 %changelog
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1.mga
+- New upstream release
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1.mga
 - New upstream release
 - Use make install

@@ -1,5 +1,5 @@
 Name:          awf-qt7
-Version:       4.2.0
+Version:       4.3.0
 Release:       %mkrel 1
 Summary:       Theme preview application for Qt 7
 Summary(fr):   Application d'aperçu de thème pour Qt 7
@@ -38,7 +38,7 @@ Ce paquet fournit le programme pour Qt 7.}
 
 
 %prep
-%autosetup -q -n awf-extended-%{version}
+%setup -q -n awf-extended-%{version}
 
 %build
 autoreconf -fi
@@ -61,8 +61,11 @@ autoreconf -fi
 
 
 %changelog
-* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1pclos2026
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1pclos2027
 - Initial PCLinuxOS package release
+
+
+
 
 
 

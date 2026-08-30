@@ -1,3 +1,5 @@
+--- NIGHTLY ---
+
 # AWF - A widget factory (extended)
 
 A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.
@@ -85,17 +87,7 @@ Replace `apt`/`dnf` with your package manager, or use a graphical interface.
 #### Install via PPA
 
 ```bash
-# PPA: https://launchpad.net/~luigifab/+archive/ubuntu/packages
-# from Debian 12 you can use noble/questing (unix.stackexchange.com/a/669008/364800)
-#     Debian: focal for 10/buster, jammy for 11/bullseye, noble for 12/bookworm,
-#              plucky for 13/trixie, questing for 14/forky and 15/duke
-#     Devuan: focal for 3/beowulf, jammy for 4/chimaera, noble for 5/daedalus,
-#              plucky for 6/excalibur, questing for 7/freia and 8/gryphon and ceres
-# Linux Mint: focal for 20.x and 4/debbie, jammy for 21.x and 5/elsie,
-#              noble for 22.x and 6/faye, plucky for 7/gigi
-#   MX Linux: focal for 19.x, jammy for 21.x, noble for 23.x, questing for 25.x
-#   Trisquel: focal for nabia, jammy for aramo
-# Kali Linux: questing
+# https://launchpad.net/~luigifab/+archive/ubuntu/packages
 
 sudo add-apt-repository ppa:luigifab/packages
 sudo apt update
@@ -185,7 +177,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.2.0 (07/07/2026)
+- Current version: 4.3.0~nightly20260830
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 5.0..5.15 / 6.0..6.11
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

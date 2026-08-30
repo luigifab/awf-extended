@@ -2,7 +2,7 @@ Source: awf-qt6
 Section: x11
 Priority: optional
 Maintainer: Fabrice Creuzot <code@luigifab.fr>
-Build-Depends: debhelper-compat (= 13), bash-completion, pkgconf, qt6-base-dev
+Build-Depends: debhelper-compat (= 14), bash-completion, pkgconf, qt6-base-dev
 Rules-Requires-Root: no
 Standards-Version: 4.7.4
 Homepage: https://github.com/luigifab/awf-extended

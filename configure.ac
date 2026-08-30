@@ -17,7 +17,7 @@
 # OR
 #  --enable-only-qt7
 
-AC_INIT([A widget factory], [4.2.0], [https://github.com/luigifab/awf-extended/issues], [awf-extended], [https://github.com/luigifab/awf-extended])
+AC_INIT([A widget factory], [4.3.0], [https://github.com/luigifab/awf-extended/issues], [awf-extended], [https://github.com/luigifab/awf-extended])
 AC_CONFIG_SRCDIR([src/])
 AM_INIT_AUTOMAKE([foreign])
 AC_PROG_CC

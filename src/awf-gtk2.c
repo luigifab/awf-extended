@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated J/02/07/2026
+ * Updated D/30/08/2026
  *
  * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -535,7 +535,7 @@ static void update_treeview_indicator_width(GtkWidget *view) {
 	gtk_widget_style_get(view, "awf-indicator-width", &minwidth, NULL);
 
 	if (awf_debug)
-		g_printf("check/radio minwidth=%d\n", minwidth);
+		g_printf("\033[33m[debug]\033[00m check/radio minwidth=%d\n", minwidth);
 
 	gtk_tree_view_column_set_min_width(gtk_tree_view_get_column(GTK_TREE_VIEW(view), 1),  minwidth);
 	gtk_tree_view_column_set_min_width(gtk_tree_view_get_column(GTK_TREE_VIEW(view), 2),  minwidth);
@@ -2090,8 +2090,9 @@ static void create_traditional_menubar(GtkWidget *root) {
 	GtkWidget *menu, *submenu, *menuitem, *base;
 	GtkAccelGroup *accels = gtk_accel_group_new();
 	GSList *group = NULL;
-	GList *iterator;
-	gboolean ok;
+	GList *iterator, *look;
+	gboolean mini, is_user;
+	int total, count;
 
 	gtk_window_add_accel_group(GTK_WINDOW(window), accels);
 
@@ -2152,51 +2153,47 @@ static void create_traditional_menubar(GtkWidget *root) {
 			create_menuitem(menu, "gtk-quit", FALSE, AWF_ACCEL_QUIT, AWF_QUIT, quit);
 
 	// system themes
-	ok = FALSE;
 	group = NULL;
 	menu  = create_menu(root, _app("_System themes"), NULL);
-	for (iterator = list_system_theme; iterator; iterator = iterator->next) {
+	total = g_list_length(list_system_theme);
+	mini  = total > 15;
+	for (iterator = list_system_theme; iterator; ) {
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
-			submenu = create_menu(menu, iterator->data, FALSE);
-			base = submenu;
-			ok = TRUE;
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
 		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = create_menu(menu, iterator->data, FALSE);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		if (g_hash_table_lookup(hash_user_theme, iterator->data)) {
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			is_user = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
+
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, is_user, group);
 			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
 			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
 				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
-		}
-		else {
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
-			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+
+			iterator = iterator->next;
 		}
 	}
 
@@ -2204,42 +2201,45 @@ static void create_traditional_menubar(GtkWidget *root) {
 		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
 
 	// user themes
-	ok = FALSE;
 	menu = create_menu(root, _app("_User themes"), NULL);
-	for (iterator = list_user_theme; iterator; iterator = iterator->next) {
+	total = g_list_length(list_user_theme);
+	mini  = total > 15;
+	for (iterator = list_user_theme; iterator; ) {
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
-			submenu = create_menu(menu, iterator->data, FALSE);
-			base = submenu;
-			ok = TRUE;
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
 		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = create_menu(menu, iterator->data, FALSE);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
-		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-		if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
+			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+
+			iterator = iterator->next;
+		}
 	}
 
 	if (!list_user_theme)

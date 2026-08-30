@@ -1,5 +1,5 @@
 pkgname=awf-qt5
-pkgver=4.2.0
+pkgver=4.3.0
 pkgrel=1
 pkgdesc='Theme preview application for Qt 5'
 url='https://github.com/luigifab/awf-extended'
@@ -18,7 +18,7 @@ prepare() {
 build() {
   cd "$pkgname-$pkgver"
   autoreconf -fi
-  ./configure --enable-only-qt5
+  ./configure --prefix=/usr --enable-only-qt5
   make -s
 }
 

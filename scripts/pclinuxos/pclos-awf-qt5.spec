@@ -1,5 +1,5 @@
 Name:          awf-qt5
-Version:       4.2.0
+Version:       4.3.0
 Release:       %mkrel 1
 Summary:       Theme preview application for Qt 5
 Summary(fr):   Application d'aperçu de thème pour Qt 5
@@ -38,7 +38,7 @@ Ce paquet fournit le programme pour Qt 5.}
 
 
 %prep
-%autosetup -q -n awf-extended-%{version}
+%setup -q -n awf-extended-%{version}
 
 %build
 autoreconf -fi
@@ -61,6 +61,9 @@ autoreconf -fi
 
 
 %changelog
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1pclos2027
+- New upstream release
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1pclos2026
 - Initial PCLinuxOS package release
 

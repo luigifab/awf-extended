@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/21/06/2026
+ * Updated D/30/08/2026
  *
  * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -2375,8 +2375,9 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 
 	GMenu *menu, *submenu, *section, *base;
 	GSimpleAction *action;
-	GList *iterator;
-	gboolean ok;
+	GList *iterator, *look;
+	gboolean mini;
+	int total, count;
 
 	// options
 	menu = g_menu_new();
@@ -2486,45 +2487,47 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 	g_object_unref(action);
 
 	// system themes
-	ok = FALSE;
 	menu = g_menu_new();
 	g_menu_append_submenu(root, _app("_System themes"), G_MENU_MODEL(menu));
+	total = g_list_length(list_system_theme);
+	mini  = total > 15;
+	for (iterator = list_system_theme; iterator; ) {
 
-	for (iterator = list_system_theme; iterator; iterator = iterator->next) {
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
+		}
+		else {
+			count = 1;
+		}
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
 			submenu = g_menu_new();
 			g_menu_append_submenu(menu, iterator->data, G_MENU_MODEL(submenu));
 			g_object_unref(submenu); // @todo use-after-unref
 			base = submenu;
-			ok = TRUE;
-		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
-			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		if (g_hash_table_lookup(hash_user_theme, iterator->data))
-			create_menuitem_radio(base, iterator->data, FALSE, "disabled", FALSE); // @todo
-		else
-			create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			if (g_hash_table_lookup(hash_user_theme, iterator->data)) // is_user
+				create_menuitem_radio(base, iterator->data, FALSE, "disabled", FALSE); // @todo
+			else
+				create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
+
+			iterator = iterator->next;
+		}
 	}
 
 	if (!list_system_theme)
@@ -2533,42 +2536,42 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 	g_object_unref(menu);
 
 	// user themes
-	ok = FALSE;
 	menu = g_menu_new();
 	g_menu_append_submenu(root, _app("_User themes"), G_MENU_MODEL(menu));
+	total = g_list_length(list_user_theme);
+	mini  = total > 15;
+	for (iterator = list_user_theme; iterator; ) {
 
-	for (iterator = list_user_theme; iterator; iterator = iterator->next) {
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
+		}
+		else {
+			count = 1;
+		}
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
 			submenu = g_menu_new();
 			g_menu_append_submenu(menu, iterator->data, G_MENU_MODEL(submenu));
 			g_object_unref(submenu); // @todo use-after-unref
 			base = submenu;
-			ok = TRUE;
-		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
-			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+			create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
+			iterator = iterator->next;
+		}
 	}
 
 	if (!list_user_theme)

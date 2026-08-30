@@ -45,10 +45,10 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "FileDescription",  "A widget factory 4.2.0\0"
-      VALUE "FileVersion",      "4.2.0\0"
+      VALUE "FileDescription",  "A widget factory 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
       VALUE "ProductName",      "A widget factory\0"
-      VALUE "ProductVersion",   "4.2.0\0"
+      VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
       VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
@@ -59,10 +59,10 @@ BEGIN
     END
     BLOCK "040C04B0"
     BEGIN
-      VALUE "FileDescription",  "La fabrique à widgets 4.2.0\0"
-      VALUE "FileVersion",      "4.2.0\0"
+      VALUE "FileDescription",  "La fabrique à widgets 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
       VALUE "ProductName",      "La fabrique à widgets\0"
-      VALUE "ProductVersion",   "4.2.0\0"
+      VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
       VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
