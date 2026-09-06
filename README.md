@@ -1,4 +1,4 @@
---- NIGHTLY ---
+-- NIGHTLY --
 
 # AWF - A widget factory (extended)
 
@@ -177,7 +177,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20260830
+- Current version: 4.3.0~nightly20260906
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 5.0..5.15 / 6.0..6.11
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

@@ -1,8 +1,8 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/30/08/2026
+ * Updated D/06/09/2026
  *
- * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
+ * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
  * https://www.luigifab.fr/gtkqt/awf-extended
  *
@@ -204,7 +204,7 @@ static bool allow_update_values = true;
 static bool must_save_accels    = false;
 
 // gtk_style_context_to_string
-static QString generateTooltipRecursive(QWidget *widget) {
+static QString generate_tooltip_recursive(QWidget *widget) {
 
 	if (!widget)
 		return "";
@@ -232,7 +232,7 @@ static QString generateTooltipRecursive(QWidget *widget) {
 
 	for (QObject *child : widget->children()) {
 		if (QWidget *childWidget = qobject_cast<QWidget*>(child))
-			tooltip += "\n  " + generateTooltipRecursive(childWidget).replace("\n", "\n  ");
+			tooltip += "\n  " + generate_tooltip_recursive(childWidget).replace("\n", "\n  ");
 	}
 
 	return tooltip;
@@ -242,7 +242,7 @@ class AwfHBox : public QHBoxLayout {
 public:
 	using QHBoxLayout::QHBoxLayout;
 	void addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		QHBoxLayout::addWidget(widget);
 	}
 };
@@ -251,7 +251,7 @@ class AwfVBox : public QVBoxLayout {
 public:
 	using QVBoxLayout::QVBoxLayout;
 	void addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		QVBoxLayout::addWidget(widget);
 	}
 };
@@ -260,7 +260,7 @@ class AwfToolBar : public QToolBar {
 public:
 	using QToolBar::QToolBar;
 	QAction* addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		return QToolBar::addWidget(widget);
 	}
 
@@ -286,7 +286,7 @@ static void update_values(QAbstractSlider *range);
 static void update_widgets();
 static void update_notebooks();
 static void display_notification();
-static bool findAndCheckMenu(QList<QAction*> actions, QString search);
+static bool find_and_check_menu(QList<QAction*> actions, QString search);
 static void on_sighup(int signum);
 static bool take_screenshot();
 static void create_window();
@@ -346,7 +346,7 @@ protected:
 			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
-			findAndCheckMenu(menuBar()->actions().mid(1), newTheme);
+			find_and_check_menu(menuBar()->actions().mid(1), newTheme);
 		}
 		QMainWindow::changeEvent(e);
 	}
@@ -362,8 +362,7 @@ class AwfTreeView : public QTreeView {
 	QColor m_color;
 	QColor m_altColor;
 
-	// to have the same display as awf-gtk - alternateSortedColumnColor does not work
-	// AwfTreeView { qproperty-sortedColumnColor:#EEE;  qproperty-alternateSortedColumnColor:#DDD; }
+	// AwfTreeView { qproperty-sortedColumnColor:#EEE; qproperty-alternateSortedColumnColor:#DDD; }
 protected:
 	void drawRow(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
 		if (m_color.isValid() && m_altColor.isValid() && (m_sortedColumn >= 0)) {
@@ -386,7 +385,6 @@ public:
 	void setSortedColumnColor(QColor color) { m_color = color; }
 	void setAlternateSortedColumnColor(QColor color) { m_altColor = color; }
 
-	// to have the same display as awf-gtk
 	// AwfTreeView { qproperty-columnWidths:"10,20..." }
 	QString getColumnWidths() {
 		QStringList list;
@@ -397,13 +395,13 @@ public:
 
 	void setColumnWidths(QString widths) {
 		#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
-			QTimer::singleShot(0, this, [this, widths]() { // QTimer mainly for Qt 6.6/6.9
+			QTimer::singleShot(0, this, [this, widths]() { // QTimer to be sure to override resizeColumnToContents (mainly for 6.6)
 				QStringList list = widths.split(",", Qt::SkipEmptyParts);
 				for (int i = 0; i < list.size() && i < 11; ++i)
 					setColumnWidth(i, list[i].trimmed().toInt());
 			});
 		#elif QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-			QTimer::singleShot(0, this, [this, widths]() { // QTimer mainly for Qt 6.6/6.9
+			QTimer::singleShot(0, this, [this, widths]() { // QTimer to be sure to override resizeColumnToContents (mainly for 6.6)
 				QStringList list = widths.split(",", QString::SkipEmptyParts);
 				for (int i = 0; i < list.size() && i < 11; ++i)
 					setColumnWidth(i, list[i].trimmed().toInt());
@@ -688,7 +686,7 @@ static void awf_load_theme(QStringList& themes, QString directory) {
 	}
 }
 
-static void update_text_direction(int direction) { // ok
+static void update_text_direction(int direction) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_text_direction()\n");
@@ -709,7 +707,7 @@ static void update_text_direction(int direction) { // ok
 	}
 }
 
-static void update_theme(QString newTheme) { // ok
+static void update_theme(QString newTheme) {
 
 	if (awf_gqss) {
 
@@ -779,7 +777,7 @@ static void update_theme(QString newTheme) { // ok
 	}
 }
 
-static void update_statusbar(QString message) { // ok
+static void update_statusbar(QString message) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_statusbar(%s)\n", message.toUtf8().constData());
@@ -804,7 +802,7 @@ static void update_statusbar(QString message) { // ok
 	}
 }
 
-static void update_values(QAbstractSlider *range) { // ok
+static void update_values(QAbstractSlider *range) {
 
 	if (allow_update_values) {
 
@@ -844,12 +842,12 @@ static void update_values(QAbstractSlider *range) { // ok
 	}
 }
 
-static void update_widgets() { // ok
+static void update_widgets() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_widgets()\n");
 
-	notebook1->window()->setUpdatesEnabled(false);
+	window->setUpdatesEnabled(false);
 
 	// function called when user click on [+] toolbar button
 	// when toggle = true, the [+] toolbar button is NOT checked
@@ -928,10 +926,10 @@ static void update_widgets() { // ok
 	QApplication::processEvents();
 	window->adjustSize();
 
-	notebook1->window()->setUpdatesEnabled(true);
+	window->setUpdatesEnabled(true);
 }
 
-static void update_notebooks() { // ok
+static void update_notebooks() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_notebooks()\n");
@@ -982,7 +980,7 @@ static void update_notebooks() { // ok
 	vpane->updateGeometry();
 }
 
-static void display_notification() { // ok
+static void display_notification() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m display_notification()\n");
@@ -996,15 +994,15 @@ static void display_notification() { // ok
 	#endif
 }
 
-static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
+static bool find_and_check_menu(QList<QAction*> actions, QString search) {
 
 	if (awf_trace)
-		printf("\033[36m[trace]\033[00m findAndCheckMenu()\n");
+		printf("\033[36m[trace]\033[00m find_and_check_menu()\n");
 
 	for (QAction *action : actions) {
 		if (action->menu()) {
 			// process submenu
-			if (findAndCheckMenu(action->menu()->actions(), search))
+			if (find_and_check_menu(action->menu()->actions(), search))
 				return true;
 		}
 		else if (action->isEnabled() && (action->text() == search)) {
@@ -1017,7 +1015,7 @@ static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
 	return false;
 }
 
-static void on_sighup(int signum) { // ok
+static void on_sighup(int signum) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m on_sighup()\n");
@@ -1031,7 +1029,7 @@ static void on_sighup(int signum) { // ok
 	#endif
 }
 
-static bool take_screenshot() { // ok (without window borders)
+static bool take_screenshot() { // without window borders
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m take_screenshot()\n");
@@ -1279,7 +1277,7 @@ static void create_widgets(AwfVBox *root) { // todo
 			hpane2->setSizes({wboxNotebook1->sizeHint().width(), 10000});
 }
 
-static void create_toolbar(AwfToolBar *toolbar) { // ok
+static void create_toolbar(AwfToolBar *toolbar) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_toolbar()\n");
@@ -1386,7 +1384,7 @@ static void create_toolbar(AwfToolBar *toolbar) { // ok
 	progress8->setProperty("action", QVariant::fromValue<QObject*>(action2));
 }
 
-static void create_combos_entries(AwfVBox *root) { // ok
+static void create_combos_entries(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_combos_entries()\n");
@@ -1449,7 +1447,7 @@ static void create_combos_entries(AwfVBox *root) { // ok
 	root->addWidget(entry4);
 }
 
-static void create_spinbuttons(AwfHBox *root) { // ok
+static void create_spinbuttons(AwfHBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_spinbuttons()\n");
@@ -1478,7 +1476,7 @@ static void create_spinbuttons(AwfHBox *root) { // ok
 	root->addWidget(spinbutton2);
 }
 
-static void create_checkbuttons(AwfVBox *root) { // ok
+static void create_checkbuttons(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_checkbuttons()\n");
@@ -1516,7 +1514,7 @@ static void create_checkbuttons(AwfVBox *root) { // ok
 	root->addWidget(checkbutton6);
 }
 
-static void create_radiobuttons(AwfVBox *root) { // ok
+static void create_radiobuttons(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_radiobuttons()\n");
@@ -1564,7 +1562,7 @@ static void create_radiobuttons(AwfVBox *root) { // ok
 	root->addWidget(radiobutton6);
 }
 
-static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5) { //ok
+static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_otherbuttons()\n");
@@ -1648,7 +1646,7 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	root5->addStretch();
 }
 
-static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4) { // ok
+static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_progressbars()\n");
@@ -1727,7 +1725,7 @@ static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	root4->addStretch();
 }
 
-static void create_labels(AwfHBox *root) { // ok
+static void create_labels(AwfHBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_labels()\n");
@@ -1747,7 +1745,7 @@ static void create_labels(AwfHBox *root) { // ok
 	root->addStretch();
 }
 
-static void create_spinners(AwfHBox *root) {
+static void create_spinners(AwfHBox *root) { // todo
 
 }
 
@@ -1777,7 +1775,7 @@ static void create_expander(AwfVBox *root) { // todo
 	root->addWidget(expander);
 }
 
-static void create_frames(AwfHBox *root1, AwfHBox *root2) { // todo
+static void create_frames(AwfHBox *root1, AwfHBox *root2) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_frames()\n");
@@ -1805,7 +1803,7 @@ static void create_frames(AwfHBox *root1, AwfHBox *root2) { // todo
 	root2->addWidget(frame4);
 }
 
-static void create_notebooks(AwfHBox *root1, AwfHBox *root2) { // ok
+static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_notebooks()\n");
@@ -1908,7 +1906,7 @@ static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *con
 	}
 }
 
-static void create_treeview(AwfVBox *root) { // ok
+static void create_treeview(AwfVBox *root) { // todo
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_treeview()\n");
@@ -1971,7 +1969,7 @@ static void create_treeview(AwfVBox *root) { // ok
 	root->addWidget(view);
 }
 
-static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) { // ok
+static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_sliders()\n");
@@ -2047,7 +2045,7 @@ static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosi
 	create_notebook_tab(notebook, text, container, false);
 }
 
-static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
+static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_horizontal_slider()\n");
@@ -2074,7 +2072,7 @@ static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QS
 	return slider;
 }
 
-static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
+static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_vertical_slider()\n");
@@ -2360,7 +2358,7 @@ static QAction* create_menuitem(QMenu *menu, QIcon icon, QString text, bool dsb,
 	return menuitem;
 }
 
-static void accels_load() { // ok
+static void accels_load() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_load()\n");
@@ -2503,7 +2501,7 @@ static void accels_load() { // ok
 	}
 }
 
-static bool accels_change(QObject *obj, QEvent *event) { // ok
+static bool accels_change(QObject *obj, QEvent *event) {
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
 	if (event->type() != QEvent::KeyPress)
@@ -2567,7 +2565,7 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 	return false;
 }
 
-static void accels_save() { // ok
+static void accels_save() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_save()\n");
@@ -2667,7 +2665,7 @@ static void accels_save() { // ok
 
 // dialogs
 
-static void dialog_open() { // ok
+static void dialog_open() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_open()\n");
@@ -2677,7 +2675,7 @@ static void dialog_open() { // ok
 		QDir::homePath());
 }
 
-static void dialog_save() { // ok
+static void dialog_save() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_save()\n");
@@ -2687,7 +2685,7 @@ static void dialog_save() { // ok
 		QDir::homePath());
 }
 
-static void dialog_message() { // ok
+static void dialog_message() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_message()\n");
@@ -2701,7 +2699,7 @@ static void dialog_message() { // ok
 	msgBox.exec();
 }
 
-static void dialog_page_setup() { // ok
+static void dialog_page_setup() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
@@ -2710,7 +2708,7 @@ static void dialog_page_setup() { // ok
 	QPageSetupDialog(&printer, window).exec();
 }
 
-static void dialog_print() { // ok
+static void dialog_print() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_print()\n");
@@ -2719,7 +2717,7 @@ static void dialog_print() { // ok
 	QPrintDialog(&printer, window).exec();
 }
 
-static void dialog_about() { // ok
+static void dialog_about() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_about()\n");
@@ -2749,13 +2747,13 @@ static void dialog_about() { // ok
 		.arg(VERSION)
 		.arg(t1)
 		.arg("<a href=\"https://github.com/luigifab/awf-extended\">https://github.com/luigifab/awf-extended</a>")
-		.arg("Copyright © 2020-2026 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
+		.arg("Copyright © 2020-2027 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
 		.arg(_app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."));
 
 	QMessageBox::about(window, _qt("QCocoaMenuItem", "About"), t2);
 }
 
-static void dialog_inspector() { // ok
+static void dialog_inspector() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_inspector()\n");
@@ -2860,7 +2858,7 @@ static void dialog_inspector() { // ok
 	}
 }
 
-static void dialog_calendar() { // ok
+static void dialog_calendar() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_calendar()\n");
@@ -2893,7 +2891,7 @@ static void dialog_calendar() { // ok
 	dialog->show();
 }
 
-static void dialog_sliders() { // ok
+static void dialog_sliders() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_sliders()\n");

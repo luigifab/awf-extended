@@ -5,12 +5,12 @@ Upstream-Contact: Fabrice Creuzot <code@luigifab.fr>
 Files: *
 Copyright:
  2011-2016 Valère Monseur (valr) <valere.monseur@ymail.com>
- 2020-2026 Fabrice Creuzot (luigifab) <code@luigifab.fr>
+ 2020-2027 Fabrice Creuzot (luigifab) <code@luigifab.fr>
 License: GPL-3+
 
 Files: */fr.luigifab.*.metainfo.xml */awf-*.bash */slackware/*
 Copyright:
- 2020-2026 Fabrice Creuzot (luigifab) <code@luigifab.fr>
+ 2020-2027 Fabrice Creuzot (luigifab) <code@luigifab.fr>
 License: Expat
 
 License: GPL-3+

@@ -1,8 +1,8 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/30/08/2026
+ * Updated D/06/09/2026
  *
- * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
+ * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
  * https://www.luigifab.fr/gtkqt/awf-extended
  *
@@ -146,7 +146,7 @@ static gchar *current_theme         = NULL;
 static gchar *opt_theme             = NULL;
 static gchar *opt_screenshot        = NULL;
 static gboolean allow_update_values = TRUE;
-static gboolean must_save_accels    = FALSE; // @todo
+static gboolean must_save_accels    = FALSE;
 
 // global functions
 static void awf_load_theme(GHashTable* hashtable, gchar *directory);
@@ -437,7 +437,7 @@ static inline int awf_compare_theme(gconstpointer a, gconstpointer b) {
 	return g_ascii_strcasecmp((gchar*) a, (gchar*) b); //g_strcmp0((gchar*) a, (gchar*) b);
 }
 
-static void notify_updated_gtktheme(GSettings *settings, gchar *key) { // ok
+static void notify_updated_gtktheme(GSettings *settings, gchar *key) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m notify_updated_gtktheme(%s)\n", key);
@@ -471,7 +471,7 @@ static void notify_updated_gtktheme(GSettings *settings, gchar *key) { // ok
 	}
 }
 
-static void update_text_direction(int direction) { // ok
+static void update_text_direction(int direction) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_text_direction()\n");
@@ -504,7 +504,7 @@ static void update_text_direction(int direction) { // ok
 	}
 }
 
-static void update_theme(gchar *newTheme) { // ok
+static void update_theme(gchar *newTheme) {
 
 	if (!newTheme)
 		return;
@@ -570,7 +570,7 @@ static void update_theme(gchar *newTheme) { // ok
 	}
 }
 
-static void update_statusbar(gchar *message) { // ok
+static void update_statusbar(gchar *message) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_statusbar(%s)\n", message);
@@ -598,7 +598,7 @@ static void update_statusbar(gchar *message) { // ok
 	}
 }
 
-static void update_values(GtkRange *range) { // ok
+static void update_values(GtkRange *range) {
 
 	if (allow_update_values) {
 
@@ -645,7 +645,7 @@ static void update_values(GtkRange *range) { // ok
 	}
 }
 
-static void update_widgets() { // ok
+static void update_widgets() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
@@ -733,7 +733,7 @@ static void clear_entry(GtkEntry *entry) {
 	gtk_editable_set_text(GTK_EDITABLE(entry), "");
 }
 
-static void display_notification() { // ok
+static void display_notification() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
@@ -816,7 +816,7 @@ static gboolean find_and_check_menuradio(GMenuModel *model, gchar *search) { // 
 	return FALSE;
 }
 
-static gboolean on_sighup(void *data) { // ok
+static gboolean on_sighup(void *data) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m on_sighup()\n");
@@ -830,7 +830,7 @@ static gboolean on_sighup(void *data) { // ok
 	#endif
 }
 
-static gboolean take_screenshot() { // ok (without window borders)
+static gboolean take_screenshot() { // without window borders
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m take_screenshot()\n");
@@ -1050,7 +1050,7 @@ static void create_window(gpointer app) {
 	add_progressbar_and_entrybar();
 }
 
-static void create_widgets(GtkWidget *root) { // ok
+static void create_widgets(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_widgets()\n");
@@ -1198,7 +1198,7 @@ static void add_progressbar_and_entrybar() {
 	gtk_widget_insert_after(progress9, gtk_widget_get_first_child(statusbar), gtk_widget_get_first_child(gtk_widget_get_first_child(statusbar))); // statusbar > box > label, statusbar > box > progressbar
 }
 
-static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) { // ok
+static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) {
 
 	if (expand && fill) {
 		gtk_widget_set_halign(widget, GTK_ALIGN_FILL);
@@ -1242,7 +1242,7 @@ static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean
 	}
 }
 
-static void create_toolbar(GtkWidget *root) { // ok
+static void create_toolbar(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_toolbar()\n");
@@ -1304,7 +1304,7 @@ static void create_toolbar(GtkWidget *root) { // ok
 	add_to(root, icon9, FALSE, FALSE, 0, 0);
 }
 
-static void create_combos_entries(GtkWidget *root) { // ok
+static void create_combos_entries(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_combos_entries()\n");
@@ -1392,7 +1392,7 @@ static void create_combos_entries(GtkWidget *root) { // ok
 	add_to(root, entry4, FALSE, FALSE, 0, 0);
 }
 
-static void create_spinbuttons(GtkWidget *root) { // ok
+static void create_spinbuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_spinbuttons()\n");
@@ -1413,7 +1413,7 @@ static void create_spinbuttons(GtkWidget *root) { // ok
 	add_to(root, spinbutton2, FALSE, FALSE, 0, 0);
 }
 
-static void create_checkbuttons(GtkWidget *root) { // ok
+static void create_checkbuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_checkbuttons()\n");
@@ -1449,7 +1449,7 @@ static void create_checkbuttons(GtkWidget *root) { // ok
 	add_to(root, checkbutton6, FALSE, FALSE, 0, 0);
 }
 
-static void create_radiobuttons(GtkWidget *root) { // ok
+static void create_radiobuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_radiobuttons()\n");
@@ -1491,7 +1491,7 @@ static void create_radiobuttons(GtkWidget *root) { // ok
 	add_to(root, radiobutton6, FALSE, FALSE, 0, 0);
 }
 
-static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4, GtkWidget *root5) { // ok
+static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4, GtkWidget *root5) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_otherbuttons()\n");
@@ -1617,7 +1617,7 @@ static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	add_to(root5, button17, FALSE, FALSE, 0, 0);
 }
 
-static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4) { // ok
+static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_progressbars()\n");
@@ -1725,7 +1725,7 @@ static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	add_to(root4, levelbar8, FALSE, FALSE, 0, 0);
 }
 
-static void create_labels(GtkWidget *root) { // ok
+static void create_labels(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_labels()\n");
@@ -1745,7 +1745,7 @@ static void create_labels(GtkWidget *root) { // ok
 	add_to(root, BOXH, TRUE, TRUE, 0, 0); // empty space
 }
 
-static void create_spinners(GtkWidget *root) { // ok
+static void create_spinners(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_spinners()\n");
@@ -1768,7 +1768,7 @@ static void create_spinners(GtkWidget *root) { // ok
 	add_to(root, BOXH, TRUE, TRUE, 0, 0); // empty space
 }
 
-static void create_expander(GtkWidget *root) { // ok
+static void create_expander(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_expander()\n");
@@ -1807,7 +1807,7 @@ static void create_expander(GtkWidget *root) { // ok
 	add_to(root, expander, FALSE, FALSE, 0, 0);
 }
 
-static void create_frames(GtkWidget *root1, GtkWidget *root2) { // ok
+static void create_frames(GtkWidget *root1, GtkWidget *root2) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_frames()\n");
@@ -1835,7 +1835,7 @@ static void create_frames(GtkWidget *root1, GtkWidget *root2) { // ok
 	add_to(root2, frame4, TRUE, TRUE, 0, 0);
 }
 
-static void create_notebooks(GtkWidget *root1, GtkWidget *root2) { // ok
+static void create_notebooks(GtkWidget *root1, GtkWidget *root2) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_notebooks()\n");
@@ -1884,7 +1884,7 @@ static void create_notebooks(GtkWidget *root1, GtkWidget *root2) { // ok
 	add_to(root2, notebook4, TRUE, TRUE, 0, 0);
 }
 
-static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *content, gboolean close) { // ok
+static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *content, gboolean close) {
 
 	GtkWidget *headbtn = BOXH, *btn;
 	gtk_widget_set_hexpand(headbtn, FALSE);
@@ -1912,7 +1912,7 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 	gtk_widget_add_controller(gtk_widget_get_parent(headbtn), event);
 }
 
-static void create_treeview(GtkWidget *root) { // ok
+static void create_treeview(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_treeview()\n");
@@ -2203,7 +2203,7 @@ static void create_treeview(GtkWidget *root) { // ok
 	add_to(root, scrolledWindow, FALSE, FALSE, 0, 0);
 }
 
-static void create_scales(GtkWidget *notebook, gchar *text, int position) { // ok
+static void create_scales(GtkWidget *notebook, gchar *text, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_scales()\n");
@@ -2221,31 +2221,31 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position) { // o
 
 	// vertical scales
 	scale1v = create_vertical_scale(value, FALSE, FALSE, position);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale1v, "top");
 
 	scale2v = create_vertical_scale(value, FALSE, FALSE, position);
 	update_marks(GTK_SCALE(scale2v), FALSE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale2v, "top");
 
 	scale3v = create_vertical_scale(value, FALSE, FALSE, position);
 	update_marks(GTK_SCALE(scale3v), TRUE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale3v, "top");
 
 	scale4v = create_vertical_scale(value, TRUE, FALSE, position);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale4v, "top");
 
 	scale5v = create_vertical_scale(value, TRUE, FALSE, position);
 	update_marks(GTK_SCALE(scale5v), FALSE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale5v, "top");
 
 	scale6v = create_vertical_scale(value, TRUE, FALSE, position);
 	update_marks(GTK_SCALE(scale6v), TRUE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_widget_add_css_class(scale6v, "top");
 
 	scale7v = create_vertical_scale(value, FALSE, TRUE, position);
@@ -2331,7 +2331,7 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position) { // o
 	create_notebook_tab(notebook, text, hbox, FALSE);
 }
 
-static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position) { // ok
+static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_horizontal_scale()\n");
@@ -2348,7 +2348,7 @@ static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean
 	return scale;
 }
 
-static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position) { // ok
+static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_vertical_scale()\n");
@@ -2682,7 +2682,7 @@ static void activate_action(GSimpleAction *action, GVariant *parameter, gpointer
 	}
 }
 
-static void accels_load(GtkApplication *app) { // ok
+static void accels_load(GtkApplication *app) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_load()\n");
@@ -2788,7 +2788,7 @@ static void accels_save() { // todo
 
 // dialogs
 
-static void dialog_close(GtkWidget *widget, GtkDialog *dialog) { // ok
+static void dialog_close(GtkWidget *widget, GtkDialog *dialog) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_close()\n");
@@ -2799,7 +2799,7 @@ static void dialog_close(GtkWidget *widget, GtkDialog *dialog) { // ok
 		gtk_window_destroy(GTK_WINDOW(dialog));
 }
 
-static void dialog_open() { // ok
+static void dialog_open() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_open()\n");
@@ -2842,7 +2842,7 @@ static void dialog_open() { // ok
 	#endif
 }
 
-static void dialog_save() { // ok
+static void dialog_save() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_save()\n");
@@ -2884,7 +2884,7 @@ static void dialog_save() { // ok
 	#endif
 }
 
-static void dialog_message() { // todo
+static void dialog_message() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_message()\n");
@@ -2912,7 +2912,7 @@ static void dialog_message() { // todo
 	gtk_window_present(GTK_WINDOW(dialog));
 }
 
-static void dialog_page_setup() { // ok
+static void dialog_page_setup() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
@@ -2932,7 +2932,7 @@ static void dialog_page_setup() { // ok
 	g_object_unref(setup);
 }
 
-static void dialog_print() { // ok
+static void dialog_print() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_print()\n");
@@ -2953,7 +2953,7 @@ static void dialog_print() { // ok
 	g_object_unref(op);
 }
 
-static void dialog_about() { // ok
+static void dialog_about() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
@@ -2996,7 +2996,7 @@ static void dialog_about() { // ok
 				pango_version_string())
 		),
 		"website", "https://github.com/luigifab/awf-extended",
-		"copyright", "Copyright © 2020-2026 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
+		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
 		"logo", pixbuf,
 		"icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
 		"logo-icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
@@ -3018,7 +3018,7 @@ static void dialog_about() { // ok
 	#endif
 }
 
-static void dialog_inspector() { // ok
+static void dialog_inspector() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_inspector()\n");
@@ -3026,7 +3026,7 @@ static void dialog_inspector() { // ok
 	gtk_window_set_interactive_debugging(TRUE);
 }
 
-static void dialog_calendar() { // ok
+static void dialog_calendar() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
@@ -3125,7 +3125,7 @@ static void dialog_calendar() { // ok
 	gtk_widget_grab_focus(GTK_WIDGET(btn));
 }
 
-static void dialog_scales() { // ok
+static void dialog_scales() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_scales()\n");
