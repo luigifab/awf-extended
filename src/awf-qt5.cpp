@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/06/09/2026
+ * Updated M/08/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -182,27 +182,6 @@
 #define _app(x) QString::fromUtf8(gettext(x)).replace('_', '&')
 #define _qt(y, x) QCoreApplication::translate(y, x)
 
-// global variables
-static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
-static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
-static bool awf_gqss  = false;
-constexpr std::nullptr_t null = nullptr;
-static QStringList list_system_theme;
-static QStringList list_user_theme;
-static QMainWindow *window = null;
-static QDialog *inspector = null;
-static QLineEdit *toolbarentry = null;
-static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
-static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
-static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
-static int current_direction    = 0;
-static QString current_theme    = "auto";
-static QString opt_theme        = "auto";
-static QString opt_screenshot   = "";
-static QString original_style   = "";
-static bool allow_update_values = true;
-static bool must_save_accels    = false;
-
 // gtk_style_context_to_string
 static QString generate_tooltip_recursive(QWidget *widget) {
 
@@ -238,6 +217,7 @@ static QString generate_tooltip_recursive(QWidget *widget) {
 	return tooltip;
 }
 
+// overload
 class AwfHBox : public QHBoxLayout {
 public:
 	using QHBoxLayout::QHBoxLayout;
@@ -275,6 +255,27 @@ protected:
 		QToolBar::keyPressEvent(e);
 	}
 };
+
+// global variables
+static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
+static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
+static bool awf_gqss  = false;
+constexpr std::nullptr_t null = nullptr;
+static QStringList list_system_theme;
+static QStringList list_user_theme;
+static QMainWindow *window = null;
+static QDialog *inspector = null;
+static QLineEdit *toolbarentry = null;
+static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
+static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
+static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
+static int current_direction    = 0;
+static QString current_theme    = "auto";
+static QString opt_theme        = "auto";
+static QString opt_screenshot   = "";
+static QString original_style   = "";
+static bool allow_update_values = true;
+static bool must_save_accels    = false;
 
 // global functions
 static QIcon get_icon(QString name);
@@ -605,6 +606,7 @@ int main(int argc, char **argv) {
 					case 199711L: cppVersion = "C++98";  break;
 					case 201103L: cppVersion = "C++11";  break;
 					case 201402L: cppVersion = "C++14";  break;
+					case 201500L: cppVersion = "201500 (C++17-dev)"; break;
 					case 201703L: cppVersion = "C++17";  break;
 					case 202002L: cppVersion = "C++20";  break;
 					case 202302L: cppVersion = "C++23";  break;
@@ -1095,7 +1097,7 @@ static void create_window() {
 	progress9 = new QProgressBar;
 	progress9->setMaximumWidth(140);
 	progress9->setFixedHeight(16);
-	progress9->setAttribute(Qt::WA_StyledBackground, true); // @todo not working
+	progress9->setAttribute(Qt::WA_StyledBackground, true);
 	progress9->setVisible(false);
 	window->statusBar()->addPermanentWidget(progress9);
 
@@ -2299,7 +2301,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), "QtInspector", false, AWF_ACCEL_INSP, AWF_INSP, dialog_inspector);
 		create_menuitem(menu, get_icon("help-about"), _qt("QCocoaMenuItem", "About"), false, AWF_ACCEL_ABOU, AWF_ABOU, dialog_about);
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
 }
 
@@ -2367,7 +2369,7 @@ static void accels_load() {
 	if (QFile::exists(oldPath))
 		QFile::rename(oldPath, QDir::homePath() + "/.awf-accels");
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	QFile f(QDir::homePath() + QStringLiteral("/.awf-accels"));
 
 	if (f.exists() && f.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -2503,7 +2505,7 @@ static void accels_load() {
 
 static bool accels_change(QObject *obj, QEvent *event) {
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (event->type() != QEvent::KeyPress)
 		return false;
 
@@ -2570,7 +2572,7 @@ static void accels_save() {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	// gtk_accel_map_save
 	if (must_save_accels) {
 
@@ -2727,6 +2729,7 @@ static void dialog_about() {
 		case 199711L: cppVersion = "C++98";  break;
 		case 201103L: cppVersion = "C++11";  break;
 		case 201402L: cppVersion = "C++14";  break;
+		case 201500L: cppVersion = "201500 (C++17-dev)"; break;
 		case 201703L: cppVersion = "C++17";  break;
 		case 202002L: cppVersion = "C++20";  break;
 		case 202302L: cppVersion = "C++23";  break;

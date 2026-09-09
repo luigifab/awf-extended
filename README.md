@@ -50,13 +50,14 @@ Theme used for the screenshots is available [here](https://github.com/luigifab/h
 * The _Info_ toolbar button allows you to display a notification
 * The _Plus/Minus_ toolbar buttons allow you to show/hide notebook arrows, marks on progress bars and scales...
 * The _Refresh_ toolbar button and menu item allow you to reload the current theme (like the `SIGHUP` signal)
-* Notebook tabs are scrollable (GTK 3.x & 4.x, *gtk-scroll-tabs*, like with GTK 2.24 + Qt 5.x & 6.x)
-* Menu keyboard shortcuts can be updated on hover (GTK 2.24 & 3.x + Qt 5.x & 6.x, *gtk-can-change-accels*)
+* Notebook tabs are scrollable (GTK 3.x & 4.x, *gtk-scroll-tabs*, like with GTK 2.24 + Qt 4.8 5.x & 6.x)
+* Menu keyboard shortcuts can be updated on hover (GTK 2.24 & 3.x + Qt 4.8 5.x & 6.x, *gtk-can-change-accels*)
 * Use `AWF_DEBUG=1` and `AWF_TRACE=1` to enable some debug messages
-* Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu (GTK 2.24 & 3.x + Qt 5.x & 6.x)
+* Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu (GTK 2.24 & 3.x + Qt 4.8 5.x & 6.x)
 * Use `GTK_OVERLAY_SCROLLING=0` to make scrollbars always visible (GTK 3.16+ & 4.x)
 * Use `GTK_CSD=1` to enable CSD windows (GTK 3.12+ & 4.x)
-* Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover
+* Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover (GTK)
+* Use `QT_X11_NO_NATIVE_MENUBAR=1` on Ubuntu to allow updating menu keyboard shortcuts on hover (Qt)
 
 ## Broadway
 
@@ -66,7 +67,7 @@ Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, the
 
 For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.23)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
-For Qt, it requires **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
+For Qt, it requires **Qt 4.8** or **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
 > The road is long, but the way is free — we always have a choice.
 
@@ -146,6 +147,10 @@ From [migrating guide](https://docs.gtk.org/gtk4/migrating-4to5.html#non-standar
 
 I think it would be nice to create a patch to fix this GTK regression.
 
+#### Qt 4
+
+Only for fun.
+
 #### Qt 5 & 6
 
 On Fedora with Qt 5, the GTK 3 platform theme _(qt5-qtbase-gui)_ works better than on Debian _(qt5-gtk-platformtheme)_, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509).
@@ -177,8 +182,8 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20260906
-- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 5.0..5.15 / 6.0..6.11
+- Current version: 4.3.0~nightly20260909
+- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 4.8 / 5.0..5.15 / 6.0..6.11
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 
 This program is provided under the terms of the **GNU GPLv3+** license.\

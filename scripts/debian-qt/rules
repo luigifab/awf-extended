@@ -6,4 +6,4 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt7
+	dh_auto_configure -- --disable-gtk --disable-qt4 --disable-qt7

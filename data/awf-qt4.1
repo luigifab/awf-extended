@@ -1,0 +1,51 @@
+.Dd 06/09/26
+.Dt AWF 1
+.Os Linux
+.Sh NAME
+.Nm awf-qt4
+.Nd Theme preview application for Qt 4.
+.Sh SYNOPSIS
+.Op Fl h
+.Op Fl v
+.Op Fl l
+.Op Fl t Ar theme
+.Op Fl s Ar filename
+.Op Fl Fl ltr
+.Op Fl Fl rtl
+.Sh DESCRIPTION
+A widget factory is a theme preview application for GTK and Qt. It
+displays the various widget types in a single window allowing to see
+the visual effect of the applied theme.
+.Sh OPTIONS
+.Bl -tag
+.It Fl h , Fl Fl help
+Show help.
+.It Fl v , Fl Fl version
+Show version number.
+.It Fl l , Fl Fl list
+List available themes.
+.It Fl t Ar theme , Fl Fl theme Ar theme
+Run with the specified theme.
+.It Fl s Ar filename , Fl Fl screenshot Ar filename
+Run and save a screenshot on SIGHUP (PNG).
+.It Fl Fl ltr
+Run with text from left to right (Left-To-Right).
+.It Fl Fl rtl , Fl Fl reverse
+Run with text from right to left (Right-To-Left).
+.El
+.Sh FILES
+.Bl -tag -width "/home/user/.awf-accels" -compact
+.It Pa /home/user/.awf-accels
+Configuration of keyboard shortcuts.
+.El
+.Sh ENVIRONMENT VARIABLES
+.Bl -tag -width "UBUNTU_MENUPROXY=" -compact
+.It UBUNTU_MENUPROXY=
+Disable the Ubuntu global menu.
+.It AWF_DEBUG=1
+Enable some debug messages.
+.It AWF_TRACE=1
+Enable more debug messages.
+.It AWF_TEAROFF=1
+Add a tear-off item to the Options menu.
+.El

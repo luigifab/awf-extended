@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/06/09/2026
+ * Updated M/08/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -1035,7 +1035,7 @@ static void create_window(gpointer app) {
 			g_signal_connect(g_settings_new(value), "changed::gtk-decoration-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
 	#endif
 
-	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load(app);
 	//GtkEventController *event = gtk_event_controller_key_new();
 	//g_signal_connect(event, "key-released", G_CALLBACK(accels_change), window);
@@ -1905,7 +1905,7 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), content, headbtn);
 	gtk_notebook_set_tab_reorderable(GTK_NOTEBOOK(notebook), content, TRUE);
 
-	// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	GtkEventController *event;
 	event = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_BOTH_AXES | GTK_EVENT_CONTROLLER_SCROLL_DISCRETE);
 	g_signal_connect(event, "scroll", G_CALLBACK(on_scrolltabs), notebook);
@@ -2695,7 +2695,7 @@ static void accels_load(GtkApplication *app) {
 	}
 	g_free(oldPath);
 
-	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
 
 	if (g_file_test(path, G_FILE_TEST_IS_REGULAR)) {
@@ -2779,7 +2779,7 @@ static void accels_save() { // todo
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		// @todo
 	}
@@ -3199,14 +3199,14 @@ static void dialog_scales() {
 }
 
 
-// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 // @see https://github.com/mate-desktop/mate-control-center/blob/master/capplets/common/capplet-util.c
 // for on_scrolltabs source function is capplet_dialog_page_scroll_event_cb
 //  of mate-appearance-properties from mate-control-center, GNU GPL 2.0+
 
 static gboolean on_scrolltabs(GtkEventControllerScroll *event, double dx, double dy, GtkWidget *widget) {
 
-	// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-scroll-tabs for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	GtkWidget *child, *eventWidget, *actionWidget;
 	GtkNotebook *notebook;
 

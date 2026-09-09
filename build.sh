@@ -6,7 +6,8 @@
 # supported options for build.sh/configure.ac
 #  none
 # OR
-#  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt5 --disable-qt6 --disable-qt7
+#  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
+#  --disable-gtk                                               --disable-qt
 # OR
 #  --enable-only-gtk2
 # OR
@@ -16,13 +17,15 @@
 # OR
 #  --enable-only-gtk5
 # OR
+#  --enable-only-qt4
+# OR
 #  --enable-only-qt5
 # OR
 #  --enable-only-qt6
 # OR
 #  --enable-only-qt7
 
-rm -rf awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt5* awf-qt6* awf-qt7* builder/
+rm -rf awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt4* awf-qt5* awf-qt6* awf-qt7* builder/
 
 # copy to a tmp directory
 mkdir builder builder/src builder/data
@@ -51,6 +54,6 @@ cd ..
 if [ $result -eq 0 ]; then
 	cp builder/src/awf-gtk* builder/src/awf-qt* .
 	rm -f awf-gtk*.c awf-qt*.cpp awf-qt*.moc awf-qt*.o
-	ls -altrh awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt5* awf-qt6* awf-qt7*
+	ls -altrh awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt4* awf-qt5* awf-qt6* awf-qt7*
 fi
 rm -rf builder/

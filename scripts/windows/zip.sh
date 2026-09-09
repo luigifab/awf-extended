@@ -18,13 +18,21 @@
 #	extract the archive in C:\GTK3
 #    copy C:\GTK3\share\themes\Default to C:\GTK3\share\themes\gtk-win32-xp
 #
-# 6/ download qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe from https://download.qt.io/new_archive/qt/5.3/5.3.2/
+# 6/ download qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe from https://download.qt.io/archive/qt/5.3/5.3.2/
 #    install in C:\tempQT
 #	move C:\tempQT\5.3\mingw482_32 to C:\QT5
 #	uninstall qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe and remove C:\tempQT
 #
+#    download qt-opensource-windows-x86-mingw482-4.8.7.exe from https://download.qt.io/archive/qt/4.8/4.8.7/
+#    install in C:\tempQT
+#	move C:\tempQT\bin imports include lib mkspecs plugins src translations to C:\QT4
+#	uninstall qt-opensource-windows-x86-mingw482-4.8.7.exe and remove C:\tempQT
+#
 # 7/ download pkg-config-lite-0.28-1_bin-win32.zip from https://sourceforge.net/projects/pkgconfiglite/files/0.28-1/
 #	extract the archive in C:\QT5
+#
+#    copy C:\QT5\bin\pkg-config.exe to C:\QT4\bin\pkg-config.exe
+#    copy ./Qt*.pc in C:\QT4\lib\pkgconfig
 #
 # 8/ download and install NSIS from https://sourceforge.net/projects/nsis/files/
 #
@@ -44,13 +52,19 @@
 #  export PKG_CONFIG_PATH=/c/GTK3/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows" --enable-only-gtk3
 #
+# To manually build with QT4 run: C:\MinGW\msys\1.0\msys.bat
+#  cd /c/awf-gtk
+#  export PATH=/c/QT4/bin:$PATH
+#  export PKG_CONFIG_PATH=/c/QT4/lib/pkgconfig
+#  bash build.sh LDFLAGS="-mwindows -static-libstdc++" --enable-only-qt4
+#
 # To manually build with QT5 run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
 #  export PATH=/c/QT5/bin:$PATH
 #  export PKG_CONFIG_PATH=/c/QT5/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows -static-libstdc++" --enable-only-qt5
 #
-# To build with GTK2/GTK3/QT5 with this script run: C:\MinGW\msys\1.0\msys.bat
+# To build with GTK2/GTK3/QT4/QT5 with this script run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
 #  bash scripts/windows/zip.sh
 
@@ -185,7 +199,7 @@ for engine in "2" "3" "4"; do
 	export PATH=$originalpath
 done
 
-for engine in "5" "6"; do
+for engine in "4" "5" "6"; do
 
 	printf "\n\n############################################################ awf-qt$engine\n\n"
 	if [ -d "/mingw64" ]; then
@@ -217,12 +231,15 @@ for engine in "5" "6"; do
 		mv src/awf-qt$engine.exe ../qt$engine/
 		copydeps ../qt$engine/awf-qt$engine.exe ../qt$engine/ $ROOT/bin/
 
-		echo " - plugins/platforms"
-		mkdir -p ../qt$engine/platforms
-		cp -a $ROOTPLUG/plugins/platforms/qwindows.dll ../qt$engine/platforms/
+		if [ $engine -ne 4 ]; then
+			echo " - plugins/platforms"
+			mkdir -p ../qt$engine/platforms
+			cp -a $ROOTPLUG/plugins/platforms/qwindows.dll ../qt$engine/platforms/
+		fi
 
 		echo " - translations"
-		cp -ar $ROOTRANS/translations/ ../qt$engine/
+		mkdir -p ../qt$engine/translations
+		cp -a $ROOTRANS/translations/*.qm ../qt$engine/translations/
 
 		echo " - msgfmt"
 		for file in src/po/*.po; do

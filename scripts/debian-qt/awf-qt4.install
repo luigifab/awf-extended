@@ -1,0 +1,8 @@
+usr/bin/awf-qt4
+usr/share/applications/awf-qt4.desktop
+usr/share/bash-completion/completions/awf-qt4
+usr/share/icons/hicolor/*/apps/awf-qt4.*
+usr/share/locale/*/LC_MESSAGES/awf-qt4.mo
+usr/share/man/man1/awf-qt4.1
+usr/share/man/*/man1/awf-qt4.1
+debian/fr.luigifab.awfqt4.metainfo.xml usr/share/metainfo

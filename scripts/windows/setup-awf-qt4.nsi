@@ -3,7 +3,7 @@ unicode true
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
-!define ENGINE   "gtk4"
+!define ENGINE   "qt4"
 !define ARCH     ":ARCH:"
 !define ARCHNAME ":ARCHNAME:"
 !define VERSION  ":AWFVERSION:"
@@ -172,18 +172,18 @@ Section "AWF - ${VERSION} - ${ARCH} ${ARCHNAME}" SecProgram
 	WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "EstimatedSize" "$0"
 SectionEnd
 
-Section "GTK Core - :ENGINEVERSION: - ${ARCH} ${ARCHNAME}" SecEngine
+Section "Qt Core - :ENGINEVERSION: - ${ARCH} ${ARCHNAME}" SecEngine
 	SetOutPath "$INSTDIR"
 	File    "${ENGINE}\*.dll"
 
-	SetOutPath "$INSTDIR\share"
-	File /r "${ENGINE}\share\schemas"
-	File /r "${ENGINE}\share\themes"
+
+
+	File /r "${ENGINE}\share"
 SectionEnd
 
-Section "GTK Translations" SecTranslations
-	SetOutPath "$INSTDIR\share"
-	File /r /x "awf*.mo" "${ENGINE}\share\locale"
+Section "Qt Translations" SecTranslations
+	SetOutPath "$INSTDIR"
+	File /r "${ENGINE}\translations"
 SectionEnd
 
 Section "Start menu shortcut" SecStartMenu

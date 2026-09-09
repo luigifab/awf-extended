@@ -32,25 +32,16 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) Qt 5.15/6.10
- *  Fedora Rawhide 64                  (1536 MB) Qt 5.15/6.11
- *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) Qt 5.15/6.10
- *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) Qt 5.15/6.9
- *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) Qt 5.15/6.8
- *  Ubuntu 24.10 Oracular Oriole 64    (4096 MB) Qt 5.15/6.6
- *  Ubuntu 24.04 Noble Numbat 64       (4096 MB) Qt 5.15/6.4
- *  Ubuntu 23.10 Mantic Minotaur 64    (3072 MB) Qt 5.15/6.4
- *  Ubuntu 23.04 Lunar Lobster 64      (3072 MB) Qt 5.15/6.4
- *  Ubuntu 22.10 Kinetic Kudu 64       (2176 MB) Qt 5.15/6.3
- *  Windows XP SP3 MinGW/msys          (2048 MB) Qt 5.3
+ *  Ubuntu 17.04 Zesty Zapus 32        (1536 MB) Qt 4.8
+ *  Windows XP SP3 MinGW/msys          (2048 MB) Qt 4.8
  */
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#if defined (Q_OS_WIN) || defined (_WIN32)
 #include <functional>
+#if defined (Q_OS_WIN) || defined (_WIN32)
 #include <windows.h>
-#include <QScreen>
+#include <QDesktopWidget>
 #endif
 #include <QAction>
 #include <QActionGroup>
@@ -61,8 +52,6 @@
 #include <QClipboard>
 #include <QColorDialog>
 #include <QComboBox>
-#include <QCommandLineOption>
-#include <QCommandLineParser>
 #include <QDir>
 #include <QDoubleSpinBox>
 #include <QFileDialog>
@@ -99,12 +88,12 @@
 #include <QSplitter>
 #include <QStandardItem>
 #include <QStandardItemModel>
-#include <QStandardPaths>
 #include <QStatusBar>
 #include <QString>
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTabWidget>
+#include <QTextCodec>
 #include <QTextEdit>
 #include <QTextStream>
 #include <QTime>
@@ -126,8 +115,18 @@
 #endif
 #pragma GCC diagnostic pop
 
-#define GETTEXT_PACKAGE "awf-qt6"
+#define GETTEXT_PACKAGE "awf-qt4"
+#ifndef QT_VERSION_MAJOR
+#define QT_VERSION_MAJOR ((QT_VERSION >> 16) & 0xFF)
+#endif
+#ifndef QT_VERSION_MINOR
+#define QT_VERSION_MINOR ((QT_VERSION >> 8) & 0xFF)
+#endif
+#ifndef QT_VERSION_PATCH
+#define QT_VERSION_PATCH (QT_VERSION & 0xFF)
+#endif
 
+#define QStringLiteral QString::fromUtf8
 #define AWF_OPEN QStringLiteral("<AWF>/Test/Open")
 #define AWF_SAVE QStringLiteral("<AWF>/Test/Save")
 #define AWF_REFR QStringLiteral("<AWF>/Test/Refresh")
@@ -145,22 +144,22 @@
 #define AWF_INSP QStringLiteral("<AWF>/Test/Inspector")
 #define AWF_ABOU QStringLiteral("<AWF>/Test/About")
 
-#define AWF_ACCEL_OPEN QKeySequence(Qt::CTRL | Qt::Key_O)
-#define AWF_ACCEL_SAVE QKeySequence(Qt::CTRL | Qt::Key_S)
-#define AWF_ACCEL_REFR QKeySequence(Qt::Key_F5)
+#define AWF_ACCEL_OPEN QKeySequence("Ctrl+O")
+#define AWF_ACCEL_SAVE QKeySequence("Ctrl+S")
+#define AWF_ACCEL_REFR QKeySequence("F5")
 #define AWF_ACCEL_RECE QKeySequence()
 #define AWF_ACCEL_CALE QKeySequence()
 #define AWF_ACCEL_SCAL QKeySequence()
-#define AWF_ACCEL_PROP QKeySequence(Qt::ALT | Qt::Key_Return)
-#define AWF_ACCEL_PRSE QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_P)
-#define AWF_ACCEL_PRIN QKeySequence(Qt::CTRL | Qt::Key_P)
-#define AWF_ACCEL_MCUT QKeySequence(Qt::CTRL | Qt::Key_X)
-#define AWF_ACCEL_MCOP QKeySequence(Qt::CTRL | Qt::Key_C)
-#define AWF_ACCEL_MPAS QKeySequence(Qt::CTRL | Qt::Key_V)
-#define AWF_ACCEL_CLOS QKeySequence(Qt::CTRL | Qt::Key_W)
-#define AWF_ACCEL_QUIT QKeySequence(Qt::CTRL | Qt::Key_Q)
-#define AWF_ACCEL_INSP QKeySequence(Qt::Key_F12)
-#define AWF_ACCEL_ABOU QKeySequence(Qt::Key_F1)
+#define AWF_ACCEL_PROP QKeySequence("Alt+Return")
+#define AWF_ACCEL_PRSE QKeySequence("Ctrl+Shift+P")
+#define AWF_ACCEL_PRIN QKeySequence("Ctrl+P")
+#define AWF_ACCEL_MCUT QKeySequence("Ctrl+X")
+#define AWF_ACCEL_MCOP QKeySequence("Ctrl+C")
+#define AWF_ACCEL_MPAS QKeySequence("Ctrl+V")
+#define AWF_ACCEL_CLOS QKeySequence("Ctrl+W")
+#define AWF_ACCEL_QUIT QKeySequence("Ctrl+Q")
+#define AWF_ACCEL_INSP QKeySequence("F12")
+#define AWF_ACCEL_ABOU QKeySequence("F1")
 
 // @see https://stackoverflow.com/a/10018581/2980105
 #define _app(x) QString::fromUtf8(gettext(x)).replace('_', '&')
@@ -201,7 +200,7 @@ static QString generate_tooltip_recursive(QWidget *widget) {
 	return tooltip;
 }
 
-// overload
+// overload and compatibility
 class AwfHBox : public QHBoxLayout {
 public:
 	using QHBoxLayout::QHBoxLayout;
@@ -240,6 +239,25 @@ protected:
 	}
 };
 
+class AwfTabWidget : public QTabWidget {
+public:
+	using QTabWidget::QTabWidget;
+	using QTabWidget::tabBar; // now public
+};
+
+class AwfCall : public QObject {
+	Q_OBJECT
+public:
+	using QObject::QObject;
+	std::function<void()> fn;
+public slots:
+	void run() { fn(); }
+};
+
+static inline bool qEnvironmentVariableIsSet(const char *name) {
+	return !qgetenv(name).isNull();
+}
+
 // global variables
 static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
 static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
@@ -252,7 +270,7 @@ static QDialog *inspector = null;
 static QLineEdit *toolbarentry = null;
 static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
 static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
-static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
+static AwfTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
 static int current_direction    = 0;
 static QString current_theme    = "auto";
 static QString opt_theme        = "auto";
@@ -288,9 +306,9 @@ static void create_spinners(AwfHBox *root);
 static void create_expander(AwfVBox *root);
 static void create_frames(AwfHBox *root1, AwfHBox *root2);
 static void create_notebooks(AwfHBox *root1, AwfHBox *root2);
-static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *content, bool close);
+static void create_notebook_tab(AwfTabWidget *notebook, QString text, QWidget *content, bool close);
 static void create_treeview(AwfVBox *root);
-static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position);
+static void create_sliders(AwfTabWidget *notebook, QString text, QSlider::TickPosition position);
 static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
 static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
 static void create_traditional_menubar(QMenuBar *root);
@@ -357,12 +375,16 @@ protected:
 		QTreeView::drawRow(painter, option, index);
 	}
 
+private slots:
+	void onSortIndicatorChanged(int column) {
+		m_sortedColumn = column;
+		viewport()->update();
+	}
+
 public:
 	explicit AwfTreeView(QWidget* parent = null) : QTreeView(parent) {
-		connect(header(), &QHeaderView::sortIndicatorChanged, this, [this](int column, Qt::SortOrder) {
-			m_sortedColumn = column;
-			viewport()->update();
-		});
+		//connect(header(), &QHeaderView::sortIndicatorChanged, this, [this](int column, Qt::SortOrder) {
+		connect(header(), SIGNAL(sortIndicatorChanged(int,Qt::SortOrder)), this, SLOT(onSortIndicatorChanged(int)));
 	}
 
 	QColor getSortedColumnColor() { return m_color; }
@@ -379,11 +401,9 @@ public:
 	}
 
 	void setColumnWidths(QString widths) {
-		QTimer::singleShot(0, this, [this, widths]() { // QTimer to be sure to override resizeColumnToContents (mainly for 6.6)
-			QStringList list = widths.split(",", Qt::SkipEmptyParts);
-			for (int i = 0; i < list.size() && i < 11; ++i)
-				setColumnWidth(i, list[i].trimmed().toInt());
-		});
+		QStringList list = widths.split(",", QString::SkipEmptyParts);
+		for (int i = 0; i < list.size() && i < 11; ++i)
+			setColumnWidth(i, list[i].trimmed().toInt());
 	}
 };
 
@@ -401,7 +421,7 @@ public:
 
 	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const override {
 
-		opt.widget->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+		m_view->viewport()->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, m_view->viewport());
 
 		if (!(opt.state & QStyle::State_Selected)) {
 			QColor bg = idx.data(Qt::BackgroundRole).value<QColor>();
@@ -410,7 +430,7 @@ public:
 		}
 
 		QLocale locale;
-		bool isfr = (locale.language() == QLocale::French) && (locale.territory() == QLocale::France);
+		bool isfr = (locale.language() == QLocale::French) && (locale.country() == QLocale::France);
 
 		QStyleOptionProgressBar option;
 		option.initFrom(m_pbar);
@@ -445,7 +465,7 @@ public:
 
 	void paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &idx) const override {
 
-		opt.widget->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+		m_view->viewport()->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, m_view->viewport());
 
 		if (!(opt.state & QStyle::State_Selected)) {
 			QColor bg = idx.data(Qt::BackgroundRole).value<QColor>();
@@ -474,12 +494,10 @@ private:
 class AwfShortcutFilter : public QObject {
 public:
 	explicit AwfShortcutFilter(QObject *parent) : QObject(parent) {}
-
 	bool eventFilter(QObject *obj, QEvent *event) override {
 		return accels_change(obj, event) ? true : QObject::eventFilter(obj, event);
 	}
 };
-
 
 // run run run
 
@@ -490,20 +508,22 @@ int main(int argc, char **argv) {
 
 	int opt = 0, status = 0;
 	QApplication app(argc, argv);
+	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
+	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 	awf_gqss = qEnvironmentVariableIsSet("GQSS_SET");
 
 	if (awf_gqss) {
 
-		// load available system themes (/usr/local/share/themes && /usr/share/themes)
-		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
-			awf_load_theme(list_system_theme, QDir(dir).filePath("themes"));
-		list_system_theme.sort(Qt::CaseInsensitive);
+		// @todo load available system themes (/usr/local/share/themes && /usr/share/themes)
+		//for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
+		//	awf_load_theme(list_system_theme, QDir(dir).filePath("themes"));
+		list_system_theme.sort();
 		list_system_theme.push_front("None");
 
-		// load available user themes (HOME/.local/share/themes && HOME/.themes)
-		awf_load_theme(list_user_theme, QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("themes"));
+		// @todo load available user themes (HOME/.local/share/themes && HOME/.themes)
+		//awf_load_theme(list_user_theme, QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("themes"));
 		awf_load_theme(list_user_theme, QDir(QDir::homePath()).filePath(".themes"));
-		list_user_theme.sort(Qt::CaseInsensitive);
+		list_user_theme.sort();
 	}
 
 	// locale
@@ -511,13 +531,13 @@ int main(int argc, char **argv) {
 	QLocale::setDefault(QLocale::system());
 
 	QTranslator *qtTr = new QTranslator(qApp);
-	if (qtTr->load("qt_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+	if (qtTr->load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtTr);
 	else if (qtTr->load("qt_" + QLocale::system().name(), appDir + "/translations"))
 		qApp->installTranslator(qtTr);
 
 	QTranslator *qtBaseTr = new QTranslator(qApp);
-	if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+	if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtBaseTr);
 	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), appDir + "/translations"))
 		qApp->installTranslator(qtBaseTr);
@@ -605,34 +625,24 @@ int main(int argc, char **argv) {
 		current_direction = 3;
 
 	// create and show window
-	QCommandLineParser parser;
-	parser.setApplicationDescription(_app("A widget factory - Qt %1.%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
-	parser.addHelpOption();
-	parser.addVersionOption(); // << "v" << "version", _app("Show version number.")));
-	parser.addOption(QCommandLineOption(QStringList() << "l" << "list", _app("List available themes.")));
-	parser.addOption(QCommandLineOption(QStringList() << "t" << "theme", _app("Run with the specified theme."), "theme"));
-	parser.addOption(QCommandLineOption(QStringList() << "s" << "screenshot", QString(_app("Run and save a screenshot on %1 (PNG).").arg("SIGHUP")), "filename"));
-	parser.addOption(QCommandLineOption(QStringList() << "y" << "ltr", _app("Run with text from left to right (Left-To-Right).")));
-	parser.addOption(QCommandLineOption(QStringList() << "z" << "rtl", _app("Run with text from right to left (Right-To-Left).")));
-	parser.process(app);
-
 	create_window();
 	return app.exec();
 }
 
 static QIcon get_icon(QString name) {
 
-	static const QHash<QString, QStyle::StandardPixmap> map = {
-		{"application-exit",   QStyle::SP_DialogCloseButton},
-		{"dialog-close",       QStyle::SP_DialogCloseButton},
-		{"dialog-information", QStyle::SP_MessageBoxInformation},
-		{"document-open",      QStyle::SP_DialogOpenButton},
-		{"document-save",      QStyle::SP_DialogSaveButton},
-		{"help-about",         QStyle::SP_MessageBoxQuestion},
-		{"help-browser",       QStyle::SP_MessageBoxQuestion},
-		{"view-refresh",       QStyle::SP_BrowserReload},
-		{"window-close",       QStyle::SP_DialogCloseButton},
-	};
+	static QHash<QString, QStyle::StandardPixmap> map;
+	if (map.isEmpty()) {
+		map.insert("application-exit",   QStyle::SP_DialogCloseButton);
+		map.insert("dialog-close",       QStyle::SP_DialogCloseButton);
+		map.insert("dialog-information", QStyle::SP_MessageBoxInformation);
+		map.insert("document-open",      QStyle::SP_DialogOpenButton);
+		map.insert("document-save",      QStyle::SP_DialogSaveButton);
+		map.insert("help-about",         QStyle::SP_MessageBoxQuestion);
+		map.insert("help-browser",       QStyle::SP_MessageBoxQuestion);
+		map.insert("view-refresh",       QStyle::SP_BrowserReload);
+		map.insert("window-close",       QStyle::SP_DialogCloseButton);
+	}
 
 	QIcon icon = QIcon::fromTheme(name);
 	if (icon.isNull())
@@ -654,7 +664,7 @@ static void awf_load_theme(QStringList& themes, QString directory) {
 
 		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 		for (QString theme : entries) {
-			if (QDir(QDir(dir.filePath(theme)).filePath("qt6")).exists())
+			if (QDir(QDir(dir.filePath(theme)).filePath("qt4")).exists())
 				themes.append(theme);
 		}
 	}
@@ -761,7 +771,7 @@ static void update_statusbar(QString message) {
 		QStatusBar *statusbar = window->statusBar();
 		statusbar->showMessage(QTime::currentTime().toString("HH:mm:ss") + " - " + message, 0);
 
-		QVariantAnimation *anim = new QVariantAnimation(statusbar);
+		/* @todo QVariantAnimation *anim = new QVariantAnimation(statusbar);
 		anim->setStartValue(QColor(255,255,0,255)); // yellow
 		anim->setEndValue(window->palette().color(QPalette::Window));
 		anim->setDuration(1000);
@@ -772,7 +782,7 @@ static void update_statusbar(QString message) {
 		QObject::connect(anim, &QVariantAnimation::finished, [statusbar]() {
 			statusbar->setStyleSheet("");
 		});
-		anim->start(QAbstractAnimation::DeleteWhenStopped);
+		anim->start(QAbstractAnimation::DeleteWhenStopped); */
 	}
 }
 
@@ -994,7 +1004,7 @@ static void on_sighup(int signum) {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m on_sighup()\n");
 
-	QMetaObject::invokeMethod(qApp, [](){ update_theme("refresh"); }, Qt::QueuedConnection);
+	update_theme("refresh"); // best effort
 }
 
 static bool take_screenshot() { // without window borders
@@ -1002,7 +1012,7 @@ static bool take_screenshot() { // without window borders
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
-	QPixmap pixmap = window->grab();
+	QPixmap pixmap = QPixmap::grabWidget(window);
 	return pixmap.save(opt_screenshot, "PNG", 0); // 0 = 9
 }
 
@@ -1026,9 +1036,13 @@ static void create_window() {
 		window->setWindowIcon(QIcon::fromTheme(GETTEXT_PACKAGE));
 	#elif defined (Q_OS_WIN) || defined (_WIN32)
 		HICON hIcon = (HICON) LoadImage(GetModuleHandle(nullptr), "IDI_ICON1", IMAGE_ICON, 48, 48, LR_DEFAULTSIZE);
-		QPixmap pixmap = QPixmap::fromImage(QImage::fromHICON(hIcon));
-		QApplication::setWindowIcon(QIcon(pixmap));
-		window->setWindowIcon(QIcon(pixmap));
+		ICONINFO iconInfo;
+		GetIconInfo(hIcon, &iconInfo);
+		QIcon icon(QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::PremultipliedAlpha));
+		DeleteObject(iconInfo.hbmColor);
+		DeleteObject(iconInfo.hbmMask);
+		QApplication::setWindowIcon(icon);
+		window->setWindowIcon(icon);
 		DestroyIcon(hIcon);
 	#endif
 
@@ -1068,7 +1082,7 @@ static void create_window() {
 	window->statusBar()->addPermanentWidget(progress9);
 
 	QLocale locale;
-	if ((locale.language() == QLocale::French) && (locale.territory() == QLocale::France))
+	if ((locale.language() == QLocale::French) && (locale.country() == QLocale::France))
 		progress9->setFormat("%p %");
 
 	// go go go
@@ -1080,24 +1094,15 @@ static void create_window() {
 	#endif
 
 	window->show();
-	#if (QT_VERSION >= QT_VERSION_CHECK(6,9,0)) && (QT_VERSION < QT_VERSION_CHECK(6,10,0))
-		// @see https://bugreports.qt.io/browse/QTBUG-139924
-		// fix qproperty-columnWidths not applied with Qt 6.9
-		QTimer::singleShot(0, qApp, [](){
-			QString ss = qApp->styleSheet();
-			if (!ss.isEmpty()) {
-				qApp->setStyleSheet(QString());
-				qApp->setStyleSheet(ss);
-			}
-		});
-	#endif
-
 	window->setAttribute(Qt::WA_DeleteOnClose);
-	toolbar->widgetForAction(toolbar->actions().constFirst())->setFocus(Qt::TabFocusReason); // focus on the first toolbar button
-	QObject::connect(qApp, &QCoreApplication::aboutToQuit, accels_save);
+	toolbar->widgetForAction(toolbar->actions().first())->setFocus(Qt::TabFocusReason); // focus on the first toolbar button
+	//QObject::connect(qApp, &QCoreApplication::aboutToQuit, accels_save);
+		AwfCall *caller = new AwfCall(qApp);
+		caller->fn = accels_save;
+		QObject::connect(qApp, SIGNAL(aboutToQuit()), caller, SLOT(run()));
 
 	#if defined (Q_OS_WIN) || defined (_WIN32)
-		window->move(QGuiApplication::primaryScreen()->availableGeometry().center() - window->rect().center());
+		window->move(QApplication::desktop()->availableGeometry().center() - window->rect().center());
 	#endif
 }
 
@@ -1258,6 +1263,7 @@ static void create_toolbar(AwfToolBar *toolbar) {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_toolbar()\n");
 
+	AwfCall *caller;
 	QToolButton *tool1, *tool2, *tool3, *tool4, *tool5, *tool6, *tool7, *tool8, *tool9;
 	QAction *action1, *action2;
 	QWidget *spacer;
@@ -1273,7 +1279,10 @@ static void create_toolbar(AwfToolBar *toolbar) {
 	tool1->setIcon(get_icon("document-open"));
 	tool1->setPopupMode(QToolButton::MenuButtonPopup);
 	tool1->setProperty("hasMenu", true);
-	QObject::connect(tool1, &QToolButton::clicked, dialog_open);
+	//QObject::connect(tool1, &QToolButton::clicked, dialog_open);
+		caller = new AwfCall(tool1);
+		caller->fn = dialog_open;
+		QObject::connect(tool1, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool2 = new QToolButton;
 	tool2->setIcon(get_icon("document-open"));
@@ -1283,21 +1292,33 @@ static void create_toolbar(AwfToolBar *toolbar) {
 
 	tool3 = new QToolButton;
 	tool3->setIcon(get_icon("document-save"));
-	QObject::connect(tool3, &QToolButton::clicked, dialog_save);
+	//QObject::connect(tool3, &QToolButton::clicked, dialog_save);
+		caller = new AwfCall(tool3);
+		caller->fn = dialog_save;
+		QObject::connect(tool3, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool4 = new QToolButton;
 	tool4->setIcon(get_icon("view-refresh"));
 	tool4->setEnabled(awf_gqss);
-	QObject::connect(tool4, &QToolButton::clicked, [](){ on_sighup(0); });
+	//QObject::connect(tool4, &QToolButton::clicked, [](){ on_sighup(0); });
+		caller = new AwfCall(tool4);
+		caller->fn = [](){ on_sighup(0); };
+		QObject::connect(tool4, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool5 = new QToolButton;
 	tool5->setIcon(get_icon("camera-photo"));
 	tool5->setEnabled(opt_screenshot.isEmpty() ? false : true);
-	QObject::connect(tool5, &QToolButton::clicked, take_screenshot);
+	//QObject::connect(tool5, &QToolButton::clicked, take_screenshot);
+		caller = new AwfCall(tool5);
+		caller->fn = take_screenshot;
+		QObject::connect(tool5, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool6 = new QToolButton;
 	tool6->setIcon(get_icon("dialog-information"));
-	QObject::connect(tool6, &QToolButton::clicked, display_notification);
+	//QObject::connect(tool6, &QToolButton::clicked, display_notification);
+		caller = new AwfCall(tool6);
+		caller->fn = display_notification;
+		QObject::connect(tool6, SIGNAL(clicked()), caller, SLOT(run()));
 	#if defined (Q_OS_WIN) || defined (_WIN32)
 		tool6->setEnabled(false);
 	#endif
@@ -1306,13 +1327,19 @@ static void create_toolbar(AwfToolBar *toolbar) {
 	tool7->setCheckable(true);
 	tool7->setChecked(true);
 	tool7->setIcon(get_icon("list-add"));
-	QObject::connect(tool7, &QToolButton::clicked, update_widgets);
+	//QObject::connect(tool7, &QToolButton::clicked, update_widgets);
+		caller = new AwfCall(tool7);
+		caller->fn = update_widgets;
+		QObject::connect(tool7, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool8 = new QToolButton;
 	tool8->setCheckable(true);
 	tool8->setChecked(false);
 	tool8->setIcon(get_icon("list-remove"));
-	QObject::connect(tool8, &QToolButton::clicked, update_widgets);
+	//QObject::connect(tool8, &QToolButton::clicked, update_widgets);
+		caller = new AwfCall(tool8);
+		caller->fn = update_widgets;
+		QObject::connect(tool8, SIGNAL(clicked()), caller, SLOT(run()));
 
 	tool9 = new QToolButton;
 	tool9->setCheckable(true);
@@ -1333,7 +1360,7 @@ static void create_toolbar(AwfToolBar *toolbar) {
 	progress8->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
 	QLocale locale;
-	if ((locale.language() == QLocale::French) && (locale.territory() == QLocale::France))
+	if ((locale.language() == QLocale::French) && (locale.country() == QLocale::France))
 		progress8->setFormat("%p %");
 
 	// layout
@@ -1400,12 +1427,10 @@ static void create_combos_entries(AwfVBox *root) {
 
 	entry3 = new QLineEdit;
 	entry3->setText("Entry");
-	entry3->setClearButtonEnabled(true);
 	entry3->setPlaceholderText("Placeholder");
 
 	entry4 = new QLineEdit;
 	entry4->setText("Entry");
-	entry4->setClearButtonEnabled(true);
 	entry4->setEnabled(false);
 
 	// layout
@@ -1557,36 +1582,40 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	button4->setEnabled(false);
 
 	// QPushButton for dialogs
+	AwfCall *caller;
 	QPushButton *button5, *button6, *button7, *button8;
 
 	button5 = new QPushButton(_app("Choose a color"));
 	button5->setMinimumWidth(186); // The 186
 	button5->setProperty("class", "awf-cheatcode-colorbtn");
-	QObject::connect(button5, &QPushButton::clicked, [=](){
-		QColorDialog::getColor(QColor("#7796ba"), window, "QColorDialog");
-	});
+	//QObject::connect(button5, &QPushButton::clicked, [=](){
+		caller = new AwfCall(button5);
+		caller->fn = [=](){ QColorDialog::getColor(QColor("#7796ba"), window, "QColorDialog"); };
+		QObject::connect(button5, SIGNAL(clicked()), caller, SLOT(run()));
 
 	button6 = new QPushButton(_app("Choose a font"));
 	button6->setMinimumWidth(186); // The 186
 	button6->setProperty("class", "awf-cheatcode-fontbtn");
-	QObject::connect(button6, &QPushButton::clicked, [=](){
-		bool ok;
-		QFontDialog::getFont(&ok, QFont(), window, "QFontDialog");
-	});
+	//QObject::connect(button6, &QPushButton::clicked, [=](){
+		caller = new AwfCall(button6);
+		caller->fn = [=](){ bool ok; QFontDialog::getFont(&ok, QFont(), window, "QFontDialog"); };
+		QObject::connect(button6, SIGNAL(clicked()), caller, SLOT(run()));
 
 	button7 = new QPushButton(_app("Choose a file"));
 	button7->setMinimumWidth(186); // The 186
 	button7->setProperty("class", "awf-cheatcode-filebtn");
-	QObject::connect(button7, &QPushButton::clicked, [=](){
-		QFileDialog::getOpenFileName(window, "QFileDialog:Open");
-	});
+	//QObject::connect(button7, &QPushButton::clicked, [=](){
+		caller = new AwfCall(button7);
+		caller->fn = [=](){ QFileDialog::getOpenFileName(window, "QFileDialog:Open"); };
+		QObject::connect(button7, SIGNAL(clicked()), caller, SLOT(run()));
 
 	button8 = new QPushButton(_app("Choose a folder"));
 	button8->setMinimumWidth(186); // The 186
 	button8->setProperty("class", "awf-cheatcode-folderbtn");
-	QObject::connect(button8, &QPushButton::clicked, [=](){
-		QFileDialog::getExistingDirectory(window, "QFileDialog:Open");
-	});
+	//QObject::connect(button8, &QPushButton::clicked, [=](){
+		caller = new AwfCall(button8);
+		caller->fn = [=](){ QFileDialog::getExistingDirectory(window, "QFileDialog:Open"); };
+		QObject::connect(button8, SIGNAL(clicked()), caller, SLOT(run()));
 
 	// Other
 	QFontComboBox *button9;
@@ -1623,6 +1652,8 @@ static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_progressbars()\n");
 
+	AwfCall *caller;
+
 	// QProgressBar
 	progress1 = new QProgressBar;
 	progress1->setOrientation(Qt::Horizontal);
@@ -1651,7 +1682,7 @@ static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	progress4->setFixedHeight(100);
 
 	QLocale locale;
-	if ((locale.language() == QLocale::French) && (locale.territory() == QLocale::France)) {
+	if ((locale.language() == QLocale::French) && (locale.country() == QLocale::France)) {
 		progress1->setFormat("%p %");
 		progress2->setFormat("%p %");
 		progress3->setFormat("%p %");
@@ -1660,25 +1691,46 @@ static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 
 	// QSlider
 	slider1 = create_horizontal_slider(50, false, false, QSlider::NoTicks);
-	QObject::connect(slider1, &QSlider::valueChanged, [=](){ update_values(slider1); });
+	//QObject::connect(slider1, &QSlider::valueChanged, [=](){ update_values(slider1); });
+		caller = new AwfCall(slider1);
+		caller->fn = [=](){ update_values(slider1); };
+		QObject::connect(slider1, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider2 = create_horizontal_slider(50, false, true, QSlider::NoTicks);
-	QObject::connect(slider2, &QSlider::valueChanged, [=](){ update_values(slider2); });
+	//QObject::connect(slider2, &QSlider::valueChanged, [=](){ update_values(slider2); });
+		caller = new AwfCall(slider2);
+		caller->fn = [=](){ update_values(slider2); };
+		QObject::connect(slider2, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider3 = create_vertical_slider(50, false, !false, QSlider::NoTicks);
-	QObject::connect(slider3, &QSlider::valueChanged, [=](){ update_values(slider3); });
+	//QObject::connect(slider3, &QSlider::valueChanged, [=](){ update_values(slider3); });
+		caller = new AwfCall(slider3);
+		caller->fn = [=](){ update_values(slider3); };
+		QObject::connect(slider3, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider4 = create_vertical_slider(50, false, !true, QSlider::NoTicks);
-	QObject::connect(slider4, &QSlider::valueChanged, [=](){ update_values(slider4); });
+	//QObject::connect(slider4, &QSlider::valueChanged, [=](){ update_values(slider4); });
+		caller = new AwfCall(slider4);
+		caller->fn = [=](){ update_values(slider4); };
+		QObject::connect(slider4, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider5 = create_vertical_slider(50, false, !false, QSlider::TicksAbove);
-	QObject::connect(slider5, &QSlider::valueChanged, [=](){ update_values(slider5); });
+	//QObject::connect(slider5, &QSlider::valueChanged, [=](){ update_values(slider5); });
+		caller = new AwfCall(slider5);
+		caller->fn = [=](){ update_values(slider5); };
+		QObject::connect(slider5, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider6 = create_vertical_slider(50, false, !true, QSlider::TicksBelow);
-	QObject::connect(slider6, &QSlider::valueChanged, [=](){ update_values(slider6); });
+	//QObject::connect(slider6, &QSlider::valueChanged, [=](){ update_values(slider6); });
+		caller = new AwfCall(slider6);
+		caller->fn = [=](){ update_values(slider6); };
+		QObject::connect(slider6, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	slider7 = create_vertical_slider(50, false, !true, QSlider::TicksBothSides);
-	QObject::connect(slider7, &QSlider::valueChanged, [=](){ update_values(slider7); });
+	//QObject::connect(slider7, &QSlider::valueChanged, [=](){ update_values(slider7); });
+		caller = new AwfCall(slider7);
+		caller->fn = [=](){ update_values(slider7); };
+		QObject::connect(slider7, SIGNAL(valueChanged(int)), caller, SLOT(run()));
 
 	// layout
 	root1->addWidget(progress1);
@@ -1781,7 +1833,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 		printf("\033[36m[trace]\033[00m create_notebooks()\n");
 
 	// QTabWidget
-	notebook1 = new QTabWidget;
+	notebook1 = new AwfTabWidget;
 	notebook1->setTabPosition(QTabWidget::North);
 	notebook1->setTabsClosable(false);
 	notebook1->setUsesScrollButtons(false);
@@ -1792,7 +1844,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 		create_notebook_tab(notebook1, "Tab3", null, true);
 		create_notebook_tab(notebook1, "Tab4", null, true);
 
-	notebook2 = new QTabWidget;
+	notebook2 = new AwfTabWidget;
 	notebook2->setTabPosition(QTabWidget::South);
 	notebook2->setTabsClosable(false);
 	notebook2->setUsesScrollButtons(false);
@@ -1803,7 +1855,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 		create_notebook_tab(notebook2, "Tab3", null, true);
 		create_notebook_tab(notebook2, "Tab4", null, true);
 
-	notebook3 = new QTabWidget;
+	notebook3 = new AwfTabWidget;
 	notebook3->setTabPosition(QTabWidget::West);
 	notebook3->setTabsClosable(false);
 	notebook3->setUsesScrollButtons(false);
@@ -1814,7 +1866,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 		create_notebook_tab(notebook3, "T3b", null, true);
 		create_notebook_tab(notebook3, "T4", null, true);
 
-	notebook4 = new QTabWidget;
+	notebook4 = new AwfTabWidget;
 	notebook4->setTabPosition(QTabWidget::East);
 	notebook4->setTabsClosable(false);
 	notebook4->setUsesScrollButtons(false);
@@ -1836,7 +1888,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 	root2->addWidget(notebook4);
 }
 
-static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *content, bool close) { // todo
+static void create_notebook_tab(AwfTabWidget *notebook, QString text, QWidget *content, bool close) { // todo
 
 	if (!content)
 		content = new QWidget;
@@ -1936,12 +1988,12 @@ static void create_treeview(AwfVBox *root) { // todo
 
 	for (int c = 0; c < model->columnCount(); ++c)
 		view->resizeColumnToContents(c);
-	view->header()->setSectionResizeMode(QHeaderView::Interactive);
+	view->header()->setResizeMode(QHeaderView::Interactive);
 
 	root->addWidget(view);
 }
 
-static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) {
+static void create_sliders(AwfTabWidget *notebook, QString text, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_sliders()\n");
@@ -2079,6 +2131,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_traditional_menubar()\n");
 
+	AwfCall *caller;
 	static AwfShortcutFilter *shortcutFilter = new AwfShortcutFilter(window);
 	QMenu *menu, *submenu, *base;
 	QActionGroup *group;
@@ -2189,7 +2242,10 @@ static void create_traditional_menubar(QMenuBar *root) {
 			menuitem = create_menuitem_radio(base, theme, false, false, is_user, group);
 			if (theme == current_theme)
 				menuitem->setChecked(true);
-			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+				caller = new AwfCall(menuitem);
+				caller->fn = [theme](){ update_theme(theme); };
+				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
 			i++;
 		}
@@ -2237,7 +2293,10 @@ static void create_traditional_menubar(QMenuBar *root) {
 			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
 			if (theme == current_theme)
 				menuitem->setChecked(true);
-			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+				caller = new AwfCall(menuitem);
+				caller->fn = [theme](){ update_theme(theme); };
+				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
 			i++;
 		}
@@ -2257,12 +2316,18 @@ static void create_traditional_menubar(QMenuBar *root) {
 		menuitem = create_menuitem_radio(menu, _app("Left to Right (LTR)"), false, false, false, group);
 		if (current_direction == 1)
 			menuitem->setChecked(true);
-		QObject::connect(menuitem, &QAction::triggered, [](){ update_text_direction(1); }); // Qt::LeftToRight
+		//QObject::connect(menuitem, &QAction::triggered, [](){ update_text_direction(1); }); // Qt::LeftToRight
+			caller = new AwfCall(menuitem);
+			caller->fn = [](){ update_text_direction(1); };
+			QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
 		menuitem = create_menuitem_radio(menu, _app("Right to Left (RTL)"), false, false, false, group);
 		if (current_direction == 2)
 			menuitem->setChecked(true);
-		QObject::connect(menuitem, &QAction::triggered, [](){ update_text_direction(2); }); // Qt::RightToLeft
+		//QObject::connect(menuitem, &QAction::triggered, [](){ update_text_direction(2); }); // Qt::RightToLeft
+			caller = new AwfCall(menuitem);
+			caller->fn = [](){ update_text_direction(2); };
+			QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
 	// help
 	menu = root->addMenu(_qt("QWizard", "&Help"));
@@ -2322,8 +2387,13 @@ static QAction* create_menuitem(QMenu *menu, QIcon icon, QString text, bool dsb,
 
 	if (!kmp.isEmpty())
 		menuitem->setObjectName(kmp);
-	if (function)
-		QObject::connect(menuitem, &QAction::triggered, function);
+
+	if (function) {
+		//QObject::connect(menuitem, &QAction::triggered, function);
+		AwfCall *caller = new AwfCall(menuitem);
+		caller->fn = function;
+		QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
+	}
 
 	menu->addAction(menuitem);
 
@@ -2458,7 +2528,7 @@ static void accels_load() {
 			}
 			else {
 				Qt::KeyboardModifiers mods = parseModifiers(acl);
-				acl.remove(QRegularExpression("<.*>"));
+				acl.remove(QRegExp("<.*>"));
 				Qt::Key key = parseKey(acl);
 
 				if (key == Qt::Key_unknown) {
@@ -2564,7 +2634,7 @@ static void accels_save() {
 			};
 
 			auto parseKey = [](Qt::Key k) {
-				if ((k >= Qt::Key_A) && (k <= Qt::Key_Z)) return QString(QChar('a' + (k - Qt::Key_A)));
+				if ((k >= Qt::Key_A) && (k <= Qt::Key_Z)) return QString(QChar(k).toLower());
 				if (k == Qt::Key_Delete) return QString("Delete");
 				if (k == Qt::Key_Return) return QString("Return");
 				if (k == Qt::Key_F1)  return QString("F1");
@@ -2620,9 +2690,8 @@ static void accels_save() {
 				acl = act->shortcut().toString();
 
 				if (!acl.isEmpty()) {
-					const QKeyCombination kc = act->shortcut()[0];
-					Qt::Key key = kc.key();
-					Qt::KeyboardModifiers mods = kc.keyboardModifiers();
+					Qt::Key key = static_cast<Qt::Key>(act->shortcut()[0] & ~Qt::KeyboardModifierMask);
+					Qt::KeyboardModifiers mods = static_cast<Qt::KeyboardModifiers>(act->shortcut()[0] & Qt::KeyboardModifierMask);
 					acl = parseModifiers(mods) + parseKey(key);
 				}
 
@@ -2737,6 +2806,7 @@ static void dialog_inspector() {
 		inspector->activateWindow();
 	}
 	else {
+		AwfCall *caller;
 		inspector = new QDialog(window, Qt::Window);
 		inspector->setAttribute(Qt::WA_DeleteOnClose);
 		inspector->setWindowTitle(QString("%1 - Qt %2.%3").arg("QtInspector").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
@@ -2744,8 +2814,9 @@ static void dialog_inspector() {
 
 		QTextEdit *textEdit = new QTextEdit;
 		textEdit->setAcceptRichText(false);
-		textEdit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-		textEdit->setPlaceholderText(_app("Write QSS here..."));
+			QFont fixedFont("monospace");
+			fixedFont.setStyleHint(QFont::TypeWriter);
+		textEdit->setFont(fixedFont);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 		QPushButton *btnCopy = new QPushButton(_qt("QShortcut", "Copy"));
@@ -2768,22 +2839,26 @@ static void dialog_inspector() {
 		QTimer* counter = new QTimer(inspector);
 		counter->setSingleShot(true);
 
-		QObject::connect(textEdit, &QTextEdit::textChanged, counter, [=](){
-			counter->start(1000);
-		});
+		//QObject::connect(textEdit, &QTextEdit::textChanged, counter, [=](){
+		caller = new AwfCall(counter);
+		caller->fn = [=](){ counter->start(1000); };
+		QObject::connect(textEdit, SIGNAL(textChanged()), caller, SLOT(run()));
 
-		QObject::connect(btnClose, &QPushButton::clicked, inspector, [=](){
-			inspector->close();
-		});
+		QObject::connect(btnClose, SIGNAL(clicked()), inspector, SLOT(close()));
 
-		QObject::connect(btnCopy, &QPushButton::clicked, inspector, [=](){
+		//QObject::connect(btnCopy, &QPushButton::clicked, inspector, [=](){
+		caller = new AwfCall(btnCopy);
+		caller->fn = [=](){
 			QString text = textEdit->toPlainText();
 			if (!text.isEmpty())
 				QApplication::clipboard()->setText(text);
 			textEdit->setFocus();
-		});
+		};
+		QObject::connect(btnCopy, SIGNAL(clicked()), caller, SLOT(run()));
 
-		QObject::connect(btnClear, &QPushButton::clicked, inspector, [=](){
+		//QObject::connect(btnClear, &QPushButton::clicked, inspector, [=](){
+		caller = new AwfCall(btnClear);
+		caller->fn = [=](){
 
 			if (awf_gqss && (original_style == "!^!"))
 				original_style = qApp->styleSheet();
@@ -2792,12 +2867,16 @@ static void dialog_inspector() {
 			if (awf_gqss)
 				original_style = "!^!";
 
-			QSignalBlocker blocker(textEdit);
+			textEdit->blockSignals(true);
 			textEdit->clear();
+			textEdit->blockSignals(false);
 			textEdit->setFocus();
-		});
+		};
+		QObject::connect(btnClear, SIGNAL(clicked()), caller, SLOT(run()));
 
-		QObject::connect(inspector, &QWidget::destroyed, window, [=](){
+		//QObject::connect(inspector, &QWidget::destroyed, window, [=](){
+		caller = new AwfCall(window);
+		caller->fn = [=](){
 
 			if (awf_gqss && (original_style == "!^!"))
 				original_style = qApp->styleSheet();
@@ -2807,11 +2886,14 @@ static void dialog_inspector() {
 				original_style = "!^!";
 
 			inspector = null;
-		});
+		};
+		QObject::connect(inspector, SIGNAL(destroyed()), caller, SLOT(run()));
 
-		QObject::connect(window, &QWidget::destroyed, inspector, &QWidget::close);
+		QObject::connect(window, SIGNAL(destroyed()), inspector, SLOT(close()));
 
-		QObject::connect(counter, &QTimer::timeout, inspector, [=](){
+		//QObject::connect(counter, &QTimer::timeout, inspector, [=](){
+		caller = new AwfCall(inspector);
+		caller->fn = [=](){
 
 			if (awf_gqss && (original_style == "!^!"))
 				original_style = qApp->styleSheet();
@@ -2826,7 +2908,8 @@ static void dialog_inspector() {
 			#else
 				qApp->setStyleSheet(original_style + "\n\n" + textEdit->toPlainText());
 			#endif
-		});
+		};
+		QObject::connect(counter, SIGNAL(timeout()), caller, SLOT(run()));
 
 		inspector->show();
 	}
@@ -2849,9 +2932,7 @@ static void dialog_calendar() {
 
 	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
 	btnClose->setIcon(get_icon("dialog-close"));
-	QObject::connect(btnClose, &QPushButton::clicked, dialog, [=](){
-		dialog->close();
-	});
+	QObject::connect(btnClose, SIGNAL(clicked()), dialog, SLOT(close()));
 
 	AwfHBox *buttonLayout = new AwfHBox;
 	buttonLayout->addStretch();
@@ -2877,7 +2958,7 @@ static void dialog_sliders() {
 	dialog->setObjectName("AwfDialogWindow");
 
 	// QTabWidget
-	QTabWidget *notebook = new QTabWidget;
+	AwfTabWidget *notebook = new AwfTabWidget;
 	notebook->setTabPosition(QTabWidget::North);
 	notebook->setTabsClosable(false);
 	notebook->setUsesScrollButtons(false);
@@ -2888,9 +2969,7 @@ static void dialog_sliders() {
 
 	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
 	btnClose->setIcon(get_icon("dialog-close"));
-	QObject::connect(btnClose, &QPushButton::clicked, dialog, [=](){
-		dialog->close();
-	});
+	QObject::connect(btnClose, SIGNAL(clicked()), dialog, SLOT(close()));
 
 	AwfHBox *buttonLayout = new AwfHBox;
 	buttonLayout->addStretch();
@@ -2905,4 +2984,4 @@ static void dialog_sliders() {
 }
 
 
-#include "awf-qt6.moc"
+#include "awf-qt4.moc"

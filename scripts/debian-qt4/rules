@@ -1,0 +1,13 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-only-qt4
+
+override_dh_auto_install:
+	# 1 binary
+	dh_auto_install --destdir=debian/tmp

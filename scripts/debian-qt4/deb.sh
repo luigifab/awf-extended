@@ -1,11 +1,11 @@
 #!/bin/bash
-# Debian: sudo apt install dpkg-dev devscripts build-essential dh-make dh-autoreconf intltool libnotify-dev libgtk-3-dev
+# Debian: sudo apt install dpkg-dev devscripts build-essential dh-make dh-autoreconf intltool libqt4-dev
 
 
 cd "$(dirname "$0")" || exit 1
 export DH_QUIET=1
 version="4.3.0"
-engine="gtk3"
+engine="qt4"
 
 mkdir -p builder
 rm -rf builder/*
@@ -32,13 +32,13 @@ fi
 
 
 # create packages for Debian and Ubuntu
-for serie in experimental stonking resolute noble jammy focal bionic xenial trusty; do
+for serie in experimental bionic xenial trusty; do
 
-	printf "\n\n################################################################### $serie ## awf-$engine\n\n"
+	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"
 	if [ $serie = "experimental" ]; then
 		# copy for Ubuntu
 		cp -a builder/awf-extended-$version/ builder/awf-extended-$version+src/
-		cd builder/awf-extended-$version/
+		continue # cd builder/awf-extended-$version/
 	elif [ $serie = "unstable" ]; then
 		rm -rf builder/awf-extended-$version/
 		cp -a builder/awf-extended-$version+src/ builder/awf-extended-$version/
@@ -52,7 +52,7 @@ for serie in experimental stonking resolute noble jammy focal bionic xenial trus
 
 	rm -rf debian/*/*ex debian/*ex debian/*EX debian/README* debian/*doc*
 	cp scripts/debian-$engine/* debian/
-	cp scripts/debian-gtk/*$engine* scripts/debian-gtk/copyright scripts/debian-gtk/metadata debian/
+	cp scripts/debian-qt/*$engine* scripts/debian-qt/copyright scripts/debian-qt/metadata debian/
 	head -n -1 debian/*$engine*.install > debian/install ; rm debian/awf-$engine.install
 	rm -f debian/*.sh
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata

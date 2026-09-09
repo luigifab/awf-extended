@@ -99,6 +99,22 @@ awf-qt5-res.o: awf.rc
 endif
 endif
 
+if QT4
+AM_CXXFLAGS = -fPIC -std=c++17
+bin_PROGRAMS += awf-qt4
+BUILT_SOURCES += awf-qt4.moc
+awf-qt4.moc: awf-qt4.cpp
+	$(QT4_MOC) $(QT4_CFLAGS) $< -o $@
+awf_qt4_SOURCES = awf-qt4.cpp
+awf_qt4_CPPFLAGS = $(QT4_CFLAGS)
+awf_qt4_LDADD = $(QT4_LIBS)
+if WINDOWS
+awf_qt4_LDADD += awf-qt4-res.o -lintl
+awf-qt4-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=QT4 $< -o $@
+endif
+endif
+
 # install (desktop files)
 if !WINDOWS
 desktop_DATA =
@@ -123,6 +139,9 @@ desktop_DATA += $(srcdir)/../data/awf-qt6.desktop
 endif
 if QT5
 desktop_DATA += $(srcdir)/../data/awf-qt5.desktop
+endif
+if QT4
+desktop_DATA += $(srcdir)/../data/awf-qt4.desktop
 endif
 endif
 
@@ -149,6 +168,9 @@ endif
 if QT5
 man_MANS += $(srcdir)/../data/awf-qt5.1
 endif
+if QT4
+man_MANS += $(srcdir)/../data/awf-qt4.1
+endif
 
 # install (translated man pages/icons/locales/bash-completion)
 # test -z "$(EXEEXT)" = check if EXEEXT is empty
@@ -172,7 +194,7 @@ install-data-hook:
 
 # uninstall (translated man pages/icons/locales/bash-completion)
 uninstall-hook:
-	for app in awf-gtk5 awf-gtk4 awf-gtk3 awf-gtk2 awf-qt7 awf-qt6 awf-qt5; do \
+	for app in awf-gtk5 awf-gtk4 awf-gtk3 awf-gtk2 awf-qt7 awf-qt6 awf-qt5 awf-qt4; do \
 		rm -f $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
 			rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \

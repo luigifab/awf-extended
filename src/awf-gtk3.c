@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/06/09/2026
+ * Updated M/08/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -1944,7 +1944,7 @@ static void create_notebooks(GtkWidget *root1, GtkWidget *root2) {
 		create_notebook_tab(notebook4, "T4",   NULL, TRUE);
 
 	#if GTK_CHECK_VERSION (3,4,0)
-		// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
 		gtk_widget_add_events(notebook1, GDK_SCROLL_MASK);
 		g_signal_connect(notebook1, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
@@ -1990,7 +1990,7 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 
 	#if GTK_CHECK_VERSION (3,4,0)
 		if (close) {
-			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 			// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
 			gtk_widget_add_events(btn, GDK_SCROLL_MASK);
 			g_signal_connect(btn, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
@@ -2643,7 +2643,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 
 		create_menuitem(menu, "gtk-about", FALSE, AWF_ACCEL_ABOU, AWF_ABOU, dialog_about);
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
 	g_object_set(gtk_settings_get_default(), "gtk-can-change-accels", FALSE, NULL);
 	g_object_unref(accels);
@@ -2662,7 +2662,7 @@ static GtkWidget* create_menu(GtkWidget *root, gchar *text, GtkAccelGroup *accel
 	gtk_menu_shell_append(GTK_MENU_SHELL(root), menuitem);
 
 	if (accels) {
-		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		gtk_menu_set_accel_group(GTK_MENU(menu), accels);
 		gtk_widget_set_events(menu, GDK_KEY_RELEASE_MASK);
 		g_signal_connect(menu, "key-release-event", G_CALLBACK(accels_change), NULL);
@@ -2747,7 +2747,7 @@ static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gc
 
 	if (kmp) {
 		gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menuitem), kmp);
-		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		g_signal_connect(menuitem, "select", G_CALLBACK(accels_select), NULL);
 		g_signal_connect(menuitem, "deselect", G_CALLBACK(accels_deselect), NULL);
 	}
@@ -2771,7 +2771,7 @@ static void accels_load() {
 	}
 	g_free(oldPath);
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
 	if (g_file_test(path, G_FILE_TEST_IS_REGULAR))
 		gtk_accel_map_load(path);
@@ -2780,13 +2780,13 @@ static void accels_load() {
 
 static void accels_select(GtkWidget *widget) {
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	current_menuitem = widget;
 }
 
 static void accels_deselect(GtkWidget *widget) {
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (current_menuitem == widget)
 		current_menuitem = NULL;
 }
@@ -2796,7 +2796,7 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_change()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	// @see https://github.com/GNOME/gtk/commit/2d79334bb069224966b3dcd8456967c9800e8fd0
 	if (current_menuitem) {
 
@@ -2847,7 +2847,7 @@ static void accels_save() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
 		gtk_accel_map_save(path);
@@ -3194,7 +3194,7 @@ static void dialog_scales() {
 }
 
 
-// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 // @see https://github.com/mate-desktop/mate-control-center/blob/master/capplets/common/capplet-util.c
 // for on_scrolltabs source function is capplet_dialog_page_scroll_event_cb
 //  of mate-appearance-properties from mate-control-center, GNU GPL 2.0+
@@ -3203,7 +3203,7 @@ static void dialog_scales() {
 
 static gboolean on_scrolltabs(GtkWidget *widget, GdkEventScroll *event) {
 
-	// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	GtkWidget *child, *eventWidget, *actionWidget;
 	GtkNotebook *notebook;
 

@@ -4,6 +4,7 @@
 #define GTK3 13
 #define GTK4 14
 #define GTK5 15
+#define QT4  24
 #define QT5  25
 #define QT6  26
 #define QT7  27
@@ -19,6 +20,9 @@
 #elif ENGINE == GTK5
 # define EXE_NAME "awf-gtk5\0"
 # define EXE_FILE "awf-gtk5.exe\0"
+#elif ENGINE == QT4
+# define EXE_NAME "awf-qt4\0"
+# define EXE_FILE "awf-qt4.exe\0"
 #elif ENGINE == QT5
 # define EXE_NAME "awf-qt5\0"
 # define EXE_FILE "awf-qt5.exe\0"
@@ -33,8 +37,8 @@
 IDI_ICON1 ICON "../data/awf.ico"
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION    4,0,0,0
-  PRODUCTVERSION 4,0,0,0
+  FILEVERSION    4,3,0,0
+  PRODUCTVERSION 4,3,0,0
   FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
   FILEFLAGS      0
   FILEOS         VOS_NT_WINDOWS32
@@ -50,7 +54,7 @@ BEGIN
       VALUE "ProductName",      "A widget factory\0"
       VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
-      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
       VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
       VALUE "InternalName",     EXE_NAME
@@ -64,7 +68,7 @@ BEGIN
       VALUE "ProductName",      "La fabrique à widgets\0"
       VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
-      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
       VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
       VALUE "InternalName",     EXE_NAME

@@ -57,7 +57,7 @@ for serie in experimental unstable stonking resolute noble jammy mx25 mx23; do
 
 
 
-	# debhelper: experimental:13 focal:12 bionic:9 xenial:9 trusty:9
+	# debhelper: experimental:14 ubuntu:13 focal:12 bionic:9 xenial:9 trusty:9
 	if [ $serie = "experimental" ]; then
 		mv debian/control.ubuntu debian/control # yes
 	elif [ $serie = "unstable" ]; then
@@ -87,6 +87,7 @@ for serie in experimental unstable stonking resolute noble jammy mx25 mx23; do
 		echo 9 > debian/compat
 	else
 		mv debian/control.ubuntu debian/control
+		sed -i 's/debhelper-compat (= 14)/debhelper-compat (= 13)/g' debian/control
 	fi
 
 	if [ $serie = "mx25" ] || [ $serie = "mx23" ]; then
