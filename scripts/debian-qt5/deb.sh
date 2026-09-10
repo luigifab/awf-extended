@@ -31,7 +31,7 @@ else
 fi
 
 
-# create packages for Debian and Ubuntu
+# create packages for Debian and Ubuntu (trusty g++ error unrecognized command line option -std=c++17, xenial error compile your code with -fPIC)
 for serie in experimental stonking resolute noble jammy focal bionic; do
 
 	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"

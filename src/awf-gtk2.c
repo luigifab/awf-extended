@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/08/09/2026
+ * Updated J/10/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -70,6 +70,11 @@
 #include <gtk/gtk.h>
 #include <locale.h>
 #if defined (G_OS_WIN32)
+	#undef _WIN32_WINNT
+	#undef WINVER
+	#define _WIN32_WINNT 0x0501
+	#define WINVER 0x0501
+	#include <windows.h>
 	#include <gdk/gdkwin32.h>
 #elif defined (G_OS_UNIX)
 	#include <libnotify/notify.h>
@@ -228,6 +233,15 @@ int main(int argc, gchar **argv) {
 
 	awf_debug = g_getenv("AWF_DEBUG") != NULL;
 	awf_trace = g_getenv("AWF_TRACE") != NULL;
+
+	#if defined (G_OS_WIN32)
+		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+			SetConsoleOutputCP(CP_UTF8);
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+		}
+	#endif
+
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m main()\n");
 
@@ -259,9 +273,11 @@ int main(int argc, gchar **argv) {
 	// locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
-		directory = g_build_filename("share", "locale", NULL);
+		gchar *prefix = g_win32_get_package_installation_directory_of_module(NULL);
+		directory = g_build_filename(prefix, "share", "locale", NULL);
 		bindtextdomain(GETTEXT_PACKAGE, directory);
 		g_free(directory);
+		g_free(prefix);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);

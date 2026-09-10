@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/08/09/2026
+ * Updated J/10/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -48,9 +48,13 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #if defined (Q_OS_WIN) || defined (_WIN32)
-#include <functional>
-#include <windows.h>
-#include <QScreen>
+	#undef _WIN32_WINNT
+	#undef WINVER
+	#define _WIN32_WINNT 0x0501
+	#define WINVER 0x0501
+	#include <windows.h>
+	#include <functional>
+	#include <QScreen>
 #endif
 #include <QAction>
 #include <QActionGroup>
@@ -122,7 +126,7 @@
 #include <locale.h>
 #include <libintl.h>
 #if defined (Q_OS_UNIX)
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #pragma GCC diagnostic pop
 
@@ -485,6 +489,14 @@ public:
 
 int main(int argc, char **argv) {
 
+	#if defined (Q_OS_WIN) || defined (_WIN32)
+		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+			SetConsoleOutputCP(CP_UTF8);
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+		}
+	#endif
+
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m main()\n");
 
@@ -580,22 +592,23 @@ int main(int argc, char **argv) {
 					case 199711L: cppVersion = "C++98";  break;
 					case 201103L: cppVersion = "C++11";  break;
 					case 201402L: cppVersion = "C++14";  break;
-					case 201500L: cppVersion = "201500 (C++17-dev)"; break;
 					case 201703L: cppVersion = "C++17";  break;
 					case 202002L: cppVersion = "C++20";  break;
 					case 202302L: cppVersion = "C++23";  break;
 					default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
 				}
-				printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
-					qPrintable(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR)),
-					"-v            ", qPrintable(_app("Show version number.")),
-					"-l            ", qPrintable(_app("List available themes.")),
-					"-t <theme>    ", qPrintable(_app("Run with the specified theme.")),
-					"-s <filename> ", qPrintable(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP")),
-					"--ltr         ", qPrintable(_app("Run with text from left to right (Left-To-Right).")),
-					"--rtl         ", qPrintable(_app("Run with text from right to left (Right-To-Left).")),
-					qPrintable(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH)),
-					qPrintable(QString(_app(" started with qt %1")).arg(qVersion())));
+				QString help = QString("%1\n\n  %2 %3\n  %4 %5\n  %6 %7\n  %8 %9\n  %10 %11\n  %12 %13\n\n%14\n%15\n")
+					.arg(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR))
+					.arg("-v            ").arg(_app("Show version number."))
+					.arg("-l            ").arg(_app("List available themes."))
+					.arg("-t <theme>    ").arg(_app("Run with the specified theme."))
+					.arg("-s <filename> ").arg(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP"))
+					.arg("--ltr         ").arg(_app("Run with text from left to right (Left-To-Right)."))
+					.arg("--rtl         ").arg(_app("Run with text from right to left (Right-To-Left)."))
+					.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
+					.arg(QString(_app(" started with qt %1")).arg(qVersion()));
+				QByteArray helpUtf8 = help.toUtf8();
+				fwrite(helpUtf8.constData(), 1, helpUtf8.size(), stdout);
 				return status;
 		}
 	}
@@ -1092,7 +1105,6 @@ static void create_window() {
 		});
 	#endif
 
-	window->setAttribute(Qt::WA_DeleteOnClose);
 	toolbar->widgetForAction(toolbar->actions().constFirst())->setFocus(Qt::TabFocusReason); // focus on the first toolbar button
 	QObject::connect(qApp, &QCoreApplication::aboutToQuit, accels_save);
 
@@ -2700,7 +2712,6 @@ static void dialog_about() {
 		case 199711L: cppVersion = "C++98";  break;
 		case 201103L: cppVersion = "C++11";  break;
 		case 201402L: cppVersion = "C++14";  break;
-		case 201500L: cppVersion = "201500 (C++17-dev)"; break;
 		case 201703L: cppVersion = "C++17";  break;
 		case 202002L: cppVersion = "C++20";  break;
 		case 202302L: cppVersion = "C++23";  break;

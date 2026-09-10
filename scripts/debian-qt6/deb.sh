@@ -31,7 +31,7 @@ else
 fi
 
 
-# create packages for Debian and Ubuntu
+# create packages for Debian and Ubuntu (jammy pc files for pkgconf are missing)
 for serie in experimental stonking resolute noble; do
 
 	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"

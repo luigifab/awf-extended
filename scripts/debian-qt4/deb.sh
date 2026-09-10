@@ -125,7 +125,7 @@ for serie in experimental bionic xenial trusty; do
 done
 
 printf "\n\n"
-rm builder/*dbgsym*deb
-ls -dlth "$PWD"/builder/*.deb "$PWD"/builder/*.changes
+#rm builder/*dbgsym*deb
+ls -dlth "$PWD"/builder/*.changes # "$PWD"/builder/*.deb
 printf "\n"
 rm -rf builder/*/

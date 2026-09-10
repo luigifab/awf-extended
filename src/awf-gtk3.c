@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/08/09/2026
+ * Updated J/10/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -70,6 +70,11 @@
 #include <gtk/gtk.h>
 #include <locale.h>
 #if defined (G_OS_WIN32)
+	#undef _WIN32_WINNT
+	#undef WINVER
+	#define _WIN32_WINNT 0x0501
+	#define WINVER 0x0501
+	#include <windows.h>
 	#include <gdk/gdkwin32.h>
 #elif defined (G_OS_UNIX)
 	#include <libnotify/notify.h>
@@ -220,6 +225,14 @@ int main(int argc, gchar **argv) {
 	awf_debug = g_getenv("AWF_DEBUG") != NULL;
 	awf_trace = g_getenv("AWF_TRACE") != NULL;
 
+	#if defined (G_OS_WIN32)
+		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+			SetConsoleOutputCP(CP_UTF8);
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+		}
+	#endif
+
 	const gchar *config = g_getenv("GTK_CSD");
 	if (config && (strcmp(config, "1") == 0))
 		awf_csd = TRUE;
@@ -234,7 +247,17 @@ int main(int argc, gchar **argv) {
 	hash_system_theme = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	hash_user_theme   = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	GList *iterator = NULL;
-	gchar *directory;
+	gchar *directory, *prefix;
+
+	#if defined (G_OS_WIN32)
+		prefix = g_win32_get_package_installation_directory_of_module(NULL);
+		directory = g_build_filename(prefix, "share", "glib-2.0", "schemas", NULL);
+		g_setenv("GSETTINGS_SCHEMA_DIR", directory, TRUE);
+		g_free(directory);
+		// disable autolaunch of dbus session
+		if (!g_getenv("DBUS_SESSION_BUS_ADDRESS"))
+			g_setenv("DBUS_SESSION_BUS_ADDRESS", "", TRUE);
+	#endif
 
 	// load available system themes (/usr/local/share/themes && /usr/share/themes)
 	const char *const *dirs = g_get_system_data_dirs();
@@ -262,9 +285,10 @@ int main(int argc, gchar **argv) {
 	// locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
-		directory = g_build_filename("share", "locale", NULL);
+		directory = g_build_filename(prefix, "share", "locale", NULL);
 		bindtextdomain(GETTEXT_PACKAGE, directory);
 		g_free(directory);
+		g_free(prefix);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -361,10 +385,6 @@ int main(int argc, gchar **argv) {
 	}
 
 	// create and show window
-	#if defined (G_OS_WIN32)
-		g_setenv("GSETTINGS_SCHEMA_DIR", ".", TRUE);
-	#endif
-
 	#if GTK_CHECK_VERSION (3,4,0)
 
 		// this application can not open files or unknown option -s with GTK 3.4..3.10

@@ -125,7 +125,7 @@ esac
 # create packages
 cd builder/awf-extended-$version/
 
-for engine in "2" "3" "4"; do
+for engine in "2" "3" "4"; do # gtk
 
 	printf "\n\n############################################################ awf-gtk$engine\n\n"
 	if [ -d "/mingw64" ]; then
@@ -199,7 +199,7 @@ for engine in "2" "3" "4"; do
 	export PATH=$originalpath
 done
 
-for engine in "4" "5" "6"; do
+for engine in "4" "5" "6"; do # qt
 
 	printf "\n\n############################################################ awf-qt$engine\n\n"
 	if [ -d "/mingw64" ]; then

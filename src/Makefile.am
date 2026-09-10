@@ -100,7 +100,7 @@ endif
 endif
 
 if QT4
-AM_CXXFLAGS = -fPIC -std=c++17
+AM_CXXFLAGS = -fPIC -std=gnu++11
 bin_PROGRAMS += awf-qt4
 BUILT_SOURCES += awf-qt4.moc
 awf-qt4.moc: awf-qt4.cpp
