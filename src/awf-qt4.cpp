@@ -615,7 +615,7 @@ int main(int argc, char **argv) {
 					case 201703L: cppVersion = "C++17";  break;
 					case 202002L: cppVersion = "C++20";  break;
 					case 202302L: cppVersion = "C++23";  break;
-					default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
+					default:      cppVersion = "C++" + QString::number(__cplusplus); break;
 				}
 				QString help = QString("%1\n\n  %2 %3\n  %4 %5\n  %6 %7\n  %8 %9\n  %10 %11\n  %12 %13\n\n%14\n%15\n")
 					.arg(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR))
@@ -2784,7 +2784,7 @@ static void dialog_about() {
 		case 201703L: cppVersion = "C++17";  break;
 		case 202002L: cppVersion = "C++20";  break;
 		case 202302L: cppVersion = "C++23";  break;
-		default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
+		default:      cppVersion = "C++" + QString::number(__cplusplus); break;
 	}
 
 	QString t1 = QString("%1<br><br>%2 %3<br><br>%4<br>%5<br><i><small>QT_QPA_PLATFORMTHEME=%6 QT_STYLE_OVERRIDE=%7</small></i>")

@@ -354,7 +354,7 @@ int main(int argc, gchar **argv) {
 					else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
 					else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
 					else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-					else                                  cVersion = "C (unknown)";
+					else                                  cVersion = "C??";
 				#else
 					cVersion = "C89/C90";
 				#endif
@@ -3046,7 +3046,7 @@ static void dialog_about() {
 		else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
 		else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
 		else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-		else                                  cVersion = "C (unknown)";
+		else                                  cVersion = "C??";
 	#else
 		cVersion = "C89/C90";
 	#endif
