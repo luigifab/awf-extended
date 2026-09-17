@@ -18,7 +18,7 @@ GTK 3.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 3 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl-menu.png)
 [<img alt="Preview with GTK 3 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl.png)
 
-GTK 4.12..4.23-classic (Pango 1.58)\
+GTK 4.12..4.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4.png)
 [<img alt="Preview with GTK 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl-menu.png)
@@ -68,7 +68,7 @@ Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, the
 
 ## Installation
 
-For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.23)*, *GLIB 2.28+*, *libnotify 0.7+*.
+For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.24)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
 For Qt, it requires **Qt 4.8** or **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
@@ -187,8 +187,8 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20260913
-- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 4.8 / 5.0..5.15 / 6.0..6.11
+- Current version: 4.3.0~nightly20260917
+- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.0..5.15 / 6.0..6.11
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 
 This program is provided under the terms of the **GNU GPLv3+** license.\

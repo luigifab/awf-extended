@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated J/10/09/2026
+ * Updated J/17/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -32,8 +32,8 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.22 + GLIB 2.88 + Pango 1.58
- *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.23 + GLIB 2.89 + Pango 1.57
+ *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
+ *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
  *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 2.24/3.24/4.22 + GLIB 2.87 + Pango 1.56
  *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.56
  *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
@@ -151,8 +151,10 @@ static gboolean awf_debug = FALSE;
 static gboolean awf_trace = FALSE;
 static GHashTable *hash_system_theme = NULL;
 static GHashTable *hash_user_theme = NULL;
+static GHashTable *hash_language = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
+static GList *list_language = NULL;
 static GtkWidget *window = NULL, *menubar = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
 static GtkWidget *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
@@ -168,8 +170,9 @@ static gboolean allow_update_values = TRUE;
 static gboolean must_save_accels    = FALSE;
 
 // global functions
-static void awf_load_theme(GHashTable* hashtable, gchar *directory);
-static inline int awf_compare_theme(gconstpointer a, gconstpointer b);
+static void load_languages(GHashTable* hashtable, gchar *directory);
+static void awf_load_themes(GHashTable* hashtable, gchar *directory);
+static inline int awf_sort(gconstpointer a, gconstpointer b);
 static void notify_updated_gtktheme(GSettings *settings, gchar *key);
 static void update_text_direction(int direction);
 static void update_theme(gchar *newTheme);
@@ -254,23 +257,40 @@ int main(int argc, gchar **argv) {
 	GList *iterator = NULL;
 	gchar *directory;
 
-	// load available system themes (/usr/share/themes)
-	directory = gtk_rc_get_theme_dir();
-	awf_load_theme(hash_system_theme, directory);
-	g_free(directory);
+	// load available system themes (/usr/local/share/themes && /usr/share/themes)
+	const char *const *dirs = g_get_system_data_dirs();
+	for (opt = 0; dirs[opt]; opt++) {
+		directory = g_build_filename(dirs[opt], "themes", NULL);
+		awf_load_themes(hash_system_theme, directory);
+		g_free(directory);
+	}
 
 	g_hash_table_remove(hash_system_theme, "Default");
 	g_hash_table_remove(hash_system_theme, "Emacs");
-	list_system_theme = g_list_sort(g_hash_table_get_keys(hash_system_theme), (GCompareFunc) awf_compare_theme);
+	list_system_theme = g_list_sort(g_hash_table_get_keys(hash_system_theme), (GCompareFunc) awf_sort);
 
-	// load available user themes (HOME/.themes)
-	directory = g_build_filename(g_get_home_dir(), ".themes", NULL);
-	awf_load_theme(hash_user_theme, directory);
+	// load available user themes (<home>/.local/share/themes && <home>/.themes)
+	directory = g_build_filename(g_get_user_data_dir(), "themes", NULL);
+	awf_load_themes(hash_user_theme, directory);
 	g_free(directory);
 
-	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_compare_theme);
+	directory = g_build_filename(g_get_home_dir(), ".themes", NULL);
+	awf_load_themes(hash_user_theme, directory);
+	g_free(directory);
 
-	// locale
+	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_sort);
+
+	// load available languages (.../locale/<lang>/LC_MESSAGES/awf-gtk2.mo)
+	hash_language = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+	g_hash_table_replace(hash_language, g_strdup("en"), g_strdup("en"));
+	for (opt = 0; dirs[opt]; opt++) {
+		directory = g_build_filename(dirs[opt], "locale", NULL);
+		load_languages(hash_language, directory);
+		g_free(directory);
+	}
+	list_language = g_list_sort(g_hash_table_get_keys(hash_language), (GCompareFunc) awf_sort);
+
+	// gtk/awf locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
 		gchar *prefix = g_win32_get_package_installation_directory_of_module(NULL);
@@ -382,22 +402,50 @@ static void quit() {
 
 	g_list_free(list_system_theme);
 	g_list_free(list_user_theme);
+	g_list_free(list_language);
 	list_system_theme = NULL;
 	list_user_theme   = NULL;
+	list_language     = NULL;
 
 	g_hash_table_destroy(hash_system_theme);
 	g_hash_table_destroy(hash_user_theme);
+	g_hash_table_destroy(hash_language);
 	hash_system_theme = NULL;
 	hash_user_theme   = NULL;
+	hash_language     = NULL;
 
 	accels_save();
 	gtk_main_quit();
 }
 
-static void awf_load_theme(GHashTable* hashtable, gchar *directory) {
+static void load_languages(GHashTable* hashtable, gchar *directory) {
 
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m awf_load_theme(%s)\n", directory);
+		g_printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory);
+
+	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
+
+		if (awf_debug)
+			g_printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory);
+
+		GDir *dir = g_dir_open(directory, 0, NULL);
+		if (dir) {
+			const gchar *lang;
+			while ((lang = g_dir_read_name(dir)) != NULL) {
+				gchar *mo = g_build_filename(directory, lang, "LC_MESSAGES", GETTEXT_PACKAGE ".mo", NULL);
+				if (g_file_test(mo, G_FILE_TEST_IS_REGULAR))
+					g_hash_table_replace(hashtable, g_strdup(lang), g_strdup(lang));
+				g_free(mo);
+			}
+			g_dir_close(dir);
+		}
+	}
+}
+
+static void awf_load_themes(GHashTable* hashtable, gchar *directory) {
+
+	if (awf_trace)
+		g_printf("\033[36m[trace]\033[00m awf_load_themes(%s)\n", directory);
 
 	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
 
@@ -408,17 +456,17 @@ static void awf_load_theme(GHashTable* hashtable, gchar *directory) {
 		if (dir) {
 			const gchar *theme;
 			while ((theme = g_dir_read_name(dir)) != NULL) {
-				gchar *themePath = g_build_filename(directory, theme, GTK_DIRNAME, NULL);
-				if (g_file_test(themePath, G_FILE_TEST_IS_DIR))
+				gchar *dr = g_build_filename(directory, theme, GTK_DIRNAME, NULL);
+				if (g_file_test(dr, G_FILE_TEST_IS_DIR))
 					g_hash_table_replace(hashtable, g_strdup(theme), g_strdup(theme));
-				g_free(themePath);
+				g_free(dr);
 			}
 			g_dir_close(dir);
 		}
 	}
 }
 
-static inline int awf_compare_theme(gconstpointer a, gconstpointer b) {
+static inline int awf_sort(gconstpointer a, gconstpointer b) {
 	return g_ascii_strcasecmp((gchar*) a, (gchar*) b); //g_strcmp0((gchar*) a, (gchar*) b);
 }
 
@@ -2259,6 +2307,20 @@ static void create_traditional_menubar(GtkWidget *root) {
 
 	if (!list_user_theme)
 		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
+
+	// application language
+	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
+	group = NULL;
+	menu  = create_menu(root, _app("_Language"), NULL);
+
+	for (iterator = list_language; iterator; iterator = iterator->next) {
+		menuitem = create_menuitem_radio(menu, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
+		if (g_str_has_prefix(current_language, (gchar*) iterator->data))
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+	}
+
+	g_free(current_language);
 
 	// text direction
 	group = NULL;

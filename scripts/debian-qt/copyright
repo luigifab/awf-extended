@@ -13,6 +13,11 @@ Copyright:
  2020-2027 Fabrice Creuzot (luigifab) <code@luigifab.fr>
 License: Expat
 
+Files: */po/ka.po */awf*.ka.1
+Copyright:
+ 2026 Ekaterine Papava <papava.e@gtu.ge>
+License: GPL-3+
+
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by

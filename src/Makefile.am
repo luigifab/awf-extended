@@ -52,7 +52,7 @@ endif
 endif
 
 if QT7
-AM_CXXFLAGS = -fPIC -std=c++17
+awf_qt7_CXXFLAGS = -fPIC -std=c++17
 bin_PROGRAMS += awf-qt7
 BUILT_SOURCES += awf-qt7.moc
 awf-qt7.moc: awf-qt7.cpp
@@ -68,7 +68,6 @@ endif
 endif
 
 if QT6
-AM_CXXFLAGS = -fPIC -std=c++17
 bin_PROGRAMS += awf-qt6
 BUILT_SOURCES += awf-qt6.moc
 awf-qt6.moc: awf-qt6.cpp
@@ -76,6 +75,7 @@ awf-qt6.moc: awf-qt6.cpp
 awf_qt6_SOURCES = awf-qt6.cpp
 awf_qt6_CPPFLAGS = $(QT6_CFLAGS)
 awf_qt6_LDADD = $(QT6_LIBS)
+awf_qt6_CXXFLAGS = -fPIC -std=c++17
 if WINDOWS
 awf_qt6_LDADD += awf-qt6-res.o -lintl
 awf-qt6-res.o: awf.rc
@@ -84,7 +84,6 @@ endif
 endif
 
 if QT5
-AM_CXXFLAGS = -fPIC -std=c++17
 bin_PROGRAMS += awf-qt5
 BUILT_SOURCES += awf-qt5.moc
 awf-qt5.moc: awf-qt5.cpp
@@ -92,6 +91,7 @@ awf-qt5.moc: awf-qt5.cpp
 awf_qt5_SOURCES = awf-qt5.cpp
 awf_qt5_CPPFLAGS = $(QT5_CFLAGS)
 awf_qt5_LDADD = $(QT5_LIBS)
+awf_qt5_CXXFLAGS = -fPIC -std=c++17
 if WINDOWS
 awf_qt5_LDADD += awf-qt5-res.o -lintl
 awf-qt5-res.o: awf.rc
@@ -100,7 +100,6 @@ endif
 endif
 
 if QT4
-AM_CXXFLAGS = -fPIC -std=gnu++11
 bin_PROGRAMS += awf-qt4
 BUILT_SOURCES += awf-qt4.moc
 awf-qt4.moc: awf-qt4.cpp
@@ -108,6 +107,7 @@ awf-qt4.moc: awf-qt4.cpp
 awf_qt4_SOURCES = awf-qt4.cpp
 awf_qt4_CPPFLAGS = $(QT4_CFLAGS)
 awf_qt4_LDADD = $(QT4_LIBS)
+awf_qt4_CXXFLAGS = -fPIC -std=gnu++11
 if WINDOWS
 awf_qt4_LDADD += awf-qt4-res.o -lintl
 awf-qt4-res.o: awf.rc
@@ -178,6 +178,7 @@ install-data-hook:
 	for app in $(bin_PROGRAMS); do \
 		app=$${app%$(EXEEXT)}; \
 		install -Dpm 644 $(srcdir)/../data/$$app.fr.1 $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
+		install -Dpm 644 $(srcdir)/../data/$$app.ka.1 $(DESTDIR)$(mandir)/ka/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
 			install -Dpm 644 $(srcdir)/../data/icons/scalable/apps/awf.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
 			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
@@ -195,7 +196,7 @@ install-data-hook:
 # uninstall (translated man pages/icons/locales/bash-completion)
 uninstall-hook:
 	for app in awf-gtk5 awf-gtk4 awf-gtk3 awf-gtk2 awf-qt7 awf-qt6 awf-qt5 awf-qt4; do \
-		rm -f $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
+		rm -f $(DESTDIR)$(mandir)/*/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
 			rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
 			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \

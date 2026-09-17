@@ -1,0 +1,51 @@
+.Dd 16/09/26
+.Dt AWF 1
+.Os Linux
+.Sh NOM
+.Nm awf-qt4
+.Nd Theme preview application for Qt 4.
+.Sh SYNOPSIS
+.Op Fl h
+.Op Fl v
+.Op Fl l
+.Op Fl t Ar theme
+.Op Fl s Ar filename
+.Op Fl Fl ltr
+.Op Fl Fl rtl
+.Sh DESCRIPTION
+A widget factory თემების მინიატურის აპლიკაციაა ბიბლიოთეკებისთვის GTK
+და Qt. ის აჩვენებს სხვადასხვა ვიჯეტის ტიპებს ერთ ფანჯარაში, რითიც
+საშუალებას გაძლევთ, დაინახოთ გამოყენებული თემის ვიზუალური ეფექტი.
+.Sh OPTIONS
+.Bl -tag
+.It Fl h , Fl Fl help
+Show help.
+.It Fl v , Fl Fl version
+ვერსიის ნომრის ჩვენება.
+.It Fl l , Fl Fl list
+ხელმისაწვდომი თემების სია.
+.It Fl t Ar theme , Fl Fl theme Ar theme
+გაშვება მითითებული თემით.
+.It Fl s Ar filename , Fl Fl screenshot Ar filename
+გაშვება და ეკრანის ანაბეჭდის შენახვა SIGHUP-ზე (PNG).
+.It Fl Fl ltr
+გაშვება მარცხნიდან-მარჯვნივ ტექსტით (Left-To-Right).
+.It Fl Fl rtl , Fl Fl reverse
+გაშვება მარჯვნიდან-მარცხნივ ტექსტით (Right-To-Left).
+.El
+.Sh FILES
+.Bl -tag -width "/home/user/.awf-accels" -compact
+.It Pa /home/user/.awf-accels
+Configuration of keyboard shortcuts.
+.El
+.Sh ENVIRONMENT VARIABLES
+.Bl -tag -width "QT_X11_NO_NATIVE_MENUBAR=" -compact
+.It QT_X11_NO_NATIVE_MENUBAR=
+Disable the Ubuntu global menu.
+.It AWF_DEBUG=1
+Enable some debug messages.
+.It AWF_TRACE=1
+Enable more debug messages.
+.It AWF_TEAROFF=1
+Add a tear-off item to the Options menu.
+.El

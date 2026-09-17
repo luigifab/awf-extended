@@ -75,9 +75,23 @@ BEGIN
       VALUE "OriginalFilename", EXE_FILE
       VALUE "Comments",         "La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt. Elle affiche les différents types de widgets dans une seule fenêtre permettant de voir l'effet visuel du thème appliqué.\0"
     END
+    BLOCK "043704B0"
+    BEGIN
+      VALUE "FileDescription",  "A widget factory 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
+      VALUE "ProductName",      "A widget factory\0"
+      VALUE "ProductVersion",   "4.3.0\0"
+      VALUE "CompanyName",      "luigifab\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
+      VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
+      VALUE "InternalName",     EXE_NAME
+      VALUE "OriginalFilename", EXE_FILE
+      VALUE "Comments",         "A widget factory თემების მინიატურის აპლიკაციაა ბიბლიოთეკებისთვის GTK და Qt. ის აჩვენებს სხვადასხვა ვიჯეტის ტიპებს ერთ ფანჯარაში, რითიც საშუალებას გაძლევთ, დაინახოთ გამოყენებული თემის ვიზუალური ეფექტი.\0"
+    END
   END
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x0409, 0x04B0, 0x040C, 0x04B0
+    VALUE "Translation", 0x0409, 0x04B0, 0x040C, 0x04B0, 0x0437, 0x04B0
   END
 END

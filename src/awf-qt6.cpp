@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated J/10/09/2026
+ * Updated J/17/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -251,6 +251,7 @@ static bool awf_gqss  = false;
 constexpr std::nullptr_t null = nullptr;
 static QStringList list_system_theme;
 static QStringList list_user_theme;
+static QStringList list_language;
 static QMainWindow *window = null;
 static QDialog *inspector = null;
 static QLineEdit *toolbarentry = null;
@@ -267,7 +268,8 @@ static bool must_save_accels    = false;
 
 // global functions
 static QIcon get_icon(QString name);
-static void awf_load_theme(QStringList& themes, QString directory);
+static void load_languages(QStringList& languages, QString directory);
+static void awf_load_themes(QStringList& themes, QString directory);
 static void update_text_direction(int direction);
 static void update_theme(QString newTheme);
 static void update_statusbar(QString message);
@@ -502,41 +504,52 @@ int main(int argc, char **argv) {
 
 	int opt = 0, status = 0;
 	QApplication app(argc, argv);
+	QString appDir = QCoreApplication::applicationDirPath();
 	awf_gqss = qEnvironmentVariableIsSet("GQSS_SET");
 
 	if (awf_gqss) {
 
 		// load available system themes (/usr/local/share/themes && /usr/share/themes)
 		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
-			awf_load_theme(list_system_theme, QDir(dir).filePath("themes"));
+			awf_load_themes(list_system_theme, QDir(dir).filePath("themes"));
 		list_system_theme.sort(Qt::CaseInsensitive);
 		list_system_theme.push_front("None");
 
-		// load available user themes (HOME/.local/share/themes && HOME/.themes)
-		awf_load_theme(list_user_theme, QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("themes"));
-		awf_load_theme(list_user_theme, QDir(QDir::homePath()).filePath(".themes"));
+		// load available user themes (<home>/.local/share/themes && <home>/.themes)
+		awf_load_themes(list_user_theme, QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("themes"));
+		awf_load_themes(list_user_theme, QDir::home().filePath(".themes"));
 		list_user_theme.sort(Qt::CaseInsensitive);
 	}
 
-	// locale
-	QString appDir = QCoreApplication::applicationDirPath();
+	// load available languages (.../locale/<lang>/LC_MESSAGES/awf-qt6.mo)
+	list_language.append("en");
+	#if defined (Q_OS_WIN) || defined (_WIN32)
+		load_languages(list_language, QDir(appDir).filePath("share/locale"));
+	#else
+		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
+			load_languages(list_language, QDir(dir).filePath("locale"));
+	#endif
+	list_language.sort(Qt::CaseInsensitive);
+
+	// qt locale
 	QLocale::setDefault(QLocale::system());
 
 	QTranslator *qtTr = new QTranslator(qApp);
 	if (qtTr->load("qt_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtTr);
-	else if (qtTr->load("qt_" + QLocale::system().name(), appDir + "/translations"))
+	else if (qtTr->load("qt_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
 		qApp->installTranslator(qtTr);
 
 	QTranslator *qtBaseTr = new QTranslator(qApp);
 	if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtBaseTr);
-	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), appDir + "/translations"))
+	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
 		qApp->installTranslator(qtBaseTr);
 
+	// awf locale
 	setlocale(LC_ALL, "");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
-		bindtextdomain(GETTEXT_PACKAGE, (appDir + "/share/locale").toLocal8Bit().constData());
+		bindtextdomain(GETTEXT_PACKAGE, (QDir(appDir).filePath("share/locale")).toLocal8Bit().constData());
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -654,10 +667,29 @@ static QIcon get_icon(QString name) {
 	return icon;
 }
 
-static void awf_load_theme(QStringList& themes, QString directory) {
+static void load_languages(QStringList& languages, QString directory) {
 
 	if (awf_trace)
-		printf("\033[36m[trace]\033[00m awf_load_theme(%s)\n", directory.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory.toUtf8().constData());
+
+	QDir dir(directory);
+	if (dir.exists()) {
+
+		if (awf_debug)
+			printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory.toUtf8().constData());
+
+		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+		for (QString lang : entries) {
+			if (QFile::exists(dir.filePath(lang + "/LC_MESSAGES/" GETTEXT_PACKAGE ".mo")) && !languages.contains(lang))
+				languages.append(lang);
+		}
+	}
+}
+
+static void awf_load_themes(QStringList& themes, QString directory) {
+
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m awf_load_themes(%s)\n", directory.toUtf8().constData());
 
 	QDir dir(directory);
 	if (dir.exists()) {
@@ -667,7 +699,7 @@ static void awf_load_theme(QStringList& themes, QString directory) {
 
 		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 		for (QString theme : entries) {
-			if (QDir(QDir(dir.filePath(theme)).filePath("qt6")).exists())
+			if (QDir(dir.filePath(theme + "/qt6")).exists() && !themes.contains(theme))
 				themes.append(theme);
 		}
 	}
@@ -2117,7 +2149,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, get_icon("view-refresh"), _app("_Refresh"), noRefresh, AWF_ACCEL_REFR, AWF_REFR, [](){ on_sighup(0); });
 		create_menuitem(menu, QIcon(), _app("Calendar"), false, AWF_ACCEL_CALE, AWF_CALE, dialog_calendar);
 		create_menuitem(menu, QIcon(), "Sliders", false, AWF_ACCEL_SCAL, AWF_SCAL, dialog_sliders);
-		create_menuitem(menu, get_icon("document-properties"), _app("Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
+		create_menuitem(menu, get_icon("document-properties"), _app("&Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
 		create_menuitem(menu, get_icon("document-page-setup"),_app("Page Set&up"), noPrint, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, get_icon("document-print"), _qt("QPrintDialog", "&Print"), noPrint, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
@@ -2260,6 +2292,19 @@ static void create_traditional_menubar(QMenuBar *root) {
 	else if (list_user_theme.isEmpty())
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
+	// application language
+	QString current_language = QLocale::system().name();
+	menu = root->addMenu(_app("_Language"));
+
+		group = new QActionGroup(window);
+		group->setExclusive(true);
+
+		for (QString lang : list_language) {
+			menuitem = create_menuitem_radio(menu, lang, false, false, true, group);
+			if (current_language.startsWith(lang))
+				menuitem->setChecked(true);
+		}
+
 	// text direction
 	menu = root->addMenu(_app("_Text direction"));
 
@@ -2347,12 +2392,12 @@ static void accels_load() {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_load()\n");
 
-	QString oldPath = QDir::homePath() + "/.awf-gtk-accels";
+	QString oldPath = QDir::home().filePath(".awf-gtk-accels");
 	if (QFile::exists(oldPath))
-		QFile::rename(oldPath, QDir::homePath() + "/.awf-accels");
+		QFile::rename(oldPath, QDir::home().filePath(".awf-accels"));
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
-	QFile f(QDir::homePath() + QStringLiteral("/.awf-accels"));
+	QFile f(QDir::home().filePath(".awf-accels"));
 
 	if (f.exists() && f.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
@@ -2558,7 +2603,7 @@ static void accels_save() {
 	// gtk_accel_map_save
 	if (must_save_accels) {
 
-		QFile f(QDir::homePath() + QStringLiteral("/.awf-accels"));
+		QFile f(QDir::home().filePath(".awf-accels"));
 
 		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
