@@ -3,7 +3,7 @@
 # Fedora: configure: error: C compiler cannot create executables? remove and reinstall glibc-devel gcc
 
 cd "$(dirname "$0")" || exit 1
-version="4.2.0"
+version="4.3.0"
 engine="gtk2"
 
 mkdir -p builder ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}

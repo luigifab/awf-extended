@@ -16,7 +16,7 @@ VIAddVersionKey  "FileVersion"      "${VERSION}"
 VIAddVersionKey  "ProductName"      "A widget factory"
 VIAddVersionKey  "ProductVersion"   "${VERSION}"
 VIAddVersionKey  "CompanyName"      "luigifab, nullsoft"
-VIAddVersionKey  "LegalCopyright"   "2026 Fabrice Creuzot (luigifab), GNU GPL v3"
+VIAddVersionKey  "LegalCopyright"   "2027 Fabrice Creuzot (luigifab), GNU GPL v3"
 VIAddVersionKey  "Info1"            "https://github.com/luigifab/awf-extended"
 VIAddVersionKey  "Info2"            "https://www.luigifab.fr/gtkqt/awf-extended"
 VIAddVersionKey  "Info3"            "https://nsis.sourceforge.io/"
@@ -39,6 +39,7 @@ RequestExecutionLevel admin
 ; Pages
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "awf-extended-${VERSION}\LICENSE"
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW ComponentsPageShow
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -123,7 +124,6 @@ RequestExecutionLevel admin
 ; Installer
 Function .onInit
 	!insertmacro MUI_LANGDLL_DISPLAY
-
 	System::Call 'kernel32::CreateMutex(p 0, i 0, t "${APPNAME}") p .r1 ?e'
 	Pop $R0
 	StrCmp $R0 0 +3
@@ -144,6 +144,42 @@ Function .onVerifyInstDir
 		Goto loop
 	done:
 	FindClose $0
+FunctionEnd
+
+Function ComponentsPageShow
+	SearchPath $0 "Qt7Core.dll"
+	StrCmp $0 "" notfound
+		System::Call 'kernel32::GetBinaryTypeW(t r0, *i .r9)'
+		StrCmp $9 "6" 0 +3
+		StrCpy $4 "x86_64ouarm64"
+		Goto archdone
+		StrCpy $4 "x86"
+		archdone:
+			StrCmp ${ARCH} "x86" checkx86 check64
+			checkx86:
+				StrCmp $4 "x86" archok archmismatch
+			check64:
+				StrCmp $4 "x86_64ouarm64" archok archmismatch
+			archok:
+				GetDllVersion "$0" $R0 $R1
+				IntOp $R2 $R0 / 0x00010000
+				IntOp $R3 $R0 & 0x0000FFFF
+				IntOp $R4 $R1 / 0x00010000
+				IntOp $R5 $R1 & 0x0000FFFF
+				StrCpy $1 "$R2.$R3.$R4.$R5"
+				StrCmp $1 ":ENGINEVERSION:" goodversion badversion
+	notfound:
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Qt :ENGINEVERSION: not found"
+		Goto done
+	archmismatch:
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Qt :ENGINEVERSION: found with wrong architecture ($4)$\r$\n$0"
+		Goto done
+	badversion:
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Qt :ENGINEVERSION: found with wrong version ($1, $4)$\r$\n$0"
+		Goto done
+	goodversion:
+		MessageBox MB_OK|MB_ICONINFORMATION "Qt :ENGINEVERSION: found with right version ($1, $4)$\r$\n$0"
+	done:
 FunctionEnd
 
 Section "AWF - ${VERSION} - ${ARCH} ${ARCHNAME}" SecProgram

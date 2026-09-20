@@ -3,7 +3,7 @@
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 %:
-	dh $@
+	dh $@ --without=single-binary
 
 override_dh_auto_configure:
 	dh_auto_configure -- --enable-only-qt6

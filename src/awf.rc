@@ -4,6 +4,7 @@
 #define GTK3 13
 #define GTK4 14
 #define GTK5 15
+#define QT4  24
 #define QT5  25
 #define QT6  26
 #define QT7  27
@@ -19,6 +20,9 @@
 #elif ENGINE == GTK5
 # define EXE_NAME "awf-gtk5\0"
 # define EXE_FILE "awf-gtk5.exe\0"
+#elif ENGINE == QT4
+# define EXE_NAME "awf-qt4\0"
+# define EXE_FILE "awf-qt4.exe\0"
 #elif ENGINE == QT5
 # define EXE_NAME "awf-qt5\0"
 # define EXE_FILE "awf-qt5.exe\0"
@@ -33,8 +37,8 @@
 IDI_ICON1 ICON "../data/awf.ico"
 
 VS_VERSION_INFO VERSIONINFO
-  FILEVERSION    4,0,0,0
-  PRODUCTVERSION 4,0,0,0
+  FILEVERSION    4,3,0,0
+  PRODUCTVERSION 4,3,0,0
   FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
   FILEFLAGS      0
   FILEOS         VOS_NT_WINDOWS32
@@ -45,12 +49,12 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "FileDescription",  "A widget factory 4.2.0\0"
-      VALUE "FileVersion",      "4.2.0\0"
+      VALUE "FileDescription",  "A widget factory 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
       VALUE "ProductName",      "A widget factory\0"
-      VALUE "ProductVersion",   "4.2.0\0"
+      VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
-      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
       VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
       VALUE "InternalName",     EXE_NAME
@@ -59,21 +63,35 @@ BEGIN
     END
     BLOCK "040C04B0"
     BEGIN
-      VALUE "FileDescription",  "La fabrique à widgets 4.2.0\0"
-      VALUE "FileVersion",      "4.2.0\0"
+      VALUE "FileDescription",  "La fabrique à widgets 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
       VALUE "ProductName",      "La fabrique à widgets\0"
-      VALUE "ProductVersion",   "4.2.0\0"
+      VALUE "ProductVersion",   "4.3.0\0"
       VALUE "CompanyName",      "luigifab\0"
-      VALUE "LegalCopyright",   "2026 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
       VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
       VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
       VALUE "InternalName",     EXE_NAME
       VALUE "OriginalFilename", EXE_FILE
       VALUE "Comments",         "La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt. Elle affiche les différents types de widgets dans une seule fenêtre permettant de voir l'effet visuel du thème appliqué.\0"
     END
+    BLOCK "043704B0"
+    BEGIN
+      VALUE "FileDescription",  "A widget factory 4.3.0\0"
+      VALUE "FileVersion",      "4.3.0\0"
+      VALUE "ProductName",      "A widget factory\0"
+      VALUE "ProductVersion",   "4.3.0\0"
+      VALUE "CompanyName",      "luigifab\0"
+      VALUE "LegalCopyright",   "2027 Fabrice Creuzot (luigifab), GNU GPL v3\0"
+      VALUE "Info1",            "https://github.com/luigifab/awf-extended\0"
+      VALUE "Info2",            "https://www.luigifab.fr/gtkqt/awf-extended\0"
+      VALUE "InternalName",     EXE_NAME
+      VALUE "OriginalFilename", EXE_FILE
+      VALUE "Comments",         "A widget factory თემების მინიატურის აპლიკაციაა ბიბლიოთეკებისთვის GTK და Qt. ის აჩვენებს სხვადასხვა ვიჯეტის ტიპებს ერთ ფანჯარაში, რითიც საშუალებას გაძლევთ, დაინახოთ გამოყენებული თემის ვიზუალური ეფექტი.\0"
+    END
   END
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x0409, 0x04B0, 0x040C, 0x04B0
+    VALUE "Translation", 0x0409, 0x04B0, 0x040C, 0x04B0, 0x0437, 0x04B0
   END
 END

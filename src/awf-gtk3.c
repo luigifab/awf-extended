@@ -1,8 +1,8 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/21/06/2026
+ * Updated D/20/09/2026
  *
- * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
+ * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
  * https://www.luigifab.fr/gtkqt/awf-extended
  *
@@ -32,8 +32,8 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.22 + GLIB 2.88 + Pango 1.58
- *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.23 + GLIB 2.89 + Pango 1.57
+ *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
+ *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
  *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 2.24/3.24/4.22 + GLIB 2.87 + Pango 1.56
  *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.56
  *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
@@ -70,8 +70,13 @@
 #include <gtk/gtk.h>
 #include <locale.h>
 #if defined (G_OS_WIN32)
+	#undef _WIN32_WINNT
+	#undef WINVER
+	#define _WIN32_WINNT 0x0501
+	#define WINVER 0x0501
+	#include <windows.h>
 	#include <gdk/gdkwin32.h>
-#elif defined (G_OS_UNIX)
+#elif defined (HAVE_LIBNOTIFY)
 	#include <libnotify/notify.h>
 #endif
 #if defined (G_OS_UNIX) && GLIB_CHECK_VERSION (2,30,0)
@@ -132,8 +137,10 @@ static gboolean awf_trace = FALSE;
 static gboolean awf_csd = FALSE;
 static GHashTable *hash_system_theme = NULL;
 static GHashTable *hash_user_theme = NULL;
+static GHashTable *hash_language = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
+static GList *list_language = NULL;
 static GtkWidget *window = NULL, *menubar = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
 static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
@@ -151,8 +158,9 @@ static gboolean allow_update_values = TRUE;
 static gboolean must_save_accels    = FALSE;
 
 // global functions
-static void awf_load_theme(GHashTable* hashtable, gchar *directory);
-static inline int awf_compare_theme(gconstpointer a, gconstpointer b);
+static void load_languages(GHashTable* hashtable, gchar *directory);
+static void awf_load_themes(GHashTable* hashtable, gchar *directory);
+static inline int awf_sort(gconstpointer a, gconstpointer b);
 static void notify_updated_gtktheme(GSettings *settings, gchar *key);
 static void update_text_direction(int direction);
 static void update_theme(gchar *newTheme);
@@ -188,7 +196,7 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position);
 static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static void create_traditional_menubar(GtkWidget *root);
-static GtkWidget* create_menu(GtkWidget *root, gchar *text, GtkAccelGroup *accels);
+static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accels);
 static GtkWidget* create_menuitem_tearoff(GtkWidget *menu);
 static GtkWidget* create_menuitem_check(GtkWidget *menu, gchar *text, gboolean free, gboolean chk, gboolean ist, gboolean dsb);
 static GtkWidget* create_menuitem_radio(GtkWidget *menu, gchar *text, gboolean free, gboolean chk, gboolean ist, gboolean dsb, GSList *group);
@@ -220,51 +228,92 @@ int main(int argc, gchar **argv) {
 	awf_debug = g_getenv("AWF_DEBUG") != NULL;
 	awf_trace = g_getenv("AWF_TRACE") != NULL;
 
-	const gchar *config = g_getenv("GTK_CSD");
-	if (config && (strcmp(config, "1") == 0))
-		awf_csd = TRUE;
+	current_theme = g_strdup("auto");
+	opt_theme     = g_strdup("auto");
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m main()\n");
 
-	current_theme = g_strdup("auto");
-	opt_theme     = g_strdup("auto");
+	#if defined (G_OS_WIN32)
+		// enable console on Windows
+		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+			SetConsoleOutputCP(CP_UTF8);
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+		}
+
+		// enable ANSI/VT colors on Windows
+		#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+		#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+		#endif
+		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD mode = 0;
+		if ((hOut != INVALID_HANDLE_VALUE) && GetConsoleMode(hOut, &mode))
+			SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
+
+	#if GTK_CHECK_VERSION (3,12,0)
+		const gchar *config = g_getenv("GTK_CSD");
+		if (config && (strcmp(config, "1") == 0))
+			awf_csd = TRUE;
+	#endif
 
 	int opt = 0, status = 0;
 	hash_system_theme = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	hash_user_theme   = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	GList *iterator = NULL;
-	gchar *directory;
+	gchar *directory, *prefix;
+
+	#if defined (G_OS_WIN32)
+		prefix = g_win32_get_package_installation_directory_of_module(NULL);
+		directory = g_build_filename(prefix, "share", "glib-2.0", "schemas", NULL);
+		g_setenv("GSETTINGS_SCHEMA_DIR", directory, TRUE);
+		g_free(directory);
+		// disable autolaunch of dbus session
+		if (!g_getenv("DBUS_SESSION_BUS_ADDRESS"))
+			g_setenv("DBUS_SESSION_BUS_ADDRESS", "", TRUE);
+	#endif
 
 	// load available system themes (/usr/local/share/themes && /usr/share/themes)
 	const char *const *dirs = g_get_system_data_dirs();
 	for (opt = 0; dirs[opt]; opt++) {
 		directory = g_build_filename(dirs[opt], "themes", NULL);
-		awf_load_theme(hash_system_theme, directory);
+		awf_load_themes(hash_system_theme, directory);
 		g_free(directory);
 	}
 
 	g_hash_table_remove(hash_system_theme, "Default");
 	g_hash_table_remove(hash_system_theme, "Emacs");
-	list_system_theme = g_list_sort(g_hash_table_get_keys(hash_system_theme), (GCompareFunc) awf_compare_theme);
+	list_system_theme = g_list_sort(g_hash_table_get_keys(hash_system_theme), (GCompareFunc) awf_sort);
 
-	// load available user themes (HOME/.local/share/themes && HOME/.themes)
+	// load available user themes (<home>/.local/share/themes && <home>/.themes)
 	directory = g_build_filename(g_get_user_data_dir(), "themes", NULL);
-	awf_load_theme(hash_user_theme, directory);
+	awf_load_themes(hash_user_theme, directory);
 	g_free(directory);
 
 	directory = g_build_filename(g_get_home_dir(), ".themes", NULL);
-	awf_load_theme(hash_user_theme, directory);
+	awf_load_themes(hash_user_theme, directory);
 	g_free(directory);
 
-	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_compare_theme);
+	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_sort);
 
-	// locale
+	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/awf-gtk3.mo)
+	hash_language = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+	g_hash_table_replace(hash_language, g_strdup("en"), g_strdup("en"));
+	for (opt = 0; dirs[opt]; opt++) {
+		directory = g_build_filename(dirs[opt], "locale", NULL);
+		load_languages(hash_language, directory);
+		g_free(directory);
+	}
+	list_language = g_list_sort(g_hash_table_get_keys(hash_language), (GCompareFunc) awf_sort);
+
+	// gtk/awf locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
-		directory = g_build_filename("share", "locale", NULL);
+		directory = g_build_filename(prefix, "share", "locale", NULL);
 		bindtextdomain(GETTEXT_PACKAGE, directory);
 		g_free(directory);
+		g_free(prefix);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -330,7 +379,7 @@ int main(int argc, gchar **argv) {
 					else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
 					else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
 					else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-					else                                  cVersion = "C (unknown)";
+					else                                  cVersion = "C??";
 				#else
 					cVersion = "C89/C90";
 				#endif
@@ -356,15 +405,11 @@ int main(int argc, gchar **argv) {
 				g_free(t2);
 				g_free(t3);
 				g_free(t4);
-				return status;
+				return (opt == '?') ? 1 : status;
 		}
 	}
 
 	// create and show window
-	#if defined (G_OS_WIN32)
-		g_setenv("GSETTINGS_SCHEMA_DIR", ".", TRUE);
-	#endif
-
 	#if GTK_CHECK_VERSION (3,4,0)
 
 		// this application can not open files or unknown option -s with GTK 3.4..3.10
@@ -432,13 +477,17 @@ static void quit() {
 
 	g_list_free(list_system_theme);
 	g_list_free(list_user_theme);
+	g_list_free(list_language);
 	list_system_theme = NULL;
 	list_user_theme   = NULL;
+	list_language     = NULL;
 
 	g_hash_table_destroy(hash_system_theme);
 	g_hash_table_destroy(hash_user_theme);
+	g_hash_table_destroy(hash_language);
 	hash_system_theme = NULL;
 	hash_user_theme   = NULL;
+	hash_language     = NULL;
 
 	accels_save();
 	#if GTK_CHECK_VERSION (3,4,0)
@@ -448,10 +497,34 @@ static void quit() {
 	#endif
 }
 
-static void awf_load_theme(GHashTable* hashtable, gchar *directory) {
+static void load_languages(GHashTable* hashtable, gchar *directory) {
 
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m awf_load_theme(%s)\n", directory);
+		g_printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory);
+
+	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
+
+		if (awf_debug)
+			g_printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory);
+
+		GDir *dir = g_dir_open(directory, 0, NULL);
+		if (dir) {
+			const gchar *lang;
+			while ((lang = g_dir_read_name(dir)) != NULL) {
+				gchar *mo = g_build_filename(directory, lang, "LC_MESSAGES", GETTEXT_PACKAGE ".mo", NULL);
+				if (g_file_test(mo, G_FILE_TEST_IS_REGULAR))
+					g_hash_table_replace(hashtable, g_strdup(lang), g_strdup(lang));
+				g_free(mo);
+			}
+			g_dir_close(dir);
+		}
+	}
+}
+
+static void awf_load_themes(GHashTable* hashtable, gchar *directory) {
+
+	if (awf_trace)
+		g_printf("\033[36m[trace]\033[00m awf_load_themes(%s)\n", directory);
 
 	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
 
@@ -462,21 +535,21 @@ static void awf_load_theme(GHashTable* hashtable, gchar *directory) {
 		if (dir) {
 			const gchar *theme;
 			while ((theme = g_dir_read_name(dir)) != NULL) {
-				gchar *themePath = g_build_filename(directory, theme, GTK_DIRNAME, NULL);
-				if (g_file_test(themePath, G_FILE_TEST_IS_DIR))
+				gchar *file = g_build_filename(directory, theme, GTK_DIRNAME, "gtk.css", NULL);
+				if (g_file_test(file, G_FILE_TEST_IS_REGULAR))
 					g_hash_table_replace(hashtable, g_strdup(theme), g_strdup(theme));
-				g_free(themePath);
+				g_free(file);
 			}
 			g_dir_close(dir);
 		}
 	}
 }
 
-static inline int awf_compare_theme(gconstpointer a, gconstpointer b) {
+static inline int awf_sort(gconstpointer a, gconstpointer b) {
 	return g_ascii_strcasecmp((gchar*) a, (gchar*) b); //g_strcmp0((gchar*) a, (gchar*) b);
 }
 
-static void notify_updated_gtktheme(GSettings *settings, gchar *key) { // ok
+static void notify_updated_gtktheme(GSettings *settings, gchar *key) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m notify_updated_gtktheme(%s)\n", key);
@@ -510,7 +583,7 @@ static void notify_updated_gtktheme(GSettings *settings, gchar *key) { // ok
 	}
 }
 
-static void update_text_direction(int direction) { // ok
+static void update_text_direction(int direction) {
 
 	// we must ignore the activate signal when menubar is created
 	if (!allow_update_theme)
@@ -557,7 +630,7 @@ static void update_text_direction(int direction) { // ok
 	}
 }
 
-static void update_theme(gchar *newTheme) { // ok
+static void update_theme(gchar *newTheme) {
 
 	// we must ignore the activate signal when menubar is created
 	if (!allow_update_theme || !newTheme)
@@ -632,7 +705,7 @@ static void update_theme(gchar *newTheme) { // ok
 	}
 }
 
-static void update_statusbar(gchar *message) { // ok
+static void update_statusbar(gchar *message) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_statusbar(%s)\n", message);
@@ -664,7 +737,7 @@ static void update_statusbar(gchar *message) { // ok
 	}
 }
 
-static void update_values(GtkRange *range) { // ok
+static void update_values(GtkRange *range) {
 
 	if (allow_update_values) {
 
@@ -714,7 +787,7 @@ static void update_values(GtkRange *range) { // ok
 	}
 }
 
-static void update_widgets() { // ok
+static void update_widgets() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
@@ -804,12 +877,12 @@ static void clear_entry(GtkEntry *entry) {
 	gtk_entry_set_text(entry, "");
 }
 
-static void display_notification() { // ok
+static void display_notification() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
 
-	#if defined (G_OS_UNIX)
+	#if defined (HAVE_LIBNOTIFY)
 		if (notify_init(GETTEXT_PACKAGE)) {
 			// Ubuntu 11.04 with libnotify-dev 0.5.x, so you must use libnotify-dev 0.7.x from Ubuntu 11.10
 			NotifyNotification *notif = notify_notification_new(GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."), "dialog-information");
@@ -897,7 +970,7 @@ static gboolean find_and_check_menuradio(GtkWidget *menu, gchar *search) { // wh
 	return FALSE;
 }
 
-static gboolean on_sighup(void *data) { // ok
+static gboolean on_sighup(void *data) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m on_sighup()\n");
@@ -911,7 +984,7 @@ static gboolean on_sighup(void *data) { // ok
 	#endif
 }
 
-static gboolean take_screenshot() { // ok (without window borders)
+static gboolean take_screenshot() { // without window borders
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m take_screenshot()\n");
@@ -1144,7 +1217,7 @@ static void create_window(gpointer app) {
 	#endif
 }
 
-static void create_widgets(GtkWidget *root) { // ok
+static void create_widgets(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_widgets()\n");
@@ -1272,7 +1345,7 @@ static void add_progressbar_and_entrybar() {
 	gtk_box_pack_start(GTK_BOX(statusbar), progress9, FALSE, FALSE, 0);
 }
 
-static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) { // ok
+static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) {
 
 	if (GTK_IS_INFO_BAR(root))
 		root = gtk_info_bar_get_content_area(GTK_INFO_BAR(root));
@@ -1298,7 +1371,7 @@ static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean
 	#endif
 }
 
-static void create_toolbar(GtkWidget *root) { // ok
+static void create_toolbar(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_toolbar()\n");
@@ -1339,7 +1412,7 @@ static void create_toolbar(GtkWidget *root) { // ok
 	tool6 = GTK_WIDGET(gtk_tool_button_new(NULL, NULL));
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(tool6), "dialog-information");
 	g_signal_connect(tool6, "clicked", G_CALLBACK(display_notification), NULL);
-	#if defined (G_OS_WIN32)
+	#if !defined (HAVE_LIBNOTIFY)
 		gtk_widget_set_sensitive(tool6, FALSE);
 	#endif
 
@@ -1384,7 +1457,7 @@ static void create_toolbar(GtkWidget *root) { // ok
 	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool13), -1); // = 13
 }
 
-static void create_combos_entries(GtkWidget *root) { // ok
+static void create_combos_entries(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_combos_entries()\n");
@@ -1451,7 +1524,7 @@ static void create_combos_entries(GtkWidget *root) { // ok
 	add_to(root, entry4, FALSE, FALSE, 0, 0);
 }
 
-static void create_spinbuttons(GtkWidget *root) { // ok
+static void create_spinbuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_spinbuttons()\n");
@@ -1472,7 +1545,7 @@ static void create_spinbuttons(GtkWidget *root) { // ok
 	add_to(root, spinbutton2, FALSE, FALSE, 0, 0);
 }
 
-static void create_checkbuttons(GtkWidget *root) { // ok
+static void create_checkbuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_checkbuttons()\n");
@@ -1508,7 +1581,7 @@ static void create_checkbuttons(GtkWidget *root) { // ok
 	add_to(root, checkbutton6, FALSE, FALSE, 0, 0);
 }
 
-static void create_radiobuttons(GtkWidget *root) { // ok
+static void create_radiobuttons(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_radiobuttons()\n");
@@ -1544,7 +1617,7 @@ static void create_radiobuttons(GtkWidget *root) { // ok
 	add_to(root, radiobutton6, FALSE, FALSE, 0, 0);
 }
 
-static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4, GtkWidget *root5) { // ok
+static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4, GtkWidget *root5) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_otherbuttons()\n");
@@ -1586,7 +1659,6 @@ static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	find_and_update_labels(button8, TRUE);
 	gtk_widget_set_size_request(button8, 180, -1); // The 186
 	gtk_widget_set_tooltip_text(button8, _app("Choose a folder"));
-	// @todo < 3.8 not null
 
 	// GTK_SWITCH (for GTK_OPTION_MENU)
 	button9 = gtk_switch_new();
@@ -1665,7 +1737,7 @@ static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	#endif
 }
 
-static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4) { // ok
+static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *root3, GtkWidget *root4) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_progressbars()\n");
@@ -1782,7 +1854,7 @@ static void create_progressbars(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	#endif
 }
 
-static void create_labels(GtkWidget *root) { // ok
+static void create_labels(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_labels()\n");
@@ -1802,7 +1874,7 @@ static void create_labels(GtkWidget *root) { // ok
 	add_to(root, BOXH, TRUE, TRUE, 0, 0); // empty space
 }
 
-static void create_spinners(GtkWidget *root) { // ok
+static void create_spinners(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_spinners()\n");
@@ -1825,7 +1897,7 @@ static void create_spinners(GtkWidget *root) { // ok
 	add_to(root, BOXH, TRUE, TRUE, 0, 0); // empty space
 }
 
-static void create_expander(GtkWidget *root) { // ok
+static void create_expander(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_expander()\n");
@@ -1838,7 +1910,7 @@ static void create_expander(GtkWidget *root) { // ok
 	expander = gtk_expander_new(_app("More..."));
 	gtk_expander_set_expanded(GTK_EXPANDER(expander), TRUE);
 	//~if GTK_CHECK_VERSION (3,20,0)
-	//	@todo label 100% width
+	//	@todo set label at 100% width
 	//~endif
 
 	// GTK_SCROLLED_WINDOW
@@ -1870,7 +1942,7 @@ static void create_expander(GtkWidget *root) { // ok
 	add_to(root, expander, FALSE, FALSE, 0, 0);
 }
 
-static void create_frames(GtkWidget *root1, GtkWidget *root2) { // ok
+static void create_frames(GtkWidget *root1, GtkWidget *root2) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_frames()\n");
@@ -1902,7 +1974,7 @@ static void create_frames(GtkWidget *root1, GtkWidget *root2) { // ok
 	add_to(root2, frame4, TRUE, TRUE, 0, 0);
 }
 
-static void create_notebooks(GtkWidget *root1, GtkWidget *root2) { // ok
+static void create_notebooks(GtkWidget *root1, GtkWidget *root2) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_notebooks()\n");
@@ -1945,7 +2017,7 @@ static void create_notebooks(GtkWidget *root1, GtkWidget *root2) { // ok
 		create_notebook_tab(notebook4, "T4",   NULL, TRUE);
 
 	#if GTK_CHECK_VERSION (3,4,0)
-		// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
 		gtk_widget_add_events(notebook1, GDK_SCROLL_MASK);
 		g_signal_connect(notebook1, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
@@ -1964,7 +2036,7 @@ static void create_notebooks(GtkWidget *root1, GtkWidget *root2) { // ok
 	add_to(root2, notebook4, TRUE, TRUE, 0, 0);
 }
 
-static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *content, gboolean close) { // ok
+static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *content, gboolean close) {
 
 	GtkWidget *headbtn = BOXH, *btn;
 	add_to(headbtn, gtk_label_new(text), TRUE, TRUE, 0, 0);
@@ -1991,7 +2063,7 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 
 	#if GTK_CHECK_VERSION (3,4,0)
 		if (close) {
-			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 			// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
 			gtk_widget_add_events(btn, GDK_SCROLL_MASK);
 			g_signal_connect(btn, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
@@ -1999,7 +2071,7 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 	#endif
 }
 
-static void create_treeview(GtkWidget *root) { // ok
+static void create_treeview(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_treeview()\n");
@@ -2292,7 +2364,7 @@ static void create_treeview(GtkWidget *root) { // ok
 	add_to(root, scrolledWindow, FALSE, FALSE, 0, 0);
 }
 
-static void create_scales(GtkWidget *notebook, gchar *text, int position) { // ok
+static void create_scales(GtkWidget *notebook, gchar *text, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_scales()\n");
@@ -2307,31 +2379,31 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position) { // o
 
 	// vertical scales
 	scale1v = create_vertical_scale(value, FALSE, FALSE, position);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale1v), "top");
 
 	scale2v = create_vertical_scale(value, FALSE, FALSE, position);
 	update_marks(GTK_SCALE(scale2v), FALSE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale2v), "top");
 
 	scale3v = create_vertical_scale(value, FALSE, FALSE, position);
 	update_marks(GTK_SCALE(scale3v), TRUE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale3v), "top");
 
 	scale4v = create_vertical_scale(value, TRUE, FALSE, position);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale4v), "top");
 
 	scale5v = create_vertical_scale(value, TRUE, FALSE, position);
 	update_marks(GTK_SCALE(scale5v), FALSE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale5v), "top");
 
 	scale6v = create_vertical_scale(value, TRUE, FALSE, position);
 	update_marks(GTK_SCALE(scale6v), TRUE, GTK_POS_LEFT);
-	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo highlight bottom instead of top, why?
+	if (gtk_widget_get_direction(window) == GTK_TEXT_DIR_RTL) // @todo bottom instead of top
 		gtk_style_context_add_class(gtk_widget_get_style_context(scale6v), "top");
 
 	scale7v = create_vertical_scale(value, FALSE, TRUE, position);
@@ -2417,7 +2489,7 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position) { // o
 	create_notebook_tab(notebook, text, hbox, FALSE);
 }
 
-static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position) { // ok
+static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_horizontal_scale()\n");
@@ -2434,7 +2506,7 @@ static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean
 	return scale;
 }
 
-static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position) { // ok
+static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_vertical_scale()\n");
@@ -2462,13 +2534,14 @@ static void create_traditional_menubar(GtkWidget *root) {
 	GtkWidget *menu, *submenu, *menuitem, *base;
 	GtkAccelGroup *accels = gtk_accel_group_new();
 	GSList *group = NULL;
-	GList *iterator;
-	gboolean ok;
+	GList *iterator, *look;
+	gboolean mini, is_user;
+	int total, count;
 
 	gtk_window_add_accel_group(GTK_WINDOW(window), accels);
 
 	// options
-	menu = create_menu(root, _app("_Options"), accels);
+	menu = create_menu(root, _app("_Options"), TRUE, accels);
 
 		// @todo option command line?
 		if (g_getenv("AWF_TEAROFF") != NULL)
@@ -2484,13 +2557,13 @@ static void create_traditional_menubar(GtkWidget *root) {
 		create_menuitem(menu, "gtk-page-setup", FALSE, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, "gtk-print", FALSE, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
-		submenu = create_menu(menu, _app("More..."), accels);
+		submenu = create_menu(menu, _app("More..."), TRUE, accels);
 
 			create_menuitem(submenu, "gtk-cut", FALSE, AWF_ACCEL_MCUT, AWF_MCUT, NULL);
 			create_menuitem(submenu, "gtk-copy", FALSE, AWF_ACCEL_MCOP, AWF_MCOP, NULL);
 			create_menuitem(submenu, "gtk-paste", FALSE, AWF_ACCEL_MPAS, AWF_MPAS, NULL);
 
-		submenu = create_menu(menu, _app("Less..."), NULL);
+		submenu = create_menu(menu, _app("Less..."), TRUE, NULL);
 		gtk_widget_set_sensitive(gtk_menu_get_attach_widget(GTK_MENU(submenu)), FALSE);
 
 		menuitem = gtk_separator_menu_item_new();
@@ -2524,51 +2597,47 @@ static void create_traditional_menubar(GtkWidget *root) {
 			create_menuitem(menu, "gtk-quit", FALSE, AWF_ACCEL_QUIT, AWF_QUIT, quit);
 
 	// system themes
-	ok = FALSE;
 	group = NULL;
-	menu  = create_menu(root, _app("_System themes"), NULL);
-	for (iterator = list_system_theme; iterator; iterator = iterator->next) {
+	menu  = create_menu(root, _app("_System themes"), TRUE, NULL);
+	total = g_list_length(list_system_theme);
+	mini  = total > 15;
+	for (iterator = list_system_theme; iterator; ) {
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
-			submenu = create_menu(menu, iterator->data, FALSE);
-			base = submenu;
-			ok = TRUE;
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
 		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = create_menu(menu, iterator->data, FALSE, NULL);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		if (g_hash_table_lookup(hash_user_theme, iterator->data)) {
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			is_user = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
+
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, is_user, group);
 			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
 			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
 				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
-		}
-		else {
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
-			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+
+			iterator = iterator->next;
 		}
 	}
 
@@ -2576,50 +2645,67 @@ static void create_traditional_menubar(GtkWidget *root) {
 		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
 
 	// user themes
-	ok = FALSE;
-	menu = create_menu(root, _app("_User themes"), NULL);
-	for (iterator = list_user_theme; iterator; iterator = iterator->next) {
+	menu = create_menu(root, _app("_User themes"), TRUE, NULL);
+	total = g_list_length(list_user_theme);
+	mini  = total > 15;
+	for (iterator = list_user_theme; iterator; ) {
 
-		if (
-			(strcmp((gchar*) iterator->data, "Mint-L") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-X") == 0) ||
-			(strcmp((gchar*) iterator->data, "Mint-Y") == 0) ||
-			(strcmp((gchar*) iterator->data, "Orchis") == 0) ||
-			(strcmp((gchar*) iterator->data, "Yaru") == 0) ||
-			(strcmp((gchar*) iterator->data, "Sucharu") == 0)
-		) {
-			submenu = create_menu(menu, iterator->data, FALSE);
-			base = submenu;
-			ok = TRUE;
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
 		}
-		else if (ok && (
-			g_str_has_prefix((gchar*) iterator->data, "Mint-L") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-X") ||
-			g_str_has_prefix((gchar*) iterator->data, "Mint-Y") ||
-			g_str_has_prefix((gchar*) iterator->data, "Orchis") ||
-			g_str_has_prefix((gchar*) iterator->data, "Yaru") ||
-			g_str_has_prefix((gchar*) iterator->data, "Sucharu")
-		)) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = create_menu(menu, iterator->data, FALSE, NULL);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = FALSE;
 		}
 
-		menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
-		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-		if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
+			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+
+			iterator = iterator->next;
+		}
 	}
 
 	if (!list_user_theme)
 		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
 
+	// application language
+	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
+	group = NULL;
+	menu  = create_menu(root, _app("_Language"), TRUE, NULL);
+
+	for (iterator = list_language; iterator; iterator = iterator->next) {
+		menuitem = create_menuitem_radio(menu, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
+		if (g_str_has_prefix(current_language, (gchar*) iterator->data))
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+	}
+
+	g_free(current_language);
+
 	// text direction
 	group = NULL;
-	menu  = create_menu(root, _app("_Text direction"), NULL);
+	menu  = create_menu(root, _app("_Text direction"), TRUE, NULL);
 
 		menuitem = create_menuitem_radio(menu, _app("Left to Right (LTR)"), FALSE, FALSE, FALSE, FALSE, group);
 		if (current_direction == 1)
@@ -2633,7 +2719,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_text_direction), GINT_TO_POINTER(GTK_TEXT_DIR_RTL));
 
 	// help
-	menu = create_menu(root, _app("_Help"), accels);
+	menu = create_menu(root, _app("_Help"), TRUE, accels);
 
 		#if GTK_CHECK_VERSION (3,14,0)
 			create_menuitem(menu, "GtkInspector", FALSE, AWF_ACCEL_INSP, AWF_INSP, dialog_inspector);
@@ -2644,13 +2730,13 @@ static void create_traditional_menubar(GtkWidget *root) {
 
 		create_menuitem(menu, "gtk-about", FALSE, AWF_ACCEL_ABOU, AWF_ABOU, dialog_about);
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
 	g_object_set(gtk_settings_get_default(), "gtk-can-change-accels", FALSE, NULL);
 	g_object_unref(accels);
 }
 
-static GtkWidget* create_menu(GtkWidget *root, gchar *text, GtkAccelGroup *accels) {
+static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accels) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_menu(%s)\n", text);
@@ -2658,12 +2744,12 @@ static GtkWidget* create_menu(GtkWidget *root, gchar *text, GtkAccelGroup *accel
 	GtkWidget *menu, *menuitem;
 
 	menu = gtk_menu_new();
-	menuitem = gtk_menu_item_new_with_mnemonic(text);
+	menuitem = mnemonic ? gtk_menu_item_new_with_mnemonic(text) : gtk_menu_item_new_with_label(text);
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(root), menuitem);
 
 	if (accels) {
-		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		gtk_menu_set_accel_group(GTK_MENU(menu), accels);
 		gtk_widget_set_events(menu, GDK_KEY_RELEASE_MASK);
 		g_signal_connect(menu, "key-release-event", G_CALLBACK(accels_change), NULL);
@@ -2693,7 +2779,7 @@ static GtkWidget* create_menuitem_check(GtkWidget *menu, gchar *text, gboolean f
 
 	GtkWidget *menuitem;
 
-	menuitem = gtk_check_menu_item_new_with_mnemonic(text);
+	menuitem = gtk_check_menu_item_new_with_label(text);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), chk);
 	gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(menuitem), ist);
 	gtk_widget_set_sensitive(menuitem, !dsb);
@@ -2712,7 +2798,7 @@ static GtkWidget* create_menuitem_radio(GtkWidget *menu, gchar *text, gboolean f
 
 	GtkWidget *menuitem;
 
-	menuitem = gtk_radio_menu_item_new_with_mnemonic(group, text);
+	menuitem = gtk_radio_menu_item_new_with_label(group, text);
 	gtk_check_menu_item_set_inconsistent(GTK_CHECK_MENU_ITEM(menuitem), ist);
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), chk);
 	gtk_widget_set_sensitive(menuitem, !dsb);
@@ -2748,7 +2834,7 @@ static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gc
 
 	if (kmp) {
 		gtk_menu_item_set_accel_path(GTK_MENU_ITEM(menuitem), kmp);
-		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 		g_signal_connect(menuitem, "select", G_CALLBACK(accels_select), NULL);
 		g_signal_connect(menuitem, "deselect", G_CALLBACK(accels_deselect), NULL);
 	}
@@ -2759,45 +2845,43 @@ static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gc
 	return menuitem;
 }
 
-static void accels_load() { // ok
+static void accels_load() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_load()\n");
 
+	gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
 	gchar *oldPath = g_build_filename(g_get_home_dir(), ".awf-gtk-accels", NULL);
-	if (g_file_test(oldPath, G_FILE_TEST_EXISTS)) {
-		gchar *newPath = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
-		g_rename(oldPath, newPath);
-		g_free(newPath);
-	}
+	if (g_file_test(oldPath, G_FILE_TEST_EXISTS) && !g_file_test(path, G_FILE_TEST_EXISTS))
+		g_rename(oldPath, path);
 	g_free(oldPath);
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
-	gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (g_file_test(path, G_FILE_TEST_IS_REGULAR))
 		gtk_accel_map_load(path);
+
 	g_free(path);
 }
 
-static void accels_select(GtkWidget *widget) { // ok
+static void accels_select(GtkWidget *widget) {
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	current_menuitem = widget;
 }
 
-static void accels_deselect(GtkWidget *widget) { // ok
+static void accels_deselect(GtkWidget *widget) {
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (current_menuitem == widget)
 		current_menuitem = NULL;
 }
 
-static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) { // ok
+static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_change()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	// @see https://github.com/GNOME/gtk/commit/2d79334bb069224966b3dcd8456967c9800e8fd0
 	if (current_menuitem) {
 
@@ -2843,12 +2927,12 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) { // ok
 	return FALSE;
 }
 
-static void accels_save() { // ok
+static void accels_save() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
 		gtk_accel_map_save(path);
@@ -2859,7 +2943,7 @@ static void accels_save() { // ok
 
 // dialogs
 
-static void dialog_open() { // ok
+static void dialog_open() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_open()\n");
@@ -2889,7 +2973,7 @@ static void dialog_open() { // ok
 	gtk_widget_destroy(dialog);
 }
 
-static void dialog_recent() { // ok
+static void dialog_recent() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_recent()\n");
@@ -2916,7 +3000,7 @@ static void dialog_recent() { // ok
 	gtk_widget_destroy(dialog);
 }
 
-static void dialog_save() { // ok
+static void dialog_save() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_save()\n");
@@ -2945,7 +3029,7 @@ static void dialog_save() { // ok
 	gtk_widget_destroy(dialog);
 }
 
-static void dialog_message() { // ok
+static void dialog_message() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_message()\n");
@@ -2957,7 +3041,7 @@ static void dialog_message() { // ok
 		GTK_BUTTONS_YES_NO,
 		"GtkMessageDialog");
 
-	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
+	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 
 	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
@@ -2967,7 +3051,7 @@ static void dialog_message() { // ok
 	gtk_widget_destroy(dialog);
 }
 
-static void dialog_page_setup() { // ok
+static void dialog_page_setup() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
@@ -2987,7 +3071,7 @@ static void dialog_page_setup() { // ok
 	g_object_unref(setup);
 }
 
-static void dialog_print() { // ok
+static void dialog_print() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_print()\n");
@@ -3007,7 +3091,7 @@ static void dialog_print() { // ok
 	g_object_unref(op);
 }
 
-static void dialog_about() { // ok
+static void dialog_about() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
@@ -3027,7 +3111,7 @@ static void dialog_about() { // ok
 		else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
 		else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
 		else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-		else                                  cVersion = "C (unknown)";
+		else                                  cVersion = "C??";
 	#else
 		cVersion = "C89/C90";
 	#endif
@@ -3050,7 +3134,7 @@ static void dialog_about() { // ok
 				pango_version_string())
 		),
 		"website", "https://github.com/luigifab/awf-extended",
-		"copyright", "Copyright © 2020-2026 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
+		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
 		"icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
 		"logo-icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
 		"logo", pixbuf,
@@ -3072,7 +3156,7 @@ static void dialog_about() { // ok
 	#endif
 }
 
-static void dialog_inspector() { // ok
+static void dialog_inspector() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_inspector()\n");
@@ -3082,7 +3166,7 @@ static void dialog_inspector() { // ok
 	#endif
 }
 
-static void dialog_calendar() { // ok
+static void dialog_calendar() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
@@ -3150,7 +3234,7 @@ static void dialog_calendar() { // ok
 	gtk_widget_destroy(dialog);
 }
 
-static void dialog_scales() { // ok
+static void dialog_scales() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_scales()\n");
@@ -3195,7 +3279,7 @@ static void dialog_scales() { // ok
 }
 
 
-// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 // @see https://github.com/mate-desktop/mate-control-center/blob/master/capplets/common/capplet-util.c
 // for on_scrolltabs source function is capplet_dialog_page_scroll_event_cb
 //  of mate-appearance-properties from mate-control-center, GNU GPL 2.0+
@@ -3204,7 +3288,7 @@ static void dialog_scales() { // ok
 
 static gboolean on_scrolltabs(GtkWidget *widget, GdkEventScroll *event) {
 
-	// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-scroll-tabs for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	GtkWidget *child, *eventWidget, *actionWidget;
 	GtkNotebook *notebook;
 

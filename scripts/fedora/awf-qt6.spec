@@ -1,5 +1,5 @@
 Name:          awf-qt6
-Version:       4.2.0
+Version:       4.3.0
 Release:       1%{?dist}
 Summary:       Theme preview application for Qt 6
 Summary(fr):   Application d'aperçu de thème pour Qt 6
@@ -61,6 +61,9 @@ autoreconf -fi
 
 
 %changelog
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
+- New upstream release
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
 - New upstream release
 - Use make install

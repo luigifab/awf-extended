@@ -1,5 +1,5 @@
 pkgname=awf-qt7
-pkgver=4.2.0
+pkgver=4.3.0
 pkgrel=1
 pkgdesc='Theme preview application for Qt 7'
 url='https://github.com/luigifab/awf-extended'
@@ -18,7 +18,7 @@ prepare() {
 build() {
   cd "$pkgname-$pkgver"
   autoreconf -fi
-  ./configure --enable-only-qt7
+  ./configure --prefix=/usr --enable-only-qt7
   make -s
 }
 

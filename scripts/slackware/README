@@ -1,3 +1,5 @@
 A widget factory is a theme preview application for GTK and Qt. It
 displays the various widget types in a single window allowing to see
 the visual effect of the applied theme.
+
+For: GTK 2.24, 3.x, 4.x & Qt 4.8, 5.x, 6.x

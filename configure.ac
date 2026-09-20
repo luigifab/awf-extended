@@ -1,7 +1,8 @@
 # supported options
 #  none
 # OR
-#  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt5 --disable-qt6 --disable-qt7
+#  --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
+#  --disable-gtk                                               --disable-qt
 # OR
 #  --enable-only-gtk2
 # OR
@@ -11,13 +12,15 @@
 # OR
 #  --enable-only-gtk5
 # OR
+#  --enable-only-qt4
+# OR
 #  --enable-only-qt5
 # OR
 #  --enable-only-qt6
 # OR
 #  --enable-only-qt7
 
-AC_INIT([A widget factory], [4.2.0], [https://github.com/luigifab/awf-extended/issues], [awf-extended], [https://github.com/luigifab/awf-extended])
+AC_INIT([A widget factory], [4.3.0], [https://github.com/luigifab/awf-extended/issues], [awf-extended], [https://github.com/luigifab/awf-extended])
 AC_CONFIG_SRCDIR([src/])
 AM_INIT_AUTOMAKE([foreign])
 AC_PROG_CC
@@ -53,6 +56,10 @@ AC_ARG_ENABLE([qt5],
   AS_HELP_STRING([--disable-qt5], [disable qt5 (default: enabled if available)]),
   [enable_qt5=no],
   [enable_qt5=yes])
+AC_ARG_ENABLE([qt4],
+  AS_HELP_STRING([--disable-qt4], [disable qt4 (default: enabled if available)]),
+  [enable_qt4=no],
+  [enable_qt4=yes])
 
 # --enable-only-gtkx --enable-only-qtx
 AC_ARG_ENABLE([only-gtk5],
@@ -62,6 +69,7 @@ AC_ARG_ENABLE([only-gtk5],
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=yes
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
@@ -73,6 +81,7 @@ AC_ARG_ENABLE([only-gtk4],
    enable_gtk3=no
    enable_gtk4=yes
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
@@ -84,6 +93,7 @@ AC_ARG_ENABLE([only-gtk3],
    enable_gtk3=yes
    enable_gtk4=no
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
@@ -95,6 +105,7 @@ AC_ARG_ENABLE([only-gtk2],
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
@@ -106,6 +117,7 @@ AC_ARG_ENABLE([only-qt7],
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=yes],
@@ -117,6 +129,7 @@ AC_ARG_ENABLE([only-qt6],
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=no
    enable_qt6=yes
    enable_qt7=no],
@@ -128,7 +141,38 @@ AC_ARG_ENABLE([only-qt5],
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
+   enable_qt4=no
    enable_qt5=yes
+   enable_qt6=no
+   enable_qt7=no],
+  [])
+AC_ARG_ENABLE([only-qt4],
+  AS_HELP_STRING([--enable-only-qt4], [only enable qt4]),
+  [only_qt=yes
+   enable_gtk2=no
+   enable_gtk3=no
+   enable_gtk4=no
+   enable_gtk5=no
+   enable_qt4=yes
+   enable_qt5=no
+   enable_qt6=no
+   enable_qt7=no],
+  [])
+
+# --disable-gtk --disable-qt (shortcuts)
+AC_ARG_ENABLE([gtk],
+  AS_HELP_STRING([--disable-gtk], [disable all gtk versions]),
+  [only_gtk=no
+   enable_gtk2=no
+   enable_gtk3=no
+   enable_gtk4=no
+   enable_gtk5=no],
+  [])
+AC_ARG_ENABLE([qt],
+  AS_HELP_STRING([--disable-qt], [disable all qt versions]),
+  [only_qt=no
+   enable_qt4=no
+   enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
   [])
@@ -157,10 +201,12 @@ fi
 # to avoid the following stupid error without gtk, pkgconf is required (in Build-Depends)
 # ./configure: line 5306: syntax error near unexpected token `LIBNOTIFY,'
 # ./configure: line 5306: `PKG_CHECK_MODULES...
-# for windows, libnotify is not required
+# libnotify is not required
 PKG_CHECK_MODULES(LIBNOTIFY, libnotify >= 0.7.0, have_libnotify=yes, have_libnotify=no)
 if test "x$windows" = "xyes"; then
   have_libnotify=ignore
+elif test "x$have_libnotify" = "xyes"; then
+  AC_DEFINE([HAVE_LIBNOTIFY], [1], [libnotify available])
 fi
 
 if test "x$enable_gtk5" = "xyes" || test "x$enable_gtk4" = "xyes" || test "x$enable_gtk3" = "xyes" || test "x$enable_gtk2" = "xyes"; then
@@ -172,22 +218,15 @@ if test "x$enable_gtk5" = "xyes" || test "x$enable_gtk4" = "xyes" || test "x$ena
     enable_gtk3=no
     enable_gtk4=no
     enable_gtk5=no
-  elif test "x$have_libnotify" = "xno"; then
-    if test "x$only_gtk" = "xyes"; then
-      AC_MSG_ERROR([libnotify not found (FATAL)])
-    fi
-    enable_gtk2=no
-    enable_gtk3=no
-    enable_gtk4=no
-    enable_gtk5=no
   fi
 fi
 
-if test "x$enable_qt7" = "xyes" || test "x$enable_qt6" = "xyes" || test "x$enable_qt5" = "xyes"; then
+if test "x$enable_qt7" = "xyes" || test "x$enable_qt6" = "xyes" || test "x$enable_qt5" = "xyes" || test "x$enable_qt4" = "xyes"; then
   compiler=$(command -v ${CXX%% *})
   if test "x$only_qt" = "xyes" && test "x$compiler" = "x"; then
     AC_MSG_ERROR([C++ compiler not found (FATAL)])
   elif test "x$compiler" = "x"; then
+    enable_qt4=no
     enable_qt5=no
     enable_qt6=no
     enable_qt7=no
@@ -297,6 +336,22 @@ else
   AM_CONDITIONAL([QT5], [false])
 fi
 AC_SUBST(QT5_MOC)
+
+# QT 4
+PKG_CHECK_MODULES(QT4, [QtCore QtGui >= 4.8.0], QT4_SUFFIX=4, QT4_SUFFIX=-4)
+if test "x$enable_qt4" = "xyes"; then
+  if test "x$only_qt" = "xyes" && test "x$QT4_SUFFIX" != "x4"; then
+    AC_MSG_ERROR([QT4 not found (FATAL)])
+  fi
+  AM_CONDITIONAL([QT4], [test "x$QT4_SUFFIX" = "x4"])
+  if test "x$QT4_SUFFIX" = "x4"; then
+    QT4_BINDIR=`$PKG_CONFIG --variable=exec_prefix QtCore 2>/dev/null`
+    QT4_MOC="$QT4_BINDIR/bin/moc"
+  fi
+else
+  AM_CONDITIONAL([QT4], [false])
+fi
+AC_SUBST(QT4_MOC)
 
 # files
 AC_CONFIG_FILES([

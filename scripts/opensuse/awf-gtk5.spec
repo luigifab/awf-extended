@@ -1,5 +1,5 @@
 Name:          awf-gtk5
-Version:       4.2.0
+Version:       4.3.0
 Release:       0
 Summary:       Theme preview application for GTK 5
 Summary(fr):   Application d'aperçu de thème pour GTK 5
@@ -61,8 +61,11 @@ autoreconf -fi
 
 
 %changelog
-* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
 - Initial openSUSE package release
+
+
+
 
 
 

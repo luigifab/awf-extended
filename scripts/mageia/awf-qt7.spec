@@ -1,5 +1,5 @@
 Name:          awf-qt7
-Version:       4.2.0
+Version:       4.3.0
 Release:       %mkrel 1
 Summary:       Theme preview application for Qt 7
 Summary(fr):   Application d'aperçu de thème pour Qt 7
@@ -61,8 +61,11 @@ autoreconf -fi
 
 
 %changelog
-* Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1.mga
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1.mga
 - Initial Mageia package release (Closes: mbz#32827)
+
+
+
 
 
 

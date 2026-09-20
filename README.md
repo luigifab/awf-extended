@@ -1,3 +1,5 @@
+-- NIGHTLY --
+
 # AWF - A widget factory (extended)
 
 A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.
@@ -16,7 +18,7 @@ GTK 3.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 3 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl-menu.png)
 [<img alt="Preview with GTK 3 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl.png)
 
-GTK 4.12..4.23-classic (Pango 1.58)\
+GTK 4.12..4.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4.png)
 [<img alt="Preview with GTK 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl-menu.png)
@@ -24,6 +26,9 @@ GTK 4.12..4.23-classic (Pango 1.58)\
 
 GTK 5.0\
 _GtkWindow will be probably deprecated... lol_
+
+Qt 4.8\
+_Yes I can... lol_
 
 Qt 5.15\
 [<img alt="Preview with Qt 5 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5.png)
@@ -48,13 +53,14 @@ Theme used for the screenshots is available [here](https://github.com/luigifab/h
 * The _Info_ toolbar button allows you to display a notification
 * The _Plus/Minus_ toolbar buttons allow you to show/hide notebook arrows, marks on progress bars and scales...
 * The _Refresh_ toolbar button and menu item allow you to reload the current theme (like the `SIGHUP` signal)
-* Notebook tabs are scrollable (GTK 3.x & 4.x, *gtk-scroll-tabs*, like with GTK 2.24 + Qt 5.x & 6.x)
-* Menu keyboard shortcuts can be updated on hover (GTK 2.24 & 3.x + Qt 5.x & 6.x, *gtk-can-change-accels*)
+* Notebook tabs are scrollable _(GTK 3.x 4.x, gtk-scroll-tabs, like with GTK 2.24 + Qt 4.8 5.x 6.x)_
+* Menu keyboard shortcuts can be updated on hover _(GTK 2.24 3.x + Qt 4.8 5.x 6.x, gtk-can-change-accels)_
 * Use `AWF_DEBUG=1` and `AWF_TRACE=1` to enable some debug messages
-* Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu (GTK 2.24 & 3.x + Qt 5.x & 6.x)
-* Use `GTK_OVERLAY_SCROLLING=0` to make scrollbars always visible (GTK 3.16+ & 4.x)
-* Use `GTK_CSD=1` to enable CSD windows (GTK 3.12+ & 4.x)
-* Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover
+* Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu _(GTK 2.24 3.x + Qt 4.8 5.x 6.x)_
+* Use `GTK_OVERLAY_SCROLLING=0` to make scrollbars always visible _(GTK 3.16+ 4.x)_
+* Use `GTK_CSD=1` to enable CSD windows _(GTK 3.12+ 4.x)_
+* Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover (GTK)
+* Use `QT_X11_NO_NATIVE_MENUBAR=1` on Ubuntu to allow updating menu keyboard shortcuts on hover (Qt)
 
 ## Broadway
 
@@ -62,9 +68,9 @@ Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, the
 
 ## Installation
 
-For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.23)*, *GLIB 2.28+*, *libnotify 0.7+*.
+For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.24)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
-For Qt, it requires **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
+For Qt, it requires **Qt 4.8** or **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
 > The road is long, but the way is free — we always have a choice.
 
@@ -85,17 +91,7 @@ Replace `apt`/`dnf` with your package manager, or use a graphical interface.
 #### Install via PPA
 
 ```bash
-# PPA: https://launchpad.net/~luigifab/+archive/ubuntu/packages
-# from Debian 12 you can use noble/questing (unix.stackexchange.com/a/669008/364800)
-#     Debian: focal for 10/buster, jammy for 11/bullseye, noble for 12/bookworm,
-#              plucky for 13/trixie, questing for 14/forky and 15/duke
-#     Devuan: focal for 3/beowulf, jammy for 4/chimaera, noble for 5/daedalus,
-#              plucky for 6/excalibur, questing for 7/freia and 8/gryphon and ceres
-# Linux Mint: focal for 20.x and 4/debbie, jammy for 21.x and 5/elsie,
-#              noble for 22.x and 6/faye, plucky for 7/gigi
-#   MX Linux: focal for 19.x, jammy for 21.x, noble for 23.x, questing for 25.x
-#   Trisquel: focal for nabia, jammy for aramo
-# Kali Linux: questing
+# https://launchpad.net/~luigifab/+archive/ubuntu/packages
 
 sudo add-apt-repository ppa:luigifab/packages
 sudo apt update
@@ -139,7 +135,7 @@ For better results, use gtk4-classic.
 
 If font rendering is bad, try to add in `~/.config/gtk-4.0/settings.ini`:
 
-```
+```ini
 [Settings]
 gtk-font-rendering=manual
 gtk-hint-font-metrics=1
@@ -153,6 +149,10 @@ gtk-xft-hinting=1
 From [migrating guide](https://docs.gtk.org/gtk4/migrating-4to5.html#non-standard-css-extensions-are-going-away): _non-standard CSS extensions are going away [...] @define-color should be replaced [...] the color functions can all be replaced by combinations of calc() and color-mix()_.
 
 I think it would be nice to create a patch to fix this GTK regression.
+
+#### Qt 4
+
+Only for fun.
 
 #### Qt 5 & 6
 
@@ -174,6 +174,8 @@ AwfTreeView { qproperty-columnWidths:"1,2,3,4,5,6,7,8,9,10,11"; /* qt */ }
 .awf-cheatcode-folderbtn { background:red; /* qt + gtk 4 */ }
 ```
 
+Without GlobalQSS, you can also run the program like this: `awf-qt5 -stylesheet ~/.config/qt5/qt.qss`
+
 ## Dev
 
 To reload theme when source files change, you can use [Entr](https://github.com/eradman/entr) with the `SIGHUP` signal:
@@ -185,8 +187,8 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.2.0 (07/07/2026)
-- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.23, Qt 5.0..5.15 / 6.0..6.11
+- Current version: 4.3.0~20260920
+- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.0..5.15 / 6.0..6.11
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 
 This program is provided under the terms of the **GNU GPLv3+** license.\

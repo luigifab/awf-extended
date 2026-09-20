@@ -1,5 +1,5 @@
 Name:          awf-qt5
-Version:       4.2.0
+Version:       4.3.0
 Release:       0
 Summary:       Theme preview application for Qt 5
 Summary(fr):   Application d'aperçu de thème pour Qt 5
@@ -15,10 +15,10 @@ BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: hicolor-icon-theme
 BuildRequires: libqt5-qtbase-devel
-Requires:      libqt5-qtbase
+Requires:      libQt5Core5
 Requires:      hicolor-icon-theme
 Recommends:    libqt5-qtbase-platformtheme-gtk3
-Recommends:    libqt5-qtsvg
+Recommends:    libQt5Svg5
 Recommends:    qt5-globalqss
 Suggests:      libnotify >= 0.7.0
 
@@ -61,6 +61,9 @@ autoreconf -fi
 
 
 %changelog
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
+- New upstream release
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
 - New upstream release
 - Use make install

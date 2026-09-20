@@ -1,5 +1,5 @@
-awf-qt5 (4.2.0-1) experimental; urgency=low
+awf-qt5 (4.3.0-1) experimental; urgency=low
 
   * New upstream release (Closes: #1129265)
 
- -- Fabrice Creuzot <code@luigifab.fr>  Tue, 07 Jul 2026 20:00:00 +0000
+ -- Fabrice Creuzot <code@luigifab.fr>  Fri, 01 Jan 2027 20:00:00 +0000

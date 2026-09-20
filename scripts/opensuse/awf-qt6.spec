@@ -1,5 +1,5 @@
 Name:          awf-qt6
-Version:       4.2.0
+Version:       4.3.0
 Release:       0
 Summary:       Theme preview application for Qt 6
 Summary(fr):   Application d'aperçu de thème pour Qt 6
@@ -15,11 +15,11 @@ BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: hicolor-icon-theme
 BuildRequires: qt6-base-devel
-Requires:      qt6-base
+Requires:      libQt6Core6
 Requires:      hicolor-icon-theme
 Recommends:    qt6-platformtheme-gtk3
 Recommends:    qt6-globalqss
-Recommends:    qt6-svg
+Recommends:    libQt6Svg6
 Suggests:      libnotify >= 0.7.0
 
 %description %{expand:
@@ -61,6 +61,9 @@ autoreconf -fi
 
 
 %changelog
+* Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
+- New upstream release
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
 - New upstream release
 - Use make install

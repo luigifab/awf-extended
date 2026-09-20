@@ -1,0 +1,10 @@
+prefix=C:\\QT4\\4.8\\mingw482_32
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include/QtCore
+
+Name: Qtcore
+Description: Qtcore Library
+Version: 4.8.7
+Libs: -L${libdir} -lQtCore4
+Cflags: -I${prefix}/include -I${includedir} -DQT_NODLL

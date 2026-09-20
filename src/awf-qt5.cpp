@@ -1,8 +1,8 @@
 /**
  * Forked  M/10/03/2020
- * Updated J/02/07/2026
+ * Updated D/20/09/2026
  *
- * Copyright 2020-2026 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
+ * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
  * https://www.luigifab.fr/gtkqt/awf-extended
  *
@@ -47,15 +47,19 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#if defined (Q_OS_WIN) || defined (_WIN32)
 #include <functional>
-#include <windows.h>
-#include <QtWin>
-#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
-#include <QScreen>
-#else
-#include <QDesktopWidget>
-#endif
+#if defined (Q_OS_WIN) || defined (_WIN32)
+	#undef _WIN32_WINNT
+	#undef WINVER
+	#define _WIN32_WINNT 0x0501
+	#define WINVER 0x0501
+	#include <windows.h>
+	#include <QtWin>
+	#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+		#include <QScreen>
+	#else
+		#include <QDesktopWidget>
+	#endif
 #endif
 #include <QAction>
 #include <QActionGroup>
@@ -67,8 +71,8 @@
 #include <QColorDialog>
 #include <QComboBox>
 #if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
-#include <QCommandLineOption>
-#include <QCommandLineParser>
+	#include <QCommandLineOption>
+	#include <QCommandLineParser>
 #endif
 #include <QDir>
 #include <QDoubleSpinBox>
@@ -96,8 +100,8 @@
 #include <QPainter>
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QProcess>
 #include <QProgressBar>
-#include <QPropertyAnimation>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSizePolicy>
@@ -121,15 +125,15 @@
 #include <QTranslator>
 #include <QTreeView>
 #include <QVBoxLayout>
+#include <QVariantAnimation>
 #include <QWidget>
 #include <csignal>
 #include <cstdio>
-#include <cstdlib>
 #include <getopt.h>
-#include <locale.h>
 #include <libintl.h>
+#include <locale.h>
 #if defined (Q_OS_UNIX)
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 #pragma GCC diagnostic pop
 
@@ -182,29 +186,8 @@
 #define _app(x) QString::fromUtf8(gettext(x)).replace('_', '&')
 #define _qt(y, x) QCoreApplication::translate(y, x)
 
-// global variables
-static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
-static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
-static bool awf_gqss  = false;
-constexpr std::nullptr_t null = nullptr;
-static QStringList list_system_theme;
-static QStringList list_user_theme;
-static QMainWindow *window = null;
-static QDialog *inspector = null;
-static QLineEdit *toolbarentry = null;
-static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
-static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
-static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
-static int current_direction    = 0;
-static QString current_theme    = "auto";
-static QString opt_theme        = "auto";
-static QString opt_screenshot   = "";
-static QString original_style   = "";
-static bool allow_update_values = true;
-static bool must_save_accels    = false;
-
 // gtk_style_context_to_string
-static QString generateTooltipRecursive(QWidget *widget) {
+static QString generate_tooltip_recursive(QWidget *widget) {
 
 	if (!widget)
 		return "";
@@ -232,17 +215,18 @@ static QString generateTooltipRecursive(QWidget *widget) {
 
 	for (QObject *child : widget->children()) {
 		if (QWidget *childWidget = qobject_cast<QWidget*>(child))
-			tooltip += "\n  " + generateTooltipRecursive(childWidget).replace("\n", "\n  ");
+			tooltip += "\n  " + generate_tooltip_recursive(childWidget).replace("\n", "\n  ");
 	}
 
 	return tooltip;
 }
 
+// overload
 class AwfHBox : public QHBoxLayout {
 public:
 	using QHBoxLayout::QHBoxLayout;
 	void addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		QHBoxLayout::addWidget(widget);
 	}
 };
@@ -251,7 +235,7 @@ class AwfVBox : public QVBoxLayout {
 public:
 	using QVBoxLayout::QVBoxLayout;
 	void addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		QVBoxLayout::addWidget(widget);
 	}
 };
@@ -260,7 +244,7 @@ class AwfToolBar : public QToolBar {
 public:
 	using QToolBar::QToolBar;
 	QAction* addWidget(QWidget *widget) {
-		widget->setToolTip(generateTooltipRecursive(widget));
+		widget->setToolTip(generate_tooltip_recursive(widget));
 		return QToolBar::addWidget(widget);
 	}
 
@@ -276,16 +260,40 @@ protected:
 	}
 };
 
+// global variables
+static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
+static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
+static bool awf_gqss  = false;
+constexpr std::nullptr_t null = nullptr;
+static QStringList list_system_theme;
+static QStringList list_user_theme;
+static QStringList list_language;
+static QMainWindow *window = null;
+static QDialog *inspector = null;
+static QLineEdit *toolbarentry = null;
+static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
+static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
+static QTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
+static int current_direction    = 0;
+static QString current_theme    = "auto";
+static QString opt_theme        = "auto";
+static QString opt_screenshot   = "";
+static QString original_style   = "";
+static bool allow_update_values = true;
+static bool must_save_accels    = false;
+
 // global functions
 static QIcon get_icon(QString name);
-static void awf_load_theme(QStringList& themes, QString directory);
+static void load_languages(QStringList& languages, QString directory);
+static void awf_load_themes(QStringList& themes, QString directory);
 static void update_text_direction(int direction);
 static void update_theme(QString newTheme);
 static void update_statusbar(QString message);
 static void update_values(QAbstractSlider *range);
 static void update_widgets();
+static void update_notebooks();
 static void display_notification();
-static bool findAndCheckMenu(QList<QAction*> actions, QString search);
+static bool find_and_check_menu(QList<QAction*> actions, QString search);
 static void on_sighup(int signum);
 static bool take_screenshot();
 static void create_window();
@@ -345,7 +353,7 @@ protected:
 			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
-			findAndCheckMenu(menuBar()->actions().mid(1), newTheme);
+			find_and_check_menu(menuBar()->actions().mid(1), newTheme);
 		}
 		QMainWindow::changeEvent(e);
 	}
@@ -361,8 +369,7 @@ class AwfTreeView : public QTreeView {
 	QColor m_color;
 	QColor m_altColor;
 
-	// to have the same display as awf-gtk - alternateSortedColumnColor does not work
-	// AwfTreeView { qproperty-sortedColumnColor:#EEE;  qproperty-alternateSortedColumnColor:#DDD; }
+	// AwfTreeView { qproperty-sortedColumnColor:#EEE; qproperty-alternateSortedColumnColor:#DDD; }
 protected:
 	void drawRow(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override {
 		if (m_color.isValid() && m_altColor.isValid() && (m_sortedColumn >= 0)) {
@@ -385,7 +392,6 @@ public:
 	void setSortedColumnColor(QColor color) { m_color = color; }
 	void setAlternateSortedColumnColor(QColor color) { m_altColor = color; }
 
-	// to have the same display as awf-gtk
 	// AwfTreeView { qproperty-columnWidths:"10,20..." }
 	QString getColumnWidths() {
 		QStringList list;
@@ -396,13 +402,13 @@ public:
 
 	void setColumnWidths(QString widths) {
 		#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
-			QTimer::singleShot(0, this, [this, widths]() { // QTimer mainly for Qt 6.6/6.9
+			QTimer::singleShot(0, this, [this, widths]() { // QTimer to be sure to override resizeColumnToContents (mainly for 6.6)
 				QStringList list = widths.split(",", Qt::SkipEmptyParts);
 				for (int i = 0; i < list.size() && i < 11; ++i)
 					setColumnWidth(i, list[i].trimmed().toInt());
 			});
 		#elif QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-			QTimer::singleShot(0, this, [this, widths]() { // QTimer mainly for Qt 6.6/6.9
+			QTimer::singleShot(0, this, [this, widths]() { // QTimer to be sure to override resizeColumnToContents (mainly for 6.6)
 				QStringList list = widths.split(",", QString::SkipEmptyParts);
 				for (int i = 0; i < list.size() && i < 11; ++i)
 					setColumnWidth(i, list[i].trimmed().toInt());
@@ -514,43 +520,81 @@ int main(int argc, char **argv) {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m main()\n");
 
+	#if defined (Q_OS_WIN) || defined (_WIN32)
+		// enable console on Windows
+		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
+			SetConsoleOutputCP(CP_UTF8);
+			freopen("CONOUT$", "w", stdout);
+			freopen("CONOUT$", "w", stderr);
+		}
+
+		// enable ANSI/VT colors on Windows
+		#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+		#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+		#endif
+		HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD mode = 0;
+		if ((hOut != INVALID_HANDLE_VALUE) && GetConsoleMode(hOut, &mode))
+			SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#endif
+
 	int opt = 0, status = 0;
 	QApplication app(argc, argv);
+	QString appDir = QCoreApplication::applicationDirPath();
 	awf_gqss = qEnvironmentVariableIsSet("GQSS_SET");
 
 	if (awf_gqss) {
 
+		QString userDir = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
+
 		// load available system themes (/usr/local/share/themes && /usr/share/themes)
-		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
-			awf_load_theme(list_system_theme, QDir(dir).filePath("themes"));
+		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation)) {
+			if (dir != userDir)
+				awf_load_themes(list_system_theme, QDir(dir).filePath("themes"));
+		}
+
+		#ifdef Q_OS_WIN
+			awf_load_themes(list_system_theme, QDir::cleanPath(appDir + "/../share/themes"));
+		#endif
+
 		list_system_theme.sort(Qt::CaseInsensitive);
 		list_system_theme.push_front("None");
 
-		// load available user themes (HOME/.local/share/themes && HOME/.themes)
-		awf_load_theme(list_user_theme, QDir(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)).filePath("themes"));
-		awf_load_theme(list_user_theme, QDir(QDir::homePath()).filePath(".themes"));
+		// load available user themes (<home>/.local/share/themes && <home>/.themes)
+		awf_load_themes(list_user_theme, QDir(userDir).filePath("themes"));
+		awf_load_themes(list_user_theme, QDir::home().filePath(".themes"));
 		list_user_theme.sort(Qt::CaseInsensitive);
 	}
 
-	// locale
-	QString appDir = QCoreApplication::applicationDirPath();
+	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/awf-qt5.mo)
+	list_language.append("en");
+	#if defined (Q_OS_WIN) || defined (_WIN32)
+		load_languages(list_language, QDir(appDir).filePath("share/locale"));
+	#else
+		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
+			load_languages(list_language, QDir(dir).filePath("locale"));
+	#endif
+	list_language.sort(Qt::CaseInsensitive);
+
+	// qt locale
 	QLocale::setDefault(QLocale::system());
 
 	QTranslator *qtTr = new QTranslator(qApp);
 	if (qtTr->load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtTr);
-	else if (qtTr->load("qt_" + QLocale::system().name(), appDir + "/translations"))
+	else if (qtTr->load("qt_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
 		qApp->installTranslator(qtTr);
 
 	QTranslator *qtBaseTr = new QTranslator(qApp);
 	if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
 		qApp->installTranslator(qtBaseTr);
-	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), appDir + "/translations"))
+	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
 		qApp->installTranslator(qtBaseTr);
 
+	// awf locale
 	setlocale(LC_ALL, "");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
-		bindtextdomain(GETTEXT_PACKAGE, (appDir + "/share/locale").toLocal8Bit().constData());
+		bindtextdomain(GETTEXT_PACKAGE, (QDir(appDir).filePath("share/locale")).toLocal8Bit().constData());
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -609,19 +653,21 @@ int main(int argc, char **argv) {
 					case 201703L: cppVersion = "C++17";  break;
 					case 202002L: cppVersion = "C++20";  break;
 					case 202302L: cppVersion = "C++23";  break;
-					default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
+					default:      cppVersion = "C++" + QString::number(__cplusplus); break;
 				}
-				printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
-					qPrintable(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR)),
-					"-v            ", qPrintable(_app("Show version number.")),
-					"-l            ", qPrintable(_app("List available themes.")),
-					"-t <theme>    ", qPrintable(_app("Run with the specified theme.")),
-					"-s <filename> ", qPrintable(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP")),
-					"--ltr         ", qPrintable(_app("Run with text from left to right (Left-To-Right).")),
-					"--rtl         ", qPrintable(_app("Run with text from right to left (Right-To-Left).")),
-					qPrintable(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH)),
-					qPrintable(QString(_app(" started with qt %1")).arg(qVersion())));
-				return status;
+				QString help = QString("%1\n\n  %2 %3\n  %4 %5\n  %6 %7\n  %8 %9\n  %10 %11\n  %12 %13\n\n%14\n%15\n")
+					.arg(QString(_app("A widget factory - Qt %1.%2")).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR))
+					.arg("-v            ").arg(_app("Show version number."))
+					.arg("-l            ").arg(_app("List available themes."))
+					.arg("-t <theme>    ").arg(_app("Run with the specified theme."))
+					.arg("-s <filename> ").arg(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP"))
+					.arg("--ltr         ").arg(_app("Run with text from left to right (Left-To-Right)."))
+					.arg("--rtl         ").arg(_app("Run with text from right to left (Right-To-Left)."))
+					.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
+					.arg(QString(_app(" started with qt %1")).arg(qVersion()));
+				QByteArray helpUtf8 = help.toUtf8();
+				fwrite(helpUtf8.constData(), 1, helpUtf8.size(), stdout);
+				return (opt == '?') ? 1 : status;
 		}
 	}
 
@@ -668,10 +714,29 @@ static QIcon get_icon(QString name) {
 	return icon;
 }
 
-static void awf_load_theme(QStringList& themes, QString directory) {
+static void load_languages(QStringList& languages, QString directory) {
 
 	if (awf_trace)
-		printf("\033[36m[trace]\033[00m awf_load_theme(%s)\n", directory.toUtf8().constData());
+		printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory.toUtf8().constData());
+
+	QDir dir(directory);
+	if (dir.exists()) {
+
+		if (awf_debug)
+			printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory.toUtf8().constData());
+
+		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+		for (QString lang : entries) {
+			if (!languages.contains(lang) && QFileInfo(dir.filePath(lang + "/LC_MESSAGES/" GETTEXT_PACKAGE ".mo")).isFile())
+				languages.append(lang);
+		}
+	}
+}
+
+static void awf_load_themes(QStringList& themes, QString directory) {
+
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m awf_load_themes(%s)\n", directory.toUtf8().constData());
 
 	QDir dir(directory);
 	if (dir.exists()) {
@@ -681,13 +746,14 @@ static void awf_load_theme(QStringList& themes, QString directory) {
 
 		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 		for (QString theme : entries) {
-			if (QDir(QDir(dir.filePath(theme)).filePath("qt5")).exists())
+			QDir test(dir.filePath(theme + "/qt" + QString::number(QT_VERSION_MAJOR)));
+			if (!themes.contains(theme) && QFileInfo(dir.filePath(theme + "/qt" + QString::number(QT_VERSION_MAJOR) + "/qt.qss")).isFile())
 				themes.append(theme);
 		}
 	}
 }
 
-static void update_text_direction(int direction) { // ok
+static void update_text_direction(int direction) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_text_direction()\n");
@@ -699,7 +765,7 @@ static void update_text_direction(int direction) { // ok
 		qApp->setLayoutDirection(Qt::LeftToRight);
 		update_theme("refresh");
 	}
-	else if ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft) || (direction == 3)) {
+	else if ((direction == 3) || ((direction == 2) && (qApp->layoutDirection() != Qt::RightToLeft))) {
 		current_direction = 2;
 		notebook3->setTabPosition(QTabWidget::East);
 		notebook4->setTabPosition(QTabWidget::West);
@@ -708,7 +774,7 @@ static void update_text_direction(int direction) { // ok
 	}
 }
 
-static void update_theme(QString newTheme) { // ok
+static void update_theme(QString newTheme) {
 
 	if (awf_gqss) {
 
@@ -721,6 +787,10 @@ static void update_theme(QString newTheme) { // ok
 
 			qputenv("GQSS_RELOAD", "yes");
 			QApplication::style()->polish(qApp);
+
+			update_notebooks();
+			window->setMinimumHeight(0);
+			window->setMinimumWidth(0);
 			QApplication::processEvents();
 			window->adjustSize();
 
@@ -756,7 +826,14 @@ static void update_theme(QString newTheme) { // ok
 				QApplication::processEvents();
 			}
 
+			if (notebook1)
+				update_notebooks();
+
+			window->setMinimumHeight(0);
+			window->setMinimumWidth(0);
+			QApplication::processEvents();
 			window->adjustSize();
+
 			update_statusbar(_app("Theme %1 loaded.").arg(current_theme));
 
 			if (awf_debug)
@@ -767,7 +844,7 @@ static void update_theme(QString newTheme) { // ok
 	}
 }
 
-static void update_statusbar(QString message) { // ok
+static void update_statusbar(QString message) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_statusbar(%s)\n", message.toUtf8().constData());
@@ -792,7 +869,7 @@ static void update_statusbar(QString message) { // ok
 	}
 }
 
-static void update_values(QAbstractSlider *range) { // ok
+static void update_values(QAbstractSlider *range) {
 
 	if (allow_update_values) {
 
@@ -832,14 +909,15 @@ static void update_values(QAbstractSlider *range) { // ok
 	}
 }
 
-static void update_widgets() { // ok
+static void update_widgets() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m update_widgets()\n");
 
+	window->setUpdatesEnabled(false);
+
 	// function called when user click on [+] toolbar button
 	// when toggle = true, the [+] toolbar button is NOT checked
-	int width1, width2, height1, height2;
 	bool toggle = notebook1->tabBar()->usesScrollButtons();
 
 	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
@@ -901,23 +979,45 @@ static void update_widgets() { // ok
 		notebook2->tabBar()->setUsesScrollButtons(false);
 		notebook3->tabBar()->setUsesScrollButtons(false);
 		notebook4->tabBar()->setUsesScrollButtons(false);
-		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width());
-		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width());
-		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height());
-		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height());
 	}
 	else {
-		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width() / 2);
-		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width() / 2);
-		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height() / 2);
-		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height() / 2);
 		notebook1->tabBar()->setUsesScrollButtons(true);
 		notebook2->tabBar()->setUsesScrollButtons(true);
 		notebook3->tabBar()->setUsesScrollButtons(true);
 		notebook4->tabBar()->setUsesScrollButtons(true);
 	}
 
-	// auto width and height @todo
+	update_notebooks();
+	window->setMinimumHeight(0);
+	window->setMinimumWidth(0);
+	QApplication::processEvents();
+	window->adjustSize();
+
+	window->setUpdatesEnabled(true);
+}
+
+static void update_notebooks() {
+
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m update_notebooks()\n");
+
+	// auto width and height for notebooks
+	bool toggle = notebook1->tabBar()->usesScrollButtons();
+	int width1, width2, height1, height2;
+
+	if (toggle) {
+		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width() / 2);
+		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width() / 2);
+		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height() / 2);
+		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height() / 2);
+	}
+	else {
+		notebook1->setMinimumWidth(width1 = notebook1->tabBar()->sizeHint().width());
+		notebook2->setMinimumWidth(width2 = notebook2->tabBar()->sizeHint().width());
+		notebook3->setMinimumHeight(height1 = notebook3->tabBar()->sizeHint().height());
+		notebook4->setMinimumHeight(height2 = notebook4->tabBar()->sizeHint().height());
+	}
+
 	notebook1->updateGeometry();
 	notebook2->updateGeometry();
 	notebook3->updateGeometry();
@@ -945,35 +1045,32 @@ static void update_widgets() { // ok
 	sizes[1] = qMax(height1, height2);
 	vpane->setSizes(sizes);
 	vpane->updateGeometry();
-
-	window->setMinimumHeight(0);
-	window->setMinimumWidth(0);
-	window->adjustSize();
 }
 
-static void display_notification() { // ok
+static void display_notification() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m display_notification()\n");
 
 	#if defined (Q_OS_UNIX)
-		signal(SIGCHLD, SIG_IGN);
-		if (fork() == 0) {
-			execlp("notify-send", "notify-send", "-i", "dialog-information", "-t", "50000", "--action", _qt("QShortcut", "Close").toUtf8().constData(), GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.").toUtf8().constData(), null);
-			_exit(1);
-		}
+		QProcess::startDetached("notify-send", QStringList()
+			<< "-i" << "dialog-information"
+			<< "-t" << "50000"
+			<< "--action" << _qt("QShortcut", "Close")
+			<< GETTEXT_PACKAGE
+			<< _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 	#endif
 }
 
-static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
+static bool find_and_check_menu(QList<QAction*> actions, QString search) {
 
 	if (awf_trace)
-		printf("\033[36m[trace]\033[00m findAndCheckMenu()\n");
+		printf("\033[36m[trace]\033[00m find_and_check_menu()\n");
 
 	for (QAction *action : actions) {
 		if (action->menu()) {
 			// process submenu
-			if (findAndCheckMenu(action->menu()->actions(), search))
+			if (find_and_check_menu(action->menu()->actions(), search))
 				return true;
 		}
 		else if (action->isEnabled() && (action->text() == search)) {
@@ -986,7 +1083,7 @@ static bool findAndCheckMenu(QList<QAction*> actions, QString search) { // ok
 	return false;
 }
 
-static void on_sighup(int signum) { // ok
+static void on_sighup(int signum) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m on_sighup()\n");
@@ -1000,7 +1097,7 @@ static void on_sighup(int signum) { // ok
 	#endif
 }
 
-static bool take_screenshot() { // ok (without window borders)
+static bool take_screenshot() { // without window borders
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m take_screenshot()\n");
@@ -1066,7 +1163,7 @@ static void create_window() {
 	progress9 = new QProgressBar;
 	progress9->setMaximumWidth(140);
 	progress9->setFixedHeight(16);
-	progress9->setAttribute(Qt::WA_StyledBackground, true); // @todo not working
+	progress9->setAttribute(Qt::WA_StyledBackground, true);
 	progress9->setVisible(false);
 	window->statusBar()->addPermanentWidget(progress9);
 
@@ -1083,7 +1180,6 @@ static void create_window() {
 	#endif
 
 	window->show();
-	window->setAttribute(Qt::WA_DeleteOnClose);
 	toolbar->widgetForAction(toolbar->actions().first())->setFocus(Qt::TabFocusReason); // focus on the first toolbar button
 	QObject::connect(qApp, &QCoreApplication::aboutToQuit, accels_save);
 
@@ -1248,7 +1344,7 @@ static void create_widgets(AwfVBox *root) { // todo
 			hpane2->setSizes({wboxNotebook1->sizeHint().width(), 10000});
 }
 
-static void create_toolbar(AwfToolBar *toolbar) { // ok
+static void create_toolbar(AwfToolBar *toolbar) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_toolbar()\n");
@@ -1293,7 +1389,10 @@ static void create_toolbar(AwfToolBar *toolbar) { // ok
 	tool6 = new QToolButton;
 	tool6->setIcon(get_icon("dialog-information"));
 	QObject::connect(tool6, &QToolButton::clicked, display_notification);
-	#if defined (Q_OS_WIN) || defined (_WIN32)
+	#if defined (Q_OS_UNIX)
+		if (QStandardPaths::findExecutable("notify-send").isEmpty())
+			tool6->setEnabled(false);
+	#else
 		tool6->setEnabled(false);
 	#endif
 
@@ -1355,7 +1454,7 @@ static void create_toolbar(AwfToolBar *toolbar) { // ok
 	progress8->setProperty("action", QVariant::fromValue<QObject*>(action2));
 }
 
-static void create_combos_entries(AwfVBox *root) { // ok
+static void create_combos_entries(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_combos_entries()\n");
@@ -1418,7 +1517,7 @@ static void create_combos_entries(AwfVBox *root) { // ok
 	root->addWidget(entry4);
 }
 
-static void create_spinbuttons(AwfHBox *root) { // ok
+static void create_spinbuttons(AwfHBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_spinbuttons()\n");
@@ -1447,7 +1546,7 @@ static void create_spinbuttons(AwfHBox *root) { // ok
 	root->addWidget(spinbutton2);
 }
 
-static void create_checkbuttons(AwfVBox *root) { // ok
+static void create_checkbuttons(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_checkbuttons()\n");
@@ -1485,7 +1584,7 @@ static void create_checkbuttons(AwfVBox *root) { // ok
 	root->addWidget(checkbutton6);
 }
 
-static void create_radiobuttons(AwfVBox *root) { // ok
+static void create_radiobuttons(AwfVBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_radiobuttons()\n");
@@ -1533,7 +1632,7 @@ static void create_radiobuttons(AwfVBox *root) { // ok
 	root->addWidget(radiobutton6);
 }
 
-static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5) { //ok
+static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfHBox *root4, AwfHBox *root5) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_otherbuttons()\n");
@@ -1617,7 +1716,7 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	root5->addStretch();
 }
 
-static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4) { // ok
+static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, AwfVBox *root4) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_progressbars()\n");
@@ -1696,7 +1795,7 @@ static void create_progressbars(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	root4->addStretch();
 }
 
-static void create_labels(AwfHBox *root) { // ok
+static void create_labels(AwfHBox *root) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_labels()\n");
@@ -1716,7 +1815,7 @@ static void create_labels(AwfHBox *root) { // ok
 	root->addStretch();
 }
 
-static void create_spinners(AwfHBox *root) {
+static void create_spinners(AwfHBox *root) { // todo
 
 }
 
@@ -1746,7 +1845,7 @@ static void create_expander(AwfVBox *root) { // todo
 	root->addWidget(expander);
 }
 
-static void create_frames(AwfHBox *root1, AwfHBox *root2) { // todo
+static void create_frames(AwfHBox *root1, AwfHBox *root2) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_frames()\n");
@@ -1774,7 +1873,7 @@ static void create_frames(AwfHBox *root1, AwfHBox *root2) { // todo
 	root2->addWidget(frame4);
 }
 
-static void create_notebooks(AwfHBox *root1, AwfHBox *root2) { // ok
+static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_notebooks()\n");
@@ -1877,7 +1976,7 @@ static void create_notebook_tab(QTabWidget *notebook, QString text, QWidget *con
 	}
 }
 
-static void create_treeview(AwfVBox *root) { // ok
+static void create_treeview(AwfVBox *root) { // todo
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_treeview()\n");
@@ -1940,7 +2039,7 @@ static void create_treeview(AwfVBox *root) { // ok
 	root->addWidget(view);
 }
 
-static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) { // ok
+static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_sliders()\n");
@@ -2016,7 +2115,7 @@ static void create_sliders(QTabWidget *notebook, QString text, QSlider::TickPosi
 	create_notebook_tab(notebook, text, container, false);
 }
 
-static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
+static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_horizontal_slider()\n");
@@ -2043,7 +2142,7 @@ static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QS
 	return slider;
 }
 
-static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) { // ok
+static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position) {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m create_vertical_slider()\n");
@@ -2082,7 +2181,9 @@ static void create_traditional_menubar(QMenuBar *root) {
 	QMenu *menu, *submenu, *base;
 	QActionGroup *group;
 	QAction *menuitem;
-	bool ok, noRefresh = !awf_gqss, noPrint = false;
+	QString theme;
+	int i, total, count, look;
+	bool mini, is_user, noRefresh = !awf_gqss, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
@@ -2102,7 +2203,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, get_icon("view-refresh"), _app("_Refresh"), noRefresh, AWF_ACCEL_REFR, AWF_REFR, [](){ on_sighup(0); });
 		create_menuitem(menu, QIcon(), _app("Calendar"), false, AWF_ACCEL_CALE, AWF_CALE, dialog_calendar);
 		create_menuitem(menu, QIcon(), "Sliders", false, AWF_ACCEL_SCAL, AWF_SCAL, dialog_sliders);
-		create_menuitem(menu, get_icon("document-properties"), _app("Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
+		create_menuitem(menu, get_icon("document-properties"), _app("&Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
 		create_menuitem(menu, get_icon("document-page-setup"),_app("Page Set&up"), noPrint, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, get_icon("document-print"), _qt("QPrintDialog", "&Print"), noPrint, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
@@ -2148,36 +2249,47 @@ static void create_traditional_menubar(QMenuBar *root) {
 			create_menuitem(menu, get_icon("application-exit"), _qt("QCocoaMenuItem", "Quit"), false, AWF_ACCEL_QUIT, AWF_QUIT, qApp->quit);
 
 	// system themes
-	ok = false;
-	group = new QActionGroup(window);
-	group->setExclusive(true);
+	group = new QActionGroup(window); group->setExclusive(true);
 	menu  = root->addMenu(_app("_System themes"));
-	for (QString theme : list_system_theme) {
+	total = list_system_theme.size();
+	mini  = total > 15;
+	for (i = 0; i < total; ) {
 
-		if (theme == "Azertyuiop") {
-			submenu = menu->addMenu(theme);
-			base = submenu;
-			ok = true;
+		// count how many following contiguous elements have list_system_theme[i] as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = i + 1;
+			while ((look < total) && list_system_theme[look].startsWith(list_system_theme[i])) {
+				count++;
+				look++;
+			}
 		}
-		else if (ok && theme.startsWith("Azertyuiop")) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = menu->addMenu(list_system_theme[i]);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = false;
 		}
 
-		if (list_user_theme.contains(theme)) {
-			menuitem = create_menuitem_radio(base, theme, false, false, true, group);
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			theme   = list_system_theme[i];
+			is_user = list_user_theme.contains(theme);
+
+			menuitem = create_menuitem_radio(base, theme, false, false, is_user, group);
 			if (theme == current_theme)
 				menuitem->setChecked(true);
 			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
-		}
-		else {
-			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-			if (theme == current_theme)
-				menuitem->setChecked(true);
-			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+
+			i++;
 		}
 	}
 
@@ -2187,33 +2299,65 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
 	// user themes
-	ok = false;
-	menu = root->addMenu(_app("_User themes"));
-	for (QString theme : list_user_theme) {
+	menu  = root->addMenu(_app("_User themes"));
+	total = list_user_theme.size();
+	mini  = total > 15;
+	for (i = 0; i < total; ) {
 
-		if (theme == "Azertyuiop") {
-			submenu = menu->addMenu(theme);
-			base = submenu;
-			ok = true;
+		// count how many following contiguous elements have list_user_theme[i] as prefix
+		// avoids having a fixed list of themes
+		if (mini) {
+			count = 1;
+			look  = i + 1;
+			while ((look < total) && list_user_theme[look].startsWith(list_user_theme[i])) {
+				count++;
+				look++;
+			}
 		}
-		else if (ok && theme.startsWith("Azertyuiop")) {
+		else {
+			count = 1;
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = menu->addMenu(list_user_theme[i]);
 			base = submenu;
 		}
 		else {
 			base = menu;
-			ok = false;
 		}
 
-		menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-		if (theme == current_theme)
-			menuitem->setChecked(true);
-		QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			theme = list_user_theme[i];
+
+			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
+			if (theme == current_theme)
+				menuitem->setChecked(true);
+			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+
+			i++;
+		}
 	}
 
 	if (noRefresh)
 		create_menuitem(menu, QIcon(), _app("GlobalQSS not available"), true, QKeySequence(), null, null);
 	else if (list_user_theme.isEmpty())
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
+
+	// application language
+	QString current_language = QLocale::system().name();
+	menu = root->addMenu(_app("_Language"));
+
+		group = new QActionGroup(window);
+		group->setExclusive(true);
+
+		for (QString lang : list_language) {
+			menuitem = create_menuitem_radio(menu, lang, false, false, true, group);
+			if (current_language.startsWith(lang))
+				menuitem->setChecked(true);
+		}
 
 	// text direction
 	menu = root->addMenu(_app("_Text direction"));
@@ -2238,7 +2382,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), "QtInspector", false, AWF_ACCEL_INSP, AWF_INSP, dialog_inspector);
 		create_menuitem(menu, get_icon("help-about"), _qt("QCocoaMenuItem", "About"), false, AWF_ACCEL_ABOU, AWF_ABOU, dialog_about);
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
 }
 
@@ -2297,18 +2441,18 @@ static QAction* create_menuitem(QMenu *menu, QIcon icon, QString text, bool dsb,
 	return menuitem;
 }
 
-static void accels_load() { // ok
+static void accels_load() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_load()\n");
 
-	QString oldPath = QDir::homePath() + "/.awf-gtk-accels";
-	if (QFile::exists(oldPath))
-		QFile::rename(oldPath, QDir::homePath() + "/.awf-accels");
+	QString path = QDir::home().filePath(".awf-accels");
+	QString oldPath = QDir::home().filePath(".awf-gtk-accels");
+	if (QFileInfo(oldPath).isFile())
+		QFile::rename(oldPath, path);
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
-	QFile f(QDir::homePath() + QStringLiteral("/.awf-accels"));
-
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	QFile f(path);
 	if (f.exists() && f.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 		QMap<QString, QString> accels;
@@ -2325,8 +2469,16 @@ static void accels_load() { // ok
 		};
 
 		auto parseKey = [](QString keyStr) {
-			if (keyStr.length() == 1) return static_cast<Qt::Key>(keyStr.toUpper().at(0).unicode());
-			if ((keyStr.compare("Delete", Qt::CaseInsensitive) == 0) || (keyStr.compare("Del", Qt::CaseInsensitive) == 0)) return Qt::Key_Delete;
+			// 0-9
+			if (keyStr.startsWith("KP_", Qt::CaseInsensitive) && keyStr.at(3).isDigit())
+				return static_cast<Qt::Key>(Qt::Key_0 + keyStr.at(3).digitValue());
+			// a-z
+			if (keyStr.length() == 1)
+				return static_cast<Qt::Key>(keyStr.toUpper().at(0).unicode());
+			// delete
+			if ((keyStr.compare("Delete", Qt::CaseInsensitive) == 0) || (keyStr.compare("Del", Qt::CaseInsensitive) == 0))
+				return Qt::Key_Delete;
+			// simple
 			if (keyStr.compare("Return", Qt::CaseInsensitive) == 0) return Qt::Key_Return;
 			if (keyStr.compare("F1", Qt::CaseInsensitive) == 0)  return Qt::Key_F1;
 			if (keyStr.compare("F2", Qt::CaseInsensitive) == 0)  return Qt::Key_F2;
@@ -2440,9 +2592,9 @@ static void accels_load() { // ok
 	}
 }
 
-static bool accels_change(QObject *obj, QEvent *event) { // ok
+static bool accels_change(QObject *obj, QEvent *event) {
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (event->type() != QEvent::KeyPress)
 		return false;
 
@@ -2463,9 +2615,13 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 		printf("\033[36m[trace]\033[00m accels_change()\n");
 
 	Qt::KeyboardModifiers mods = keyEvent->modifiers();
+	mods &= ~Qt::KeypadModifier;
 	bool del = (key == Qt::Key_Delete) || (key == Qt::Key_Backspace);
+
 	if (
 		del ||
+		// 0..9
+		((key >= Qt::Key_0) && (key <= Qt::Key_9)) ||
 		// f1..12
 		((key >= Qt::Key_F1) && (key <= Qt::Key_F12)) ||
 		// ctrl/shift/super/alt + ?
@@ -2504,17 +2660,16 @@ static bool accels_change(QObject *obj, QEvent *event) { // ok
 	return false;
 }
 
-static void accels_save() { // ok
+static void accels_save() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 5.x 6.x
+	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	// gtk_accel_map_save
 	if (must_save_accels) {
 
-		QFile f(QDir::homePath() + QStringLiteral("/.awf-accels"));
-
+		QFile f(QDir::home().filePath(".awf-accels"));
 		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
 			QMap<QString, QAction*> actions;
@@ -2531,7 +2686,11 @@ static void accels_save() { // ok
 			};
 
 			auto parseKey = [](Qt::Key k) {
+				// 0-9
+				if ((k >= Qt::Key_0) && (k <= Qt::Key_9)) return QStringLiteral("KP_") + QChar(int(k));
+				// a-z
 				if ((k >= Qt::Key_A) && (k <= Qt::Key_Z)) return QString(QChar(k).toLower());
+				// simple
 				if (k == Qt::Key_Delete) return QString("Delete");
 				if (k == Qt::Key_Return) return QString("Return");
 				if (k == Qt::Key_F1)  return QString("F1");
@@ -2604,7 +2763,7 @@ static void accels_save() { // ok
 
 // dialogs
 
-static void dialog_open() { // ok
+static void dialog_open() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_open()\n");
@@ -2614,7 +2773,7 @@ static void dialog_open() { // ok
 		QDir::homePath());
 }
 
-static void dialog_save() { // ok
+static void dialog_save() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_save()\n");
@@ -2624,7 +2783,7 @@ static void dialog_save() { // ok
 		QDir::homePath());
 }
 
-static void dialog_message() { // ok
+static void dialog_message() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_message()\n");
@@ -2638,7 +2797,7 @@ static void dialog_message() { // ok
 	msgBox.exec();
 }
 
-static void dialog_page_setup() { // ok
+static void dialog_page_setup() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
@@ -2647,7 +2806,7 @@ static void dialog_page_setup() { // ok
 	QPageSetupDialog(&printer, window).exec();
 }
 
-static void dialog_print() { // ok
+static void dialog_print() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_print()\n");
@@ -2656,7 +2815,7 @@ static void dialog_print() { // ok
 	QPrintDialog(&printer, window).exec();
 }
 
-static void dialog_about() { // ok
+static void dialog_about() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_about()\n");
@@ -2669,7 +2828,7 @@ static void dialog_about() { // ok
 		case 201703L: cppVersion = "C++17";  break;
 		case 202002L: cppVersion = "C++20";  break;
 		case 202302L: cppVersion = "C++23";  break;
-		default:      cppVersion = "C++ (" + QString::number(__cplusplus) + ")"; break;
+		default:      cppVersion = "C++" + QString::number(__cplusplus); break;
 	}
 
 	QString t1 = QString("%1<br><br>%2 %3<br><br>%4<br>%5<br><i><small>QT_QPA_PLATFORMTHEME=%6 QT_STYLE_OVERRIDE=%7</small></i>")
@@ -2686,13 +2845,13 @@ static void dialog_about() { // ok
 		.arg(VERSION)
 		.arg(t1)
 		.arg("<a href=\"https://github.com/luigifab/awf-extended\">https://github.com/luigifab/awf-extended</a>")
-		.arg("Copyright © 2020-2026 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
+		.arg("Copyright © 2020-2027 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
 		.arg(_app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."));
 
 	QMessageBox::about(window, _qt("QCocoaMenuItem", "About"), t2);
 }
 
-static void dialog_inspector() { // ok
+static void dialog_inspector() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_inspector()\n");
@@ -2797,7 +2956,7 @@ static void dialog_inspector() { // ok
 	}
 }
 
-static void dialog_calendar() { // ok
+static void dialog_calendar() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_calendar()\n");
@@ -2830,7 +2989,7 @@ static void dialog_calendar() { // ok
 	dialog->show();
 }
 
-static void dialog_sliders() { // ok
+static void dialog_sliders() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_sliders()\n");
