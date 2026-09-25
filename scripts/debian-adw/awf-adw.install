@@ -1,0 +1,8 @@
+usr/bin/awf-adw
+usr/share/applications/awf-adw.desktop
+usr/share/bash-completion/completions/awf-adw
+usr/share/icons/hicolor/*/apps/awf-adw.*
+usr/share/locale/*/LC_MESSAGES/awf-adw.mo
+usr/share/man/man1/awf-adw.1
+usr/share/man/*/man1/awf-adw.1
+debian/fr.luigifab.awfadw.metainfo.xml usr/share/metainfo

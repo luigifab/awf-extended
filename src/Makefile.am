@@ -3,27 +3,22 @@ bin_PROGRAMS =
 BUILT_SOURCES =
 CLEANFILES = $(BUILT_SOURCES)
 
-if GTK5
-bin_PROGRAMS += awf-gtk5
-awf_gtk5_SOURCES = awf-gtk5.c
-awf_gtk5_CPPFLAGS = $(GTK5_CFLAGS) $(LIBNOTIFY_CFLAGS)
-awf_gtk5_LDADD = $(GTK5_LIBS) $(LIBNOTIFY_LIBS)
-if WINDOWS
-awf_gtk5_LDADD += awf-gtk5-res.o
-awf-gtk5-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK5 $< -o $@
-endif
+if ADW
+bin_PROGRAMS += awf-adw
+awf_adw_SOURCES = awf-adw.c
+awf_adw_CPPFLAGS = $(ADW_CFLAGS) $(LIBNOTIFY_CFLAGS)
+awf_adw_LDADD = $(ADW_LIBS) $(LIBNOTIFY_LIBS)
 endif
 
-if GTK4
-bin_PROGRAMS += awf-gtk4
-awf_gtk4_SOURCES = awf-gtk4.c
-awf_gtk4_CPPFLAGS = $(GTK4_CFLAGS) $(LIBNOTIFY_CFLAGS)
-awf_gtk4_LDADD = $(GTK4_LIBS) $(LIBNOTIFY_LIBS)
+if GTK2
+bin_PROGRAMS += awf-gtk2
+awf_gtk2_SOURCES = awf-gtk2.c
+awf_gtk2_CPPFLAGS = $(GTK2_CFLAGS) $(LIBNOTIFY_CFLAGS)
+awf_gtk2_LDADD = $(GTK2_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
-awf_gtk4_LDADD += awf-gtk4-res.o
-awf-gtk4-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK4 $< -o $@
+awf_gtk2_LDADD += awf-gtk2-res.o
+awf-gtk2-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=GTK2 $< -o $@
 endif
 endif
 
@@ -39,63 +34,27 @@ awf-gtk3-res.o: awf.rc
 endif
 endif
 
-if GTK2
-bin_PROGRAMS += awf-gtk2
-awf_gtk2_SOURCES = awf-gtk2.c
-awf_gtk2_CPPFLAGS = $(GTK2_CFLAGS) $(LIBNOTIFY_CFLAGS)
-awf_gtk2_LDADD = $(GTK2_LIBS) $(LIBNOTIFY_LIBS)
+if GTK4
+bin_PROGRAMS += awf-gtk4
+awf_gtk4_SOURCES = awf-gtk4.c
+awf_gtk4_CPPFLAGS = $(GTK4_CFLAGS) $(LIBNOTIFY_CFLAGS)
+awf_gtk4_LDADD = $(GTK4_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
-awf_gtk2_LDADD += awf-gtk2-res.o
-awf-gtk2-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK2 $< -o $@
+awf_gtk4_LDADD += awf-gtk4-res.o
+awf-gtk4-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=GTK4 $< -o $@
 endif
 endif
 
-if QT7
-awf_qt7_CXXFLAGS = -fPIC -std=c++17
-bin_PROGRAMS += awf-qt7
-BUILT_SOURCES += awf-qt7.moc
-awf-qt7.moc: awf-qt7.cpp
-	$(QT7_MOC) $(QT7_CFLAGS) $< -o $@
-awf_qt7_SOURCES = awf-qt7.cpp
-awf_qt7_CPPFLAGS = $(QT7_CFLAGS)
-awf_qt7_LDADD = $(QT7_LIBS)
+if GTK5
+bin_PROGRAMS += awf-gtk5
+awf_gtk5_SOURCES = awf-gtk5.c
+awf_gtk5_CPPFLAGS = $(GTK5_CFLAGS) $(LIBNOTIFY_CFLAGS)
+awf_gtk5_LDADD = $(GTK5_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
-awf_qt7_LDADD += awf-qt7-res.o -lintl
-awf-qt7-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT7 $< -o $@
-endif
-endif
-
-if QT6
-bin_PROGRAMS += awf-qt6
-BUILT_SOURCES += awf-qt6.moc
-awf-qt6.moc: awf-qt6.cpp
-	$(QT6_MOC) $(QT6_CFLAGS) $< -o $@
-awf_qt6_SOURCES = awf-qt6.cpp
-awf_qt6_CPPFLAGS = $(QT6_CFLAGS)
-awf_qt6_LDADD = $(QT6_LIBS)
-awf_qt6_CXXFLAGS = -fPIC -std=c++17
-if WINDOWS
-awf_qt6_LDADD += awf-qt6-res.o -lintl
-awf-qt6-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT6 $< -o $@
-endif
-endif
-
-if QT5
-bin_PROGRAMS += awf-qt5
-BUILT_SOURCES += awf-qt5.moc
-awf-qt5.moc: awf-qt5.cpp
-	$(QT5_MOC) $(QT5_CFLAGS) $< -o $@
-awf_qt5_SOURCES = awf-qt5.cpp
-awf_qt5_CPPFLAGS = $(QT5_CFLAGS)
-awf_qt5_LDADD = $(QT5_LIBS)
-awf_qt5_CXXFLAGS = -fPIC -std=c++17
-if WINDOWS
-awf_qt5_LDADD += awf-qt5-res.o -lintl
-awf-qt5-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT5 $< -o $@
+awf_gtk5_LDADD += awf-gtk5-res.o
+awf-gtk5-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=GTK5 $< -o $@
 endif
 endif
 
@@ -115,61 +74,115 @@ awf-qt4-res.o: awf.rc
 endif
 endif
 
+if QT5
+bin_PROGRAMS += awf-qt5
+BUILT_SOURCES += awf-qt5.moc
+awf-qt5.moc: awf-qt5.cpp
+	$(QT5_MOC) $(QT5_CFLAGS) $< -o $@
+awf_qt5_SOURCES = awf-qt5.cpp
+awf_qt5_CPPFLAGS = $(QT5_CFLAGS)
+awf_qt5_LDADD = $(QT5_LIBS)
+awf_qt5_CXXFLAGS = -fPIC -std=c++17
+if WINDOWS
+awf_qt5_LDADD += awf-qt5-res.o -lintl
+awf-qt5-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=QT5 $< -o $@
+endif
+endif
+
+if QT6
+bin_PROGRAMS += awf-qt6
+BUILT_SOURCES += awf-qt6.moc
+awf-qt6.moc: awf-qt6.cpp
+	$(QT6_MOC) $(QT6_CFLAGS) $< -o $@
+awf_qt6_SOURCES = awf-qt6.cpp
+awf_qt6_CPPFLAGS = $(QT6_CFLAGS)
+awf_qt6_LDADD = $(QT6_LIBS)
+awf_qt6_CXXFLAGS = -fPIC -std=c++17
+if WINDOWS
+awf_qt6_LDADD += awf-qt6-res.o -lintl
+awf-qt6-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=QT6 $< -o $@
+endif
+endif
+
+if QT7
+bin_PROGRAMS += awf-qt7
+BUILT_SOURCES += awf-qt7.moc
+awf-qt7.moc: awf-qt7.cpp
+	$(QT7_MOC) $(QT7_CFLAGS) $< -o $@
+awf_qt7_SOURCES = awf-qt7.cpp
+awf_qt7_CPPFLAGS = $(QT7_CFLAGS)
+awf_qt7_LDADD = $(QT7_LIBS)
+awf_qt7_CXXFLAGS = -fPIC -std=c++17
+if WINDOWS
+awf_qt7_LDADD += awf-qt7-res.o -lintl
+awf-qt7-res.o: awf.rc
+	$(WINDRES) -c 65001 -DENGINE=QT7 $< -o $@
+endif
+endif
+
 # install (desktop files)
 if !WINDOWS
 desktop_DATA =
 desktopdir = $(datadir)/applications
-if GTK5
-desktop_DATA += $(srcdir)/../data/awf-gtk5.desktop
-endif
-if GTK4
-desktop_DATA += $(srcdir)/../data/awf-gtk4.desktop
-endif
-if GTK3
-desktop_DATA += $(srcdir)/../data/awf-gtk3.desktop
+if ADW
+desktop_DATA += $(srcdir)/../data/awf-adw.desktop
 endif
 if GTK2
 desktop_DATA += $(srcdir)/../data/awf-gtk2.desktop
 endif
-if QT7
-desktop_DATA += $(srcdir)/../data/awf-qt7.desktop
+if GTK3
+desktop_DATA += $(srcdir)/../data/awf-gtk3.desktop
 endif
-if QT6
-desktop_DATA += $(srcdir)/../data/awf-qt6.desktop
+if GTK4
+desktop_DATA += $(srcdir)/../data/awf-gtk4.desktop
+endif
+if GTK5
+desktop_DATA += $(srcdir)/../data/awf-gtk5.desktop
+endif
+if QT4
+desktop_DATA += $(srcdir)/../data/awf-qt4.desktop
 endif
 if QT5
 desktop_DATA += $(srcdir)/../data/awf-qt5.desktop
 endif
-if QT4
-desktop_DATA += $(srcdir)/../data/awf-qt4.desktop
+if QT6
+desktop_DATA += $(srcdir)/../data/awf-qt6.desktop
+endif
+if QT7
+desktop_DATA += $(srcdir)/../data/awf-qt7.desktop
 endif
 endif
 
 # install (man pages)
 man_MANS =
-if GTK5
-man_MANS += $(srcdir)/../data/awf-gtk5.1
-endif
-if GTK4
-man_MANS += $(srcdir)/../data/awf-gtk4.1
-endif
-if GTK3
-man_MANS += $(srcdir)/../data/awf-gtk3.1
+if ADW
+man_MANS += $(srcdir)/../data/awf-adw.1
 endif
 if GTK2
 man_MANS += $(srcdir)/../data/awf-gtk2.1
 endif
-if QT7
-man_MANS += $(srcdir)/../data/awf-qt7.1
+if GTK3
+man_MANS += $(srcdir)/../data/awf-gtk3.1
 endif
-if QT6
-man_MANS += $(srcdir)/../data/awf-qt6.1
+if GTK4
+man_MANS += $(srcdir)/../data/awf-gtk4.1
+endif
+if GTK5
+man_MANS += $(srcdir)/../data/awf-gtk5.1
+endif
+if QT4
+man_MANS += $(srcdir)/../data/awf-qt4.1
 endif
 if QT5
 man_MANS += $(srcdir)/../data/awf-qt5.1
 endif
-if QT4
-man_MANS += $(srcdir)/../data/awf-qt4.1
+if QT6
+man_MANS += $(srcdir)/../data/awf-qt6.1
+endif
+if QT7
+man_MANS += $(srcdir)/../data/awf-qt7.1
 endif
 
 # install (translated man pages/icons/locales/bash-completion)
@@ -195,7 +208,7 @@ install-data-hook:
 
 # uninstall (translated man pages/icons/locales/bash-completion)
 uninstall-hook:
-	for app in awf-gtk5 awf-gtk4 awf-gtk3 awf-gtk2 awf-qt7 awf-qt6 awf-qt5 awf-qt4; do \
+	for app in awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-gtk5 awf-qt4 awf-qt5 awf-qt6 awf-qt7; do \
 		rm -f $(DESTDIR)$(mandir)/*/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
 			rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \

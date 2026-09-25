@@ -1,0 +1,30 @@
+pkgname=awf-adw
+pkgver=4.3.0
+pkgrel=1
+pkgdesc='Theme preview application for Adwaita'
+url='https://github.com/luigifab/awf-extended'
+license=('GPL3')
+arch=('x86_64')
+depends=('gtk4>=4.18.0' 'libadwaita>=1.7.0' 'libnotify>=0.7.0' 'hicolor-icon-theme')
+#makedepends=('autoconf' 'automake' 'desktop-file-utils' 'gcc' 'gettext' 'gtk4' 'libadwaita')
+conflicts=('awf-git')
+source=("https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+  mv "awf-extended-$pkgver" "$pkgname-$pkgver"
+}
+
+build() {
+  cd "$pkgname-$pkgver"
+  autoreconf -fi
+  ./configure --prefix=/usr --enable-only-adw
+  make -s
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  make install DESTDIR="$pkgdir"
+  install -Dpm 644 README.md "$pkgdir/usr/share/doc/$pkgname/README.md"
+  #install -Dpm 644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

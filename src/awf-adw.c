@@ -32,34 +32,17 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
- *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
- *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 2.24/3.24/4.22 + GLIB 2.87 + Pango 1.56
- *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.56
- *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
- *  Ubuntu 24.10 Oracular Oriole 64    (4096 MB) GTK 2.24/3.24/4.16 + GLIB 2.82 + Pango 1.54
- *  Ubuntu 24.04 Noble Numbat 64       (4096 MB) GTK 2.24/3.24/4.14 + GLIB 2.80 + Pango 1.52
- *  Ubuntu 23.10 Mantic Minotaur 64    (3072 MB) GTK 2.24/3.24/4.12 + GLIB 2.78 + Pango 1.51
- *  Ubuntu 23.04 Lunar Lobster 64      (3072 MB) GTK 2.24/3.24/4.10 + GLIB 2.76 + Pango 1.50
- *  Ubuntu 22.10 Kinetic Kudu 64       (2176 MB) GTK 2.24/3.24/4.8  + GLIB 2.74 + Pango 1.50
- *  Ubuntu 22.04 Jammy Jellyfish 64    (2176 MB) GTK 2.24/3.24/4.6  + GLIB 2.72 + Pango 1.50
- *  Ubuntu 21.10 Impish Indri 64       (2176 MB) GTK 2.24/3.24/4.4  + GLIB 2.68 + Pango 1.48
- *  Ubuntu 21.04 Hirsute Hippo 64      (2176 MB) GTK 2.24/3.24/4.0  + GLIB 2.68 + Pango 1.48
- *  Ubuntu 17.04 Zesty Zapus 32        (1536 MB) GTK 2.24/3.22 + GLIB 2.52 + Pango 1.40
- *  Ubuntu 16.10 Yakkety Yak 32        (1536 MB) GTK 2.24/3.20 + GLIB 2.50 + Pango 1.40
- *  Ubuntu 16.04 Xenial Xerus 32       (1536 MB) GTK 2.24/3.18 + GLIB 2.48 + Pango 1.38
- *  Ubuntu 15.10 Wily Werewolf 32      (1024 MB) GTK 2.24/3.16 + GLIB 2.46 + Pango 1.36
- *  Ubuntu 15.04 Vivid Vervet 32       (1024 MB) GTK 2.24/3.14 + GLIB 2.44 + Pango 1.36
- *  Ubuntu 14.10 Utopic Unicorn 32     (1024 MB) GTK 2.24/3.12 + GLIB 2.42 + Pango 1.36
- *  Ubuntu 14.04 Trusty Tahr 32        (1024 MB) GTK 2.24/3.10 + GLIB 2.40 + Pango 1.36
- *  Ubuntu 13.10 Saucy Salamander 32   (1024 MB) GTK 2.24/3.8  + GLIB 2.38 + Pango 1.32
- *  Ubuntu 13.04 Raring Ringtail 32    (1024 MB) GTK 2.24/3.6  + GLIB 2.36 + Pango 1.32
- *  Ubuntu 12.04 Precise Pangolin 32   (1024 MB) GTK 2.24/3.4  + GLIB 2.32 + Pango 1.30
- *  Ubuntu 11.10 Oneiric Ocelot 32     (1024 MB) GTK 2.24/3.2  + GLIB 2.30 + Pango 1.29
- *  Ubuntu 11.04 Natty Narwhal 32      (1024 MB) GTK 2.24/3.0  + GLIB 2.28 + Pango 1.28
- *  Windows XP SP3 MinGW/msys          (2048 MB) GTK 2.24 + GLIB 2.28 + Pango 1.29  &  GTK 3.6 + GLIB 2.34 + Pango 1.30
+ *  Debian Testing 64                  (1536 MB) GTK 4.24 + ADWAITA 1.9  + GLIB 2.90 + Pango 1.58
+ *  Fedora Rawhide 64                  (1536 MB) GTK 4.24 + ADWAITA 1.10 + GLIB 2.90 + Pango 1.58
+ *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 4.22 + ADWAITA 1.9  + GLIB 2.87 + Pango 1.56
+ *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 4.20 + ADWAITA 1.8  + GLIB 2.86 + Pango 1.56
+ *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) GTK 4.18 + ADWAITA 1.7  + GLIB 2.84 + Pango 1.56
  *
- * This source file is working with GTK 4.0+ and GLIB 2.66+ (like GTK 4.0.0)
+ * Compare awf-gtk4 between awf-adw with:
+ *  diff -U0 --color=always --ignore-all-space --ignore-blank-lines -I GETTEXT_PACKAGE -I _application_window_ -I _header_bar_pack_ code/gtk-awf/src/awf-gtk4.c code/gtk-awf/src/awf-adw.c | sed -e '/\*  Ubuntu/d' -e 's/\x1b\[31m/\x1b[36m/g' -e 's/\x1b\[36m\(@@.*@@\)/\x1b[37m\1/g' | most
+ *  it replaces: red by cyan + cyan for @@ lines with white
+ *
+ * This source file is working with GTK 4.18+ and Adwaita 1.7+ and GLIB 2.80+ (like GTK 4.18.0)
  */
 
 #pragma GCC diagnostic push
@@ -70,6 +53,7 @@
 #include <glib/gprintf.h>
 #include <glib/gstdio.h>
 #include <gtk/gtk.h>
+#include <adwaita.h>
 #include <locale.h>
 #if defined (G_OS_WIN32)
 	#undef _WIN32_WINNT
@@ -87,7 +71,7 @@
 #pragma GCC diagnostic pop
 
 #define GTK_DIRNAME "gtk-4.0"
-#define GETTEXT_PACKAGE "awf-gtk4"
+#define GETTEXT_PACKAGE "awf-adw"
 #define BOXH (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0))
 #define BOXV (gtk_box_new (GTK_ORIENTATION_VERTICAL, 0))
 #define SEPH (gtk_separator_new (GTK_ORIENTATION_HORIZONTAL))
@@ -136,14 +120,15 @@
 // global variables
 static gboolean awf_debug = FALSE;
 static gboolean awf_trace = FALSE;
-static gboolean awf_csd = FALSE;
+static gboolean awf_brkps = TRUE;
 static GHashTable *hash_system_theme = NULL;
 static GHashTable *hash_user_theme = NULL;
 static GHashTable *hash_language = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
 static GList *list_language = NULL;
-static GtkWidget *window = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
+static GMenu *menuwrap = NULL;
+static GtkWidget *window = NULL, *menubar = NULL, *scroll = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
 static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
 static GtkWidget *scale1 = NULL, *scale2 = NULL, *scale3 = NULL, *scale4 = NULL, *scale5 = NULL, *scale6 = NULL;
@@ -169,13 +154,14 @@ static void update_values(GtkRange *range);
 static void update_widgets();
 static void update_marks(GtkScale *scale, gboolean value, int position);
 static void clear_entry(GtkEntry *entry);
+static void apply_natural_size();
 static void display_notification();
 static void find_and_update_labels(GtkWidget *widget);
 static gboolean find_and_check_menuradio(GMenuModel *model, gchar *search);
 static gboolean on_sighup(void *data);
 static gboolean take_screenshot();
 static void create_window(GtkApplication *app);
-static void create_widgets(GtkWidget *root);
+static GPtrArray* create_widgets(GtkWidget *root);
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing);
 static void add_progressbar_and_entrybar();
 static void create_toolbar(GtkWidget *root);
@@ -212,6 +198,7 @@ static void dialog_inspector();
 static void dialog_calendar();
 static void dialog_scales();
 static gboolean on_scrolltabs(GtkEventControllerScroll *event, double dx, double dy, GtkWidget *widget);
+static gboolean on_scrolltoolbar(GtkEventControllerScroll *event, double dx, double dy, GtkWidget *widget);
 
 
 // run run run
@@ -220,6 +207,7 @@ int main(int argc, gchar **argv) {
 
 	awf_debug = (g_getenv("AWF_DEBUG") != NULL) && (strcmp(g_getenv("AWF_DEBUG"), "0") != 0);
 	awf_trace = (g_getenv("AWF_TRACE") != NULL) && (strcmp(g_getenv("AWF_TRACE"), "0") != 0);
+	awf_brkps = (g_getenv("AWF_BREAKPOINTS") == NULL) || (strcmp(g_getenv("AWF_BREAKPOINTS"), "0") != 0);
 
 	current_theme = g_strdup("auto");
 	opt_theme     = g_strdup("auto");
@@ -244,10 +232,6 @@ int main(int argc, gchar **argv) {
 		if ((hOut != INVALID_HANDLE_VALUE) && GetConsoleMode(hOut, &mode))
 			SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
 	#endif
-
-	const gchar *config = g_getenv("GTK_CSD");
-	if (config && (strcmp(config, "1") == 0))
-		awf_csd = TRUE;
 
 	int opt = 0, status = 0;
 	hash_system_theme = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
@@ -374,20 +358,22 @@ int main(int argc, gchar **argv) {
 					cVersion = "C89/C90";
 				#endif
 				g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
-					t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION),
+					t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d Adwaita %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION),
 					"-v            ", _app("Show version number."),
 					"-l            ", _app("List available themes."),
 					"-t <theme>    ", _app("Run with the specified theme."),
 					"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
 					"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
 					"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
-					t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+					t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"),
 						cVersion,
 						GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+						ADW_MAJOR_VERSION, ADW_MINOR_VERSION, ADW_MICRO_VERSION,
 						GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
 						PANGO_VERSION_STRING),
-					t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+					t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"),
 						gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
+						adw_get_major_version(), adw_get_minor_version(), adw_get_micro_version(),
 						glib_major_version, glib_minor_version, glib_micro_version,
 						pango_version_string())
 				);
@@ -400,7 +386,15 @@ int main(int argc, gchar **argv) {
 	}
 
 	// create and show window
-	GtkApplication *app = gtk_application_new("org.gtk.awf", G_APPLICATION_NON_UNIQUE);
+	gboolean gtkThemeFaked = FALSE;
+	if (!g_getenv("GTK_THEME")) {
+		// @see https://github.com/GNOME/libadwaita/blob/main/src/adw-style-manager.c#L454
+		// libadwaita skips Adwaita-empty and its stylesheet when GTK_THEME is set
+		g_setenv("GTK_THEME", "Default", TRUE);
+		gtkThemeFaked = TRUE;
+	}
+
+	AdwApplication *app = adw_application_new("org.gtk.awf", G_APPLICATION_NON_UNIQUE);
 	g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
 
 	// --version -v
@@ -430,6 +424,13 @@ int main(int argc, gchar **argv) {
 		_app("Run with text from right to left (Right-To-Left)."), NULL);
 
 	g_application_register(G_APPLICATION(app), NULL, NULL);
+
+	if (gtkThemeFaked) {
+		// libadwaita is initialized, back to gtk-theme-name
+		g_unsetenv("GTK_THEME");
+		g_object_notify(G_OBJECT(gtk_settings_get_default()), "gtk-theme-name");
+	}
+
 	status = g_application_run(G_APPLICATION(app), argc, argv);
 	g_object_unref(app);
 
@@ -595,7 +596,7 @@ static void update_theme(gchar *newTheme) {
 		g_object_set(gtk_settings_get_default(), "gtk-theme-name", current_theme, NULL);
 		g_object_notify(G_OBJECT(gtk_settings_get_default()), "gtk-theme-name");
 
-		gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+		apply_natural_size(); // @todo not working
 
 		if (opt_screenshot) {
 			if (take_screenshot()) {
@@ -622,7 +623,7 @@ static void update_theme(gchar *newTheme) {
 
 		g_free(current_theme);
 		g_object_get(gtk_settings_get_default(), "gtk-theme-name", &current_theme, NULL);
-		gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+		apply_natural_size();
 
 		if (awf_debug)
 			g_printf("\033[33m[debug]\033[00m update_theme_after2: %s\n", current_theme);
@@ -636,7 +637,7 @@ static void update_theme(gchar *newTheme) {
 
 		while (g_main_context_pending(NULL))
 			g_main_context_iteration(NULL, FALSE);
-		gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+		apply_natural_size();
 
 		gchar *text = g_strdup_printf(_app("Theme %s loaded."), current_theme);
 		update_statusbar(text);
@@ -778,7 +779,7 @@ static void update_widgets() {
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook3), !toggle);
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook4), !toggle);
 
-	gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+	apply_natural_size();
 }
 
 static void update_marks(GtkScale *scale, gboolean value, int position) {
@@ -808,6 +809,23 @@ static void clear_entry(GtkEntry *entry) {
 		g_printf("\033[36m[trace]\033[00m clear_entry()\n");
 
 	gtk_editable_set_text(GTK_EDITABLE(entry), "");
+}
+
+static void apply_natural_size() {
+
+	if (awf_trace)
+		g_printf("\033[36m[trace]\033[00m apply_natural_size()\n");
+
+	if (!awf_brkps) {
+		gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+	}
+	else if (scroll) {
+		int width, height;
+		GtkWidget *content = adw_application_window_get_content(ADW_APPLICATION_WINDOW(window));
+		gtk_widget_measure(content, GTK_ORIENTATION_HORIZONTAL, -1, NULL, &width, NULL, NULL);
+		gtk_widget_measure(content, GTK_ORIENTATION_VERTICAL, width, NULL, &height, NULL, NULL);
+		gtk_window_set_default_size(GTK_WINDOW(window), width + 1, height + 4); // @todo why +1 +4 ?
+	}
 }
 
 static void display_notification() {
@@ -949,16 +967,17 @@ static void create_window(GtkApplication *app) {
 		return;
 	}
 
+	GPtrArray *breakpoints = NULL;
 	GtkWidget *vboxWindow, *widgets;
 	gboolean closeLeft = FALSE, closeRight = FALSE;
 	gchar *text, *value;
 
 	// window
-	window = gtk_application_window_new(app);
+	window = adw_application_window_new(app);
 	gtk_widget_set_name(GTK_WIDGET(window), "AwfMainWindow");
 	gtk_window_set_icon_name(GTK_WINDOW(window), GETTEXT_PACKAGE);
 
-	text = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	text = g_strdup_printf(_app("A widget factory - GTK %d.%d Adwaita %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
 	gtk_window_set_title(GTK_WINDOW(window), text);
 	g_free(text);
 
@@ -972,26 +991,24 @@ static void create_window(GtkApplication *app) {
 		current_direction = (gtk_widget_get_default_direction() == GTK_TEXT_DIR_LTR) ? 1 : 2;
 
 	// layout
-	vboxWindow = BOXV;
-	gtk_window_set_child(GTK_WINDOW(window), vboxWindow);
+	vboxWindow = adw_toolbar_view_new();
+	adw_application_window_set_content(ADW_APPLICATION_WINDOW(window), vboxWindow);
 
 		// menubar
 		GMenu *gmm = g_menu_new();
 		create_traditional_menubar(app, gmm);
 		gtk_application_set_menubar(app, G_MENU_MODEL(gmm));
-		gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window), TRUE);
+		gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(window), FALSE);
 
 		// headerbar
-		if (awf_csd) {
+		const gchar *config = g_getenv("GTK_CSD");
+		if (config && (strcmp(config, "1") == 0)) {
+
 			// enable CSD for dialogs
-			// except for custom dialogs
 			g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
-			gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
-
 			GtkWidget *button;
-			GtkWidget *headerbar = gtk_header_bar_new();
-			gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(headerbar), TRUE);
+			GtkWidget *headerbar = adw_header_bar_new();
 
 			gchar *tokens; // minimize, maximize, close, icon, menu
 			g_object_get(gtk_widget_get_settings(headerbar), "gtk-decoration-layout", &tokens, NULL);
@@ -1007,45 +1024,74 @@ static void create_window(GtkApplication *app) {
 			headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE);
 			gtk_widget_add_css_class(headbarCloseLeft, "app-icon");
 			gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-			gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), headbarCloseLeft);
+			adw_header_bar_pack_start(ADW_HEADER_BAR(headerbar), headbarCloseLeft);
 
 			button = gtk_menu_button_new();
 			gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(button), G_MENU_MODEL(gmm));
 			gtk_menu_button_set_icon_name(GTK_MENU_BUTTON(button), "open-menu-symbolic");
-			gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_start(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn1");
-			gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_start(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn2");
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-			gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_start(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn3");
-			gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_start(ADW_HEADER_BAR(headerbar), button);
 
 			// right
 			headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE);
 			gtk_widget_add_css_class(headbarCloseRight, "app-icon");
 			gtk_widget_set_visible(headbarCloseRight, closeRight);
-			gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), headbarCloseRight);
+			adw_header_bar_pack_end(ADW_HEADER_BAR(headerbar), headbarCloseRight);
 
 			button = gtk_menu_button_new();
 			gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(button), G_MENU_MODEL(gmm));
 			gtk_menu_button_set_icon_name(GTK_MENU_BUTTON(button), "open-menu-symbolic");
-			gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_end(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn6");
-			gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_end(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn5");
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-			gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_end(ADW_HEADER_BAR(headerbar), button);
 
 			button = gtk_toggle_button_new_with_label("Btn4");
-			gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), button);
+			adw_header_bar_pack_end(ADW_HEADER_BAR(headerbar), button);
 
-			gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), headerbar);
+		}
+		else {
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), adw_header_bar_new());
+		}
+
+		if (awf_brkps) {
+			menubar = gtk_popover_menu_bar_new_from_model(G_MENU_MODEL(gmm));
+			menuwrap = g_menu_new();
+
+			// prepare a compact copy of the menu (Menu)
+			// but without any visual changes
+			//g_menu_append_submenu(menuwrap, _app("_Menu"), G_MENU_MODEL(gmm));
+
+			// prepare a compact copy of the menu (Options + Interface + Help)
+			// but without any visual changes
+			GMenu *sub = g_menu_new();
+			int i, n = g_menu_model_get_n_items(G_MENU_MODEL(gmm));
+			for (i = 0; i < n; i++) {
+				GMenuItem *item = g_menu_item_new_from_model(G_MENU_MODEL(gmm), i);
+				g_menu_append_item(((i == 0) || (i == n - 1)) ? menuwrap : sub, item);
+				g_object_unref(item);
+			}
+			g_menu_insert_submenu(menuwrap, 1, _app("_Interface"), G_MENU_MODEL(sub));
+			g_object_unref(sub);
+
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), menubar);
+		}
+		else {
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), gtk_popover_menu_bar_new_from_model(G_MENU_MODEL(gmm)));
 		}
 
 		g_object_unref(gmm);
@@ -1053,14 +1099,43 @@ static void create_window(GtkApplication *app) {
 		// toolbar
 		toolbar = BOXH;
 		gtk_widget_add_css_class(toolbar, "primary-toolbar");
-		//add_to(vboxWindow, toolbar, FALSE, FALSE, 0, 0);
-		gtk_box_append(GTK_BOX(vboxWindow), toolbar);
+		if (awf_brkps) {
+
+			GtkWidget *toolscroll = gtk_scrolled_window_new();
+			gtk_widget_add_css_class(toolscroll, "scrolled-toolbar");
+			gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(toolscroll), GTK_POLICY_EXTERNAL, GTK_POLICY_NEVER);
+			gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(toolscroll), toolbar);
+
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), toolscroll);
 			create_toolbar(toolbar);
+
+			// convert vertical scroll to horizontal scroll
+			GtkEventController *event = gtk_event_controller_scroll_new(GTK_EVENT_CONTROLLER_SCROLL_VERTICAL);
+			gtk_event_controller_set_propagation_phase(event, GTK_PHASE_CAPTURE);
+			g_signal_connect(event, "scroll", G_CALLBACK(on_scrolltoolbar), toolscroll);
+			gtk_widget_add_controller(toolscroll, event);
+		}
+		else {
+			//add_to(vboxWindow, toolbar, FALSE, FALSE, 0, 0);
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), toolbar);
+			create_toolbar(toolbar);
+		}
 
 		// widgets
 		widgets = BOXV;
-		add_to(vboxWindow, widgets, TRUE, TRUE, 0, 0);
+		if (awf_brkps) {
+			scroll = gtk_scrolled_window_new();
+			adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(vboxWindow), scroll);
+			gtk_scrolled_window_set_propagate_natural_width(GTK_SCROLLED_WINDOW(scroll), TRUE);
+			gtk_scrolled_window_set_propagate_natural_height(GTK_SCROLLED_WINDOW(scroll), TRUE);
+			gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll), widgets);
+			breakpoints = create_widgets(widgets);
+		}
+		else {
+			//add_to(vboxWindow, widgets, TRUE, TRUE, 0, 0);
+			adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(vboxWindow), widgets);
 			create_widgets(widgets);
+		}
 
 		// statusbar
 		G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
@@ -1083,7 +1158,7 @@ static void create_window(GtkApplication *app) {
 		gtk_widget_set_halign(gtk_widget_get_first_child(statusbar), GTK_ALIGN_FILL); // statusbar > box
 		gtk_widget_set_hexpand(gtk_widget_get_first_child(statusbar), TRUE);          // statusbar > box
 		gtk_widget_set_hexpand(gtk_widget_get_first_child(gtk_widget_get_first_child(statusbar)), TRUE); // statusbar > box > label
-		add_to(vboxWindow, statusbar, FALSE, FALSE, 0, 0);
+		adw_toolbar_view_add_bottom_bar(ADW_TOOLBAR_VIEW(vboxWindow), statusbar);
 
 		text = g_strdup_printf(_app("Theme %s loaded."), current_theme);
 		update_statusbar(text);
@@ -1126,13 +1201,23 @@ static void create_window(GtkApplication *app) {
 		gtk_widget_set_visible(headbarCloseRight, closeRight);
 	}
 	add_progressbar_and_entrybar();
+
+	if (awf_brkps && breakpoints) {
+		// not yet applied
+		apply_natural_size();
+		// enable breakpoints, AFTER the window creation, so after the window takes its natural size
+		for (guint i = 0; i < breakpoints->len; i++)
+			adw_application_window_add_breakpoint(ADW_APPLICATION_WINDOW(window), g_ptr_array_index(breakpoints, i));
+		g_ptr_array_free(breakpoints, TRUE);
+	}
 }
 
-static void create_widgets(GtkWidget *root) {
+static GPtrArray* create_widgets(GtkWidget *root) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_widgets()\n");
 
+	GtkWidget *pairA = BOXH, *pairB = BOXH, *sep1 = SEPV, *sep2 = SEPV, *sep3 = SEPV, *sep4 = SEPH;
 	GtkWidget *hboxColumns = BOXH;
 	GtkWidget *vboxColumn1 = BOXV, *vboxComboEntry = BOXV, *hboxSpin = BOXH, *hboxCheckRadio = BOXH, *vboxCheck = BOXV, *vboxRadio = BOXV;
 	GtkWidget *vboxColumn2 = BOXV, *vboxButtons = BOXV, *hboxBtns1 = BOXH, *hboxBtns2 = BOXH, *hboxBtns3 = BOXH, *hboxBtns4 = BOXH;
@@ -1144,8 +1229,13 @@ static void create_widgets(GtkWidget *root) {
 	// columns layout
 	add_to(root, hboxColumns, TRUE, TRUE, 0, 0);
 
+		add_to(hboxColumns, pairA, TRUE, TRUE, 0, 0); // for breakpoints
+		add_to(hboxColumns, sep4, FALSE, FALSE, 0, 0);
+			gtk_widget_set_visible(sep4, FALSE);
+		add_to(hboxColumns, pairB, TRUE, TRUE, 0, 0); // for breakpoints
+
 		// column 1
-		add_to(hboxColumns, vboxColumn1, TRUE, TRUE, 5, 0);
+		add_to(pairA, vboxColumn1, TRUE, TRUE, 5, 0);
 			add_to(vboxColumn1, vboxComboEntry, FALSE, TRUE, 5, 3);
 				create_entries(vboxComboEntry);
 			add_to(vboxColumn1, hboxSpin, FALSE, FALSE, 5, 0);
@@ -1155,29 +1245,29 @@ static void create_widgets(GtkWidget *root) {
 					create_checkbuttons(vboxCheck);
 				add_to(hboxCheckRadio, vboxRadio, TRUE, TRUE, 0, 0);
 					create_radiobuttons(vboxRadio);
-		add_to(hboxColumns, SEPV, FALSE, FALSE, 0, 0);
+		add_to(pairA, sep1, FALSE, FALSE, 0, 0);
 
 		// column 2
-		add_to(hboxColumns, vboxColumn2, TRUE, TRUE, 5, 0);
+		add_to(pairA, vboxColumn2, TRUE, TRUE, 5, 0);
 			add_to(vboxColumn2, vboxButtons, FALSE, TRUE, 5, 3);
 			add_to(vboxColumn2, hboxBtns1, FALSE, FALSE, 5, 3);
 			add_to(vboxColumn2, hboxBtns2, FALSE, FALSE, 5, 3);
 			add_to(vboxColumn2, hboxBtns3, FALSE, FALSE, 5, 3);
 			add_to(vboxColumn2, hboxBtns4, FALSE, FALSE, 5, 3);
 				create_otherbuttons(vboxButtons, hboxBtns1, hboxBtns2, hboxBtns3, hboxBtns4);
-		add_to(hboxColumns, SEPV, FALSE, FALSE, 0, 0);
+		add_to(pairA, sep2, FALSE, FALSE, 0, 0);
 
 		// column 3
-		add_to(hboxColumns, vboxColumn3, TRUE, TRUE, 5, 0);
+		add_to(pairB, vboxColumn3, TRUE, TRUE, 5, 0);
 			add_to(vboxColumn3, vboxProgress1, FALSE, TRUE, 6, 10);
 			add_to(vboxColumn3, hboxProgress1, FALSE, FALSE, 5, 10);
 			add_to(vboxColumn3, hboxProgress2, FALSE, FALSE, 5, 10);
 			add_to(vboxColumn3, vboxProgress2, FALSE, TRUE, 5, 10);
 				create_progressbars(vboxProgress1, hboxProgress1, hboxProgress2, vboxProgress2);
-		add_to(hboxColumns, SEPV, FALSE, FALSE, 0, 0);
+		add_to(pairB, sep3, FALSE, FALSE, 0, 0);
 
 		// column 4
-		add_to(hboxColumns, vboxColumn4, TRUE, TRUE, 5, 0);
+		add_to(pairB, vboxColumn4, TRUE, TRUE, 5, 0);
 			add_to(vboxColumn4, vboxOthers, FALSE, TRUE, 5, 3);
 				create_treeview(vboxOthers);
 				add_to(vboxOthers, hboxLabel, FALSE, TRUE, 5, 0);
@@ -1238,6 +1328,175 @@ static void create_widgets(GtkWidget *root) {
 			gtk_paned_set_end_child(GTK_PANED(hpane2), hboxNotebook2);
 
 			create_notebooks(hboxNotebook1, hboxNotebook2);
+
+	// layout breakpoints
+	if (awf_brkps) {
+
+		GPtrArray *breakpoints = g_ptr_array_new();
+		int width, height, menu;
+		gchar *cond;
+
+		// DEFAULT / 4 columns + 2 lines
+		gtk_widget_measure(root, GTK_ORIENTATION_HORIZONTAL, -1, NULL, &width, NULL, NULL);
+		gtk_widget_measure(menubar, GTK_ORIENTATION_HORIZONTAL, -1, NULL, &menu, NULL, NULL);
+		gtk_widget_measure(hpane2, GTK_ORIENTATION_VERTICAL, -1, NULL, &height, NULL, NULL);
+
+		// BP1 / 2 columns + 1 column of 4 lines
+		cond = g_strdup_printf("max-width: %dpx", width);
+		AdwBreakpoint *bp1 = adw_breakpoint_new(adw_breakpoint_condition_parse(cond));
+		g_free(cond);
+
+		adw_breakpoint_add_setters(bp1,
+			G_OBJECT(hboxColumns), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(sep2), "visible", FALSE,
+			G_OBJECT(sep4), "visible", TRUE,
+			G_OBJECT(vpane), "position-set", FALSE,
+			G_OBJECT(vpane), "height-request", height * 3,
+			G_OBJECT(vpane), "resize-start-child", TRUE,
+			G_OBJECT(vpane), "resize-end-child", TRUE,
+			G_OBJECT(vpane), "shrink-start-child", FALSE,
+			G_OBJECT(vpane), "shrink-end-child", FALSE,
+			// line 1
+			G_OBJECT(pairA), "hexpand", FALSE,
+			G_OBJECT(pairA), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn1), "hexpand", FALSE,
+			G_OBJECT(vboxColumn1), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn2), "hexpand", FALSE,
+			G_OBJECT(vboxColumn2), "halign", GTK_ALIGN_CENTER,
+			// line 2
+			G_OBJECT(pairB), "hexpand", FALSE,
+			G_OBJECT(pairB), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn3), "hexpand", FALSE,
+			G_OBJECT(vboxColumn3), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn4), "hexpand", FALSE,
+			G_OBJECT(vboxColumn4), "halign", GTK_ALIGN_CENTER,
+			// line 3 - 4
+			G_OBJECT(hpane1), "position-set", FALSE,
+			G_OBJECT(hpane1), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane1), "resize-start-child", TRUE,
+			G_OBJECT(hpane1), "resize-end-child", TRUE,
+			G_OBJECT(hpane1), "shrink-start-child", FALSE,
+			G_OBJECT(hpane1), "shrink-end-child", FALSE,
+			// line 5 - 6
+			G_OBJECT(hpane2), "position-set", FALSE,
+			G_OBJECT(hpane2), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane2), "resize-start-child", TRUE,
+			G_OBJECT(hpane2), "resize-end-child", TRUE,
+			G_OBJECT(hpane2), "shrink-start-child", FALSE,
+			G_OBJECT(hpane2), "shrink-end-child", FALSE,
+			NULL);
+
+		g_ptr_array_add(breakpoints, bp1);
+
+		// BP2 / compact menu + 2 columns + 1 column of 4 lines
+		cond = g_strdup_printf("max-width: %dpx", menu + 20);
+		AdwBreakpoint *bp2 = adw_breakpoint_new(adw_breakpoint_condition_parse(cond));
+		g_free(cond);
+
+		adw_breakpoint_add_setters(bp2,
+			G_OBJECT(menubar), "menu-model", menuwrap,
+			G_OBJECT(hboxColumns), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(sep2), "visible", FALSE,
+			G_OBJECT(sep4), "visible", TRUE,
+			G_OBJECT(vpane), "position-set", FALSE,
+			G_OBJECT(vpane), "height-request", height * 3,
+			G_OBJECT(vpane), "resize-start-child", TRUE,
+			G_OBJECT(vpane), "resize-end-child", TRUE,
+			G_OBJECT(vpane), "shrink-start-child", FALSE,
+			G_OBJECT(vpane), "shrink-end-child", FALSE,
+			// line 1
+			G_OBJECT(pairA), "hexpand", FALSE,
+			G_OBJECT(pairA), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn1), "hexpand", FALSE,
+			G_OBJECT(vboxColumn1), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn2), "hexpand", FALSE,
+			G_OBJECT(vboxColumn2), "halign", GTK_ALIGN_CENTER,
+			// line 2
+			G_OBJECT(pairB), "hexpand", FALSE,
+			G_OBJECT(pairB), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn3), "hexpand", FALSE,
+			G_OBJECT(vboxColumn3), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn4), "hexpand", FALSE,
+			G_OBJECT(vboxColumn4), "halign", GTK_ALIGN_CENTER,
+			// line 3 - 4
+			G_OBJECT(hpane1), "position-set", FALSE,
+			G_OBJECT(hpane1), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane1), "resize-start-child", TRUE,
+			G_OBJECT(hpane1), "resize-end-child", TRUE,
+			G_OBJECT(hpane1), "shrink-start-child", FALSE,
+			G_OBJECT(hpane1), "shrink-end-child", FALSE,
+			// line 5 - 6
+			G_OBJECT(hpane2), "position-set", FALSE,
+			G_OBJECT(hpane2), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane2), "resize-start-child", TRUE,
+			G_OBJECT(hpane2), "resize-end-child", TRUE,
+			G_OBJECT(hpane2), "shrink-start-child", FALSE,
+			G_OBJECT(hpane2), "shrink-end-child", FALSE,
+			NULL);
+
+		g_ptr_array_add(breakpoints, bp2);
+
+		// BP 3 / compact menu + 1 column
+		cond = g_strdup_printf("max-width: %dpx", width / 2);
+		AdwBreakpoint *bp3 = adw_breakpoint_new(adw_breakpoint_condition_parse(cond));
+		g_free(cond);
+
+		adw_breakpoint_add_setters(bp3,
+			G_OBJECT(menubar), "menu-model", menuwrap,
+			G_OBJECT(hboxColumns), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(sep1), "visible", TRUE,
+			G_OBJECT(sep1), "orientation", GTK_ORIENTATION_HORIZONTAL,
+			G_OBJECT(sep2), "visible", TRUE,
+			G_OBJECT(sep2), "orientation", GTK_ORIENTATION_HORIZONTAL,
+			G_OBJECT(sep3), "visible", TRUE,
+			G_OBJECT(sep3), "orientation", GTK_ORIENTATION_HORIZONTAL,
+			G_OBJECT(sep4), "visible", FALSE,
+			G_OBJECT(vpane), "position-set", FALSE,
+			G_OBJECT(vpane), "height-request", height * 5,
+			G_OBJECT(vpane), "resize-start-child", TRUE,
+			G_OBJECT(vpane), "resize-end-child", TRUE,
+			G_OBJECT(vpane), "shrink-start-child", FALSE,
+			G_OBJECT(vpane), "shrink-end-child", FALSE,
+			// line 1 - 2
+			G_OBJECT(pairA), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(pairA), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn1), "hexpand", FALSE,
+			G_OBJECT(vboxColumn1), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn2), "hexpand", FALSE,
+			G_OBJECT(vboxColumn2), "halign", GTK_ALIGN_CENTER,
+			// line 3 - 4
+			G_OBJECT(pairB), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(pairB), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn3), "hexpand", FALSE,
+			G_OBJECT(vboxColumn3), "halign", GTK_ALIGN_CENTER,
+			G_OBJECT(vboxColumn4), "hexpand", FALSE,
+			G_OBJECT(vboxColumn4), "halign", GTK_ALIGN_CENTER,
+			// line 5 - 6
+			G_OBJECT(hpane1), "position-set", FALSE,
+			G_OBJECT(hpane1), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane1), "resize-start-child", TRUE,
+			G_OBJECT(hpane1), "resize-end-child", TRUE,
+			G_OBJECT(hpane1), "shrink-start-child", FALSE,
+			G_OBJECT(hpane1), "shrink-end-child", FALSE,
+			G_OBJECT(hboxFrame1), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hboxFrame2), "orientation", GTK_ORIENTATION_VERTICAL,
+			// line 7 - 8
+			G_OBJECT(hpane2), "position-set", FALSE,
+			G_OBJECT(hpane2), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hpane2), "resize-start-child", TRUE,
+			G_OBJECT(hpane2), "resize-end-child", TRUE,
+			G_OBJECT(hpane2), "shrink-start-child", FALSE,
+			G_OBJECT(hpane2), "shrink-end-child", FALSE,
+			G_OBJECT(hboxNotebook1), "orientation", GTK_ORIENTATION_VERTICAL,
+			G_OBJECT(hboxNotebook2), "orientation", GTK_ORIENTATION_VERTICAL,
+			NULL);
+
+		g_ptr_array_add(breakpoints, bp3);
+
+		return breakpoints;
+	}
+
+	return NULL;
 }
 
 static void add_progressbar_and_entrybar() {
@@ -1391,32 +1650,21 @@ static void create_entries(GtkWidget *root) {
 
 	GtkWidget *combo1, *combo2, *combo3, *combo4, *entry1, *entry2, *entry3, *entry4;
 
-	// GTK_COMBO_BOX
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
+	// GTK_DROP_DOWN
+	combo1 = gtk_drop_down_new_from_strings((const char * const[]) { "Drop down 1", "Drop down 2", NULL });
+	gtk_drop_down_set_enable_search(GTK_DROP_DOWN(combo1), TRUE);
+	gtk_drop_down_set_selected(GTK_DROP_DOWN(combo1), 0);
 
-	combo1 = gtk_combo_box_text_new_with_entry();
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo1), "Combo box entry 1");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo1), "Combo box entry 2");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo1), 0);
-
-	combo2 = gtk_combo_box_text_new_with_entry();
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo2), "Combo box entry 1");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo2), "Combo box entry 2");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo2), 0);
+	combo2 = gtk_drop_down_new_from_strings((const char * const[]) { "Drop down 1", "Drop down 2", NULL });
+	gtk_drop_down_set_selected(GTK_DROP_DOWN(combo2), 0);
 	gtk_widget_set_sensitive(combo2, FALSE);
 
-	combo3 = gtk_combo_box_text_new();
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo3), "Combo box 1");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo3), "Combo box 2");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo3), 0);
+	combo3 = gtk_drop_down_new_from_strings((const char * const[]) { "Drop down 1", "Drop down 2", NULL });
+	gtk_drop_down_set_selected(GTK_DROP_DOWN(combo3), 0);
 
-	combo4 = gtk_combo_box_text_new();
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo4), "Combo box 1");
-	gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo4), "Combo box 2");
-	gtk_combo_box_set_active(GTK_COMBO_BOX(combo4), 0);
+	combo4 = gtk_drop_down_new_from_strings((const char * const[]) { "Drop down 1", "Drop down 2", NULL });
+	gtk_drop_down_set_selected(GTK_DROP_DOWN(combo4), 0);
 	gtk_widget_set_sensitive(combo4, FALSE);
-
-	G_GNUC_END_IGNORE_DEPRECATIONS
 
 	// GTK_ENTRY
 	entry1 = gtk_entry_new();
@@ -1571,31 +1819,17 @@ static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 	gtk_widget_set_sensitive(button4, FALSE);
 
 	// GTK_COLOR_DIALOG_BUTTON or GTK_COLOR_BUTTON
-	#if GTK_CHECK_VERSION (4,10,0)
-		GdkRGBA color;
-		gdk_rgba_parse(&color, "#7796ba");
-		button5 = gtk_color_dialog_button_new(gtk_color_dialog_new());
-		gtk_color_dialog_button_set_rgba(GTK_COLOR_DIALOG_BUTTON(button5), &color);
-		gtk_widget_set_tooltip_text(button5, _app("Choose a color"));
-	#else
-		GdkRGBA color;
-		gdk_rgba_parse(&color, "#7796ba");
-		button5 = gtk_color_button_new_with_rgba(&color);
-		gtk_widget_set_tooltip_text(button5, _app("Choose a color"));
-	#endif
+	GdkRGBA color;
+	gdk_rgba_parse(&color, "#7796ba");
+	button5 = gtk_color_dialog_button_new(gtk_color_dialog_new());
+	gtk_color_dialog_button_set_rgba(GTK_COLOR_DIALOG_BUTTON(button5), &color);
+	gtk_widget_set_tooltip_text(button5, _app("Choose a color"));
 
 	// GTK_FONT_DIALOG_BUTTON or GTK_FONT_BUTTON
-	#if GTK_CHECK_VERSION (4,10,0)
-		button6 = gtk_font_dialog_button_new(gtk_font_dialog_new());
-		find_and_update_labels(button6);
-		gtk_widget_set_size_request(button6, 186, -1); // The 186
-		gtk_widget_set_tooltip_text(button6, _app("Choose a font"));
-	#else
-		button6 = gtk_font_button_new();
-		find_and_update_labels(button6);
-		gtk_widget_set_size_request(button6, 186, -1); // The 186
-		gtk_widget_set_tooltip_text(button6, _app("Choose a font"));
-	#endif
+	button6 = gtk_font_dialog_button_new(gtk_font_dialog_new());
+	find_and_update_labels(button6);
+	gtk_widget_set_size_request(button6, 186, -1); // The 186
+	gtk_widget_set_tooltip_text(button6, _app("Choose a font"));
 
 	// GTK_BUTTON
 	button7 = gtk_button_new_with_label(_app("Choose a file"));
@@ -2738,13 +2972,6 @@ static void create_menuitem(GtkApplication *app, GMenu *menu, gchar *text, gbool
 	if (icon)
 		g_menu_item_set_attribute_value(menuitem, "icon", g_variant_new_string(icon)); // with gtk4-classic, without the icon is hidden
 
-	// @see maybe https://github.com/GNOME/gtk/commit/7344a03aa33e334e034a6542b391f9649ffe38f5
-	// display menuitem shortcuts with GTK 4.0
-	#if !GTK_CHECK_VERSION (4,3,2)
-		if (acl)
-			g_menu_item_set_attribute(menuitem, "accel", "s", acl, NULL);
-	#endif
-
 	g_menu_append_item(menu, menuitem);
 	g_object_unref(menuitem);
 
@@ -2885,42 +3112,18 @@ static void dialog_open() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_open()\n");
 
-	#if GTK_CHECK_VERSION (4,10,0)
-		GtkFileDialog *dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 
-		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_file_dialog_set_title(dialog, text);
-		g_free(text);
+	gchar *text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "GtkFileDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	gtk_file_dialog_set_title(dialog, text);
+	g_free(text);
 
-		GFile *home = g_file_new_for_path(g_get_home_dir());
-		gtk_file_dialog_set_initial_folder(dialog, home);
-		g_object_unref(home);
+	GFile *home = g_file_new_for_path(g_get_home_dir());
+	gtk_file_dialog_set_initial_folder(dialog, home);
+	g_object_unref(home);
 
-		gtk_file_dialog_open_multiple(dialog, GTK_WINDOW(window), NULL, NULL, NULL);
-		g_object_unref(dialog);
-	#else
-		GtkWidget *dialog = gtk_file_chooser_dialog_new(
-			"GtkFileChooserDialog:Open",
-			GTK_WINDOW(window),
-			GTK_FILE_CHOOSER_ACTION_OPEN,
-			_gtk("_Cancel"),
-			GTK_RESPONSE_CANCEL,
-			_gtk("_Open"),
-			GTK_RESPONSE_ACCEPT,
-			NULL);
-
-		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
-
-		GFile *home = g_file_new_for_path(g_get_home_dir());
-		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), home, NULL);
-		g_object_unref(home);
-
-		gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
-		g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
-		gtk_window_present(GTK_WINDOW(dialog));
-	#endif
+	gtk_file_dialog_open_multiple(dialog, GTK_WINDOW(window), NULL, NULL, NULL);
+	g_object_unref(dialog);
 }
 
 static void dialog_save() {
@@ -2928,41 +3131,18 @@ static void dialog_save() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_save()\n");
 
-	#if GTK_CHECK_VERSION (4,10,0)
-		GtkFileDialog *dialog = gtk_file_dialog_new();
+	GtkFileDialog *dialog = gtk_file_dialog_new();
 
-		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_file_dialog_set_title(dialog, text);
-		g_free(text);
+	gchar *text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "GtkFileDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	gtk_file_dialog_set_title(dialog, text);
+	g_free(text);
 
-		GFile *home = g_file_new_for_path(g_get_home_dir());
-		gtk_file_dialog_set_initial_folder(dialog, home);
-		g_object_unref(home);
+	GFile *home = g_file_new_for_path(g_get_home_dir());
+	gtk_file_dialog_set_initial_folder(dialog, home);
+	g_object_unref(home);
 
-		gtk_file_dialog_save(dialog, GTK_WINDOW(window), NULL, NULL, NULL);
-		g_object_unref(dialog);
-	#else
-		GtkWidget *dialog = gtk_file_chooser_dialog_new(
-			"GtkFileChooserDialog:Save",
-			GTK_WINDOW(window),
-			GTK_FILE_CHOOSER_ACTION_SAVE,
-			_gtk("_Cancel"),
-			GTK_RESPONSE_CANCEL,
-			_gtk("_Save"),
-			GTK_RESPONSE_ACCEPT,
-			NULL);
-
-		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
-
-		GFile *home = g_file_new_for_path(g_get_home_dir());
-		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), home, NULL);
-		g_object_unref(home);
-
-		g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
-		gtk_window_present(GTK_WINDOW(dialog));
-	#endif
+	gtk_file_dialog_save(dialog, GTK_WINDOW(window), NULL, NULL, NULL);
+	g_object_unref(dialog);
 }
 
 static void dialog_message() {
@@ -2970,27 +3150,15 @@ static void dialog_message() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_message()\n");
 
-	GtkWidget *dialog = gtk_message_dialog_new(
-		GTK_WINDOW(window),
-		GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_MESSAGE_INFO,
-		GTK_BUTTONS_YES_NO,
-		"GtkMessageDialog");
+	gchar *text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwAlertDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
 
-	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
+	AdwDialog *dialog = adw_alert_dialog_new(text, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
+	adw_alert_dialog_add_responses(ADW_ALERT_DIALOG(dialog), "no", _gtk("_No"), "yes", _gtk("_Yes"), NULL);
+	adw_alert_dialog_set_default_response(ADW_ALERT_DIALOG(dialog), "yes");
+	adw_alert_dialog_set_close_response(ADW_ALERT_DIALOG(dialog), "no");
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-	gtk_window_set_title(GTK_WINDOW(dialog), text);
+	adw_dialog_present(dialog, window);
 	g_free(text);
-
-	// dialog window
-	#if GTK_CHECK_VERSION (4,10,0)
-		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
-		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-	#endif
-
-	g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
-	gtk_window_present(GTK_WINDOW(dialog));
 }
 
 static void dialog_page_setup() {
@@ -2998,7 +3166,7 @@ static void dialog_page_setup() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
 
-	GtkPageSetup *setup = gtk_print_run_page_setup_dialog(GTK_WINDOW(window), NULL, NULL); // @todo 4.12 segfault on close
+	GtkPageSetup *setup = gtk_print_run_page_setup_dialog(GTK_WINDOW(window), NULL, NULL);
 	g_object_unref(setup);
 }
 
@@ -3008,7 +3176,7 @@ static void dialog_print() {
 		g_printf("\033[36m[trace]\033[00m dialog_print()\n");
 
 	GtkPrintOperation *op = gtk_print_operation_new();
-	gtk_print_operation_run(op, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, GTK_WINDOW(window), NULL); // @todo 4.12 segfault on close
+	gtk_print_operation_run(op, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, GTK_WINDOW(window), NULL);
 	g_object_unref(op);
 }
 
@@ -3016,14 +3184,6 @@ static void dialog_about() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
-
-	GdkPixbuf *pixbuf = NULL;
-	#if defined (G_OS_WIN32)
-		//extern GdkPixbuf *gdk_win32_icon_to_pixbuf_libgtk_only(HICON hicon);
-		HICON hIcon = (HICON) LoadImage(GetModuleHandle(NULL), "IDI_ICON1", IMAGE_ICON, 64, 64, LR_DEFAULTSIZE);
-		//if (hIcon)
-		//	pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
-	#endif
 
 	gchar *cVersion;
 	#ifdef __STDC_VERSION__
@@ -3038,30 +3198,31 @@ static void dialog_about() {
 	#endif
 
 	gchar *t1, *t2, *t3, *t4;
-	gtk_show_about_dialog(GTK_WINDOW(window),
+	adw_show_about_dialog(window,
+		"application-name", "awf-adw",
+		"application-icon", GETTEXT_PACKAGE,
 		"version", VERSION,
 		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s",
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
-			t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+			t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"),
 				cVersion,
 				GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+				ADW_MAJOR_VERSION, ADW_MINOR_VERSION, ADW_MICRO_VERSION,
 				GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
 				PANGO_VERSION_STRING),
-			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"),
 				gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
+				adw_get_major_version(), adw_get_minor_version(), adw_get_micro_version(),
 				glib_major_version, glib_minor_version, glib_micro_version,
 				pango_version_string())
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
-		"logo", pixbuf,
-		"icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
-		"logo-icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
+		"developer-name", "Fabrice Creuzot (luigifab)",
 		"license", _app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."),
-		"wrap-license", TRUE,
-		"authors", (const char *[]){
+		"developers", (const char *[]){
 			"Fabrice Creuzot (luigifab)",
 			"Valère Monseur (valr) / original software",
 			NULL,
@@ -3073,14 +3234,6 @@ static void dialog_about() {
 	g_free(t2);
 	g_free(t3);
 	g_free(t4);
-
-	#if defined (G_OS_WIN32)
-		if (hIcon) {
-			if (pixbuf)
-				g_object_unref(pixbuf);
-			DestroyIcon(hIcon);
-		}
-	#endif
 }
 
 static void dialog_inspector() {
@@ -3096,34 +3249,30 @@ static void dialog_calendar() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
-	GtkWidget *dialog, *infobar, *label, *calendar, *area, *btn, *vbox = BOXV, *hbox;
+	AdwDialog *dialog;
+	GtkWidget *infobar, *calendar, *btn, *vbox = BOXV;
 	gchar *text;
 
 	// info bars and calendar
-	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
-
-	infobar = gtk_info_bar_new_with_buttons(_gtk("_OK"), GTK_RESPONSE_OK, NULL);
-	gtk_info_bar_set_message_type(GTK_INFO_BAR(infobar), GTK_MESSAGE_INFO);
-	label = gtk_label_new(_app("This is an info bar."));
-	gtk_info_bar_add_child(GTK_INFO_BAR(infobar), label);
+	infobar = adw_banner_new(_app("This is an info bar."));
+	adw_banner_set_button_label(ADW_BANNER(infobar), _gtk("_OK"));
+	adw_banner_set_revealed(ADW_BANNER(infobar), TRUE);
 	add_to(vbox, infobar, FALSE, FALSE, 0, 0);
 
-	infobar = gtk_info_bar_new_with_buttons(_app("Ok"), GTK_RESPONSE_OK, NULL);
-	gtk_info_bar_set_message_type(GTK_INFO_BAR(infobar), GTK_MESSAGE_QUESTION);
-	label = gtk_label_new(_app("This is a question bar."));
-	gtk_info_bar_add_child(GTK_INFO_BAR(infobar), label);
+	infobar = adw_banner_new(_app("This is a question bar."));
+	adw_banner_set_button_label(ADW_BANNER(infobar), _app("Ok"));
+	adw_banner_set_revealed(ADW_BANNER(infobar), TRUE);
+	gtk_widget_add_css_class(infobar, "question");
 	add_to(vbox, infobar, FALSE, FALSE, 0, 0);
 
-	infobar = gtk_info_bar_new();
-	gtk_info_bar_set_message_type(GTK_INFO_BAR(infobar), GTK_MESSAGE_WARNING);
-	label = gtk_label_new(_app("This is a warning bar."));
-	gtk_info_bar_add_child(GTK_INFO_BAR(infobar), label);
+	infobar = adw_banner_new(_app("This is a warning bar."));
+	adw_banner_set_revealed(ADW_BANNER(infobar), TRUE);
+	gtk_widget_add_css_class(infobar, "warning");
 	add_to(vbox, infobar, FALSE, FALSE, 0, 0);
 
-	infobar = gtk_info_bar_new();
-	gtk_info_bar_set_message_type(GTK_INFO_BAR(infobar), GTK_MESSAGE_ERROR);
-	label = gtk_label_new(_app("This is an error bar."));
-	gtk_info_bar_add_child(GTK_INFO_BAR(infobar), label);
+	infobar = adw_banner_new(_app("This is an error bar."));
+	adw_banner_set_revealed(ADW_BANNER(infobar), TRUE);
+	gtk_widget_add_css_class(infobar, "error");
 	add_to(vbox, infobar, FALSE, FALSE, 0, 0);
 
 	calendar = gtk_calendar_new();
@@ -3131,63 +3280,27 @@ static void dialog_calendar() {
 	gtk_calendar_set_show_week_numbers(GTK_CALENDAR(calendar), TRUE);
 	add_to(vbox, calendar, FALSE, FALSE, 0, 0);
 
-	G_GNUC_END_IGNORE_DEPRECATIONS
+	// AdwDialog
+	dialog = adw_dialog_new();
+	text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	adw_dialog_set_title(dialog, text);
+	g_free(text);
 
-	// GtkWindow:Modal or GtkDialog
-	#if GTK_CHECK_VERSION (4,10,0)
-		dialog = gtk_window_new();
-		gtk_widget_add_css_class(dialog, "dialog");
+	GtkWidget *toolbarview = adw_toolbar_view_new();
+	adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(toolbarview), adw_header_bar_new());
+	gtk_box_set_spacing(GTK_BOX(vbox), 5);
+	adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(toolbarview), vbox);
+	adw_dialog_set_child(dialog, toolbarview);
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
+	btn = gtk_button_new_with_mnemonic(_gtk("_Close"));
+	gtk_widget_set_halign(btn, GTK_ALIGN_END);
+	adw_toolbar_view_add_bottom_bar(ADW_TOOLBAR_VIEW(toolbarview), btn);
+	g_signal_connect_swapped(btn, "clicked", G_CALLBACK(adw_dialog_close), dialog);
 
-		// encore une idée de génie de GTK
-		area = BOXV;
-		gtk_widget_add_css_class(area, "dialog-vbox");
-		gtk_window_set_child(GTK_WINDOW(dialog), area);
-		add_to(area, vbox, TRUE, TRUE, 0, 5); // no padding
-
-		// encore une idée de génie de GTK
-		hbox = BOXH;
-		gtk_widget_add_css_class(hbox, "dialog-action-area");
-		btn = gtk_button_new_with_mnemonic(_gtk("_Close"));
-		gtk_box_append(GTK_BOX(hbox), btn);
-		add_to(area, hbox, TRUE, TRUE, 0, 0);
-		gtk_widget_set_halign(hbox, GTK_ALIGN_END);
-		g_signal_connect_swapped(btn, "clicked", G_CALLBACK(gtk_window_destroy), dialog);
-	#else
-		dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
-
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
-
-		area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-		add_to(area, vbox, TRUE, TRUE, 5, 5);
-		btn = gtk_dialog_add_button(GTK_DIALOG(dialog), _gtk("_Close"), GTK_RESPONSE_OK);
-	#endif
-
-	if (awf_csd) {
-		gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-		GtkWidget *headerbardialog = gtk_header_bar_new();
-		gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(headerbardialog), TRUE);
-		gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
-	}
-
-	// dialog window
-	#if GTK_CHECK_VERSION (4,10,0)
-		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
-		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-	#else
-		g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
-	#endif
-
-	gtk_widget_set_name(dialog, "AwfDialogWindow");
-	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-	gtk_widget_set_size_request(dialog, 350, -1);
-	gtk_window_present(GTK_WINDOW(dialog));
-	gtk_widget_grab_focus(GTK_WIDGET(btn));
+	gtk_widget_set_name(GTK_WIDGET(dialog), "AwfDialogWindow");
+	adw_dialog_set_content_width(dialog, 350);
+	adw_dialog_set_focus(dialog, btn);
+	adw_dialog_present(dialog, window);
 }
 
 static void dialog_scales() {
@@ -3195,7 +3308,8 @@ static void dialog_scales() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_scales()\n");
 
-	GtkWidget *dialog, *notebook, *area, *btn, *hbox;
+	AdwDialog *dialog;
+	GtkWidget *notebook, *btn;
 	gchar *text;
 
 	// notebook and scales
@@ -3207,60 +3321,25 @@ static void dialog_scales() {
 		create_scales(notebook, "value bottom", GTK_POS_BOTTOM);
 		create_scales(notebook, "value left", GTK_POS_LEFT);
 
-	// GtkWindow:Modal or GtkDialog
-	#if GTK_CHECK_VERSION (4,10,0)
-		dialog = gtk_window_new();
-		gtk_widget_add_css_class(dialog, "dialog");
+	// AdwDialog
+	dialog = adw_dialog_new();
+	text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	adw_dialog_set_title(dialog, text);
+	g_free(text);
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
+	GtkWidget *toolbarview = adw_toolbar_view_new();
+	adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(toolbarview), adw_header_bar_new());
+	adw_toolbar_view_set_content(ADW_TOOLBAR_VIEW(toolbarview), notebook);
+	adw_dialog_set_child(dialog, toolbarview);
 
-		// encore une idée de génie de GTK
-		area = BOXV;
-		gtk_widget_add_css_class(area, "dialog-vbox");
-		gtk_window_set_child(GTK_WINDOW(dialog), area);
-		add_to(area, notebook, TRUE, TRUE, 0, 5); // no padding
+	btn = gtk_button_new_with_mnemonic(_gtk("_Close"));
+	gtk_widget_set_halign(btn, GTK_ALIGN_END);
+	adw_toolbar_view_add_bottom_bar(ADW_TOOLBAR_VIEW(toolbarview), btn);
+	g_signal_connect_swapped(btn, "clicked", G_CALLBACK(adw_dialog_close), dialog);
 
-		// encore une idée de génie de GTK
-		hbox = BOXH;
-		gtk_widget_add_css_class(hbox, "dialog-action-area");
-		btn = gtk_button_new_with_mnemonic(_gtk("_Close"));
-		gtk_box_append(GTK_BOX(hbox), btn);
-		add_to(area, hbox, TRUE, TRUE, 0, 0);
-		gtk_widget_set_halign(hbox, GTK_ALIGN_END);
-		g_signal_connect_swapped(btn, "clicked", G_CALLBACK(gtk_window_destroy), dialog);
-	#else
-		dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
-
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-		gtk_window_set_title(GTK_WINDOW(dialog), text);
-		g_free(text);
-
-		area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-		add_to(area, notebook, TRUE, TRUE, 5, 5);
-		btn = gtk_dialog_add_button(GTK_DIALOG(dialog), _gtk("_Close"), GTK_RESPONSE_OK);
-	#endif
-
-	if (awf_csd) {
-		gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-		GtkWidget *headerbardialog = gtk_header_bar_new();
-		gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(headerbardialog), TRUE);
-		gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
-	}
-
-	// dialog window
-	#if GTK_CHECK_VERSION (4,10,0)
-		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
-		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
-	#else
-		g_signal_connect(dialog, "response", G_CALLBACK(gtk_window_destroy), NULL);
-	#endif
-
-	gtk_widget_set_name(dialog, "AwfDialogWindow");
-	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-	gtk_window_present(GTK_WINDOW(dialog));
-	gtk_widget_grab_focus(GTK_WIDGET(btn));
+	gtk_widget_set_name(GTK_WIDGET(dialog), "AwfDialogWindow");
+	adw_dialog_set_focus(dialog, btn);
+	adw_dialog_present(dialog, window);
 }
 
 
@@ -3301,6 +3380,15 @@ static gboolean on_scrolltabs(GtkEventControllerScroll *event, double dx, double
 		gtk_notebook_next_page(notebook);
 	else if ((dy < 0) || (dx < 0))
 		gtk_notebook_prev_page(notebook);
+
+	return TRUE;
+}
+
+static gboolean on_scrolltoolbar(GtkEventControllerScroll *event, double dx, double dy, GtkWidget *widget) {
+
+	GtkAdjustment *adj = gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(widget));
+	double step = (gtk_event_controller_scroll_get_unit(event) == GDK_SCROLL_UNIT_WHEEL) ? 50 : 1;
+	gtk_adjustment_set_value(adj, gtk_adjustment_get_value(adj) + dy * step);
 
 	return TRUE;
 }

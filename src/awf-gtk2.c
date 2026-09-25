@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/20/09/2026
+ * Updated V/25/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -26,7 +26,7 @@
  *
  *
  * Translations update:
- *  https://github.com/GNOME/gtk/blob/3.24.50/po/fr.po
+ *  https://github.com/GNOME/gtk/blob/2.24.33/po/fr.po
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-*.c*
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
@@ -58,6 +58,8 @@
  *  Ubuntu 11.10 Oneiric Ocelot 32     (1024 MB) GTK 2.24/3.2  + GLIB 2.30 + Pango 1.29
  *  Ubuntu 11.04 Natty Narwhal 32      (1024 MB) GTK 2.24/3.0  + GLIB 2.28 + Pango 1.28
  *  Windows XP SP3 MinGW/msys          (2048 MB) GTK 2.24 + GLIB 2.28 + Pango 1.29  &  GTK 3.6 + GLIB 2.34 + Pango 1.30
+ *
+ * This source file is working with GTK 2.24+ and GLIB 2.28+
  */
 
 #pragma GCC diagnostic push
@@ -192,7 +194,7 @@ static void create_widgets(GtkWidget *root);
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing);
 static void add_progressbar_and_entrybar();
 static void create_toolbar(GtkWidget *root);
-static void create_combos_entries(GtkWidget *root);
+static void create_entries(GtkWidget *root);
 static void create_spinbuttons(GtkWidget *root);
 static void create_checkbuttons(GtkWidget *root);
 static void create_radiobuttons(GtkWidget *root);
@@ -234,8 +236,8 @@ static void dialog_scales();
 
 int main(int argc, gchar **argv) {
 
-	awf_debug = g_getenv("AWF_DEBUG") != NULL;
-	awf_trace = g_getenv("AWF_TRACE") != NULL;
+	awf_debug = (g_getenv("AWF_DEBUG") != NULL) && (strcmp(g_getenv("AWF_DEBUG"), "0") != 0);
+	awf_trace = (g_getenv("AWF_TRACE") != NULL) && (strcmp(g_getenv("AWF_TRACE"), "0") != 0);
 
 	current_theme = g_strdup("auto");
 	opt_theme     = g_strdup("auto");
@@ -290,7 +292,7 @@ int main(int argc, gchar **argv) {
 
 	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_sort);
 
-	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/awf-gtk2.mo)
+	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/<GETTEXT_PACKAGE>.mo)
 	hash_language = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 	g_hash_table_replace(hash_language, g_strdup("en"), g_strdup("en"));
 	for (opt = 0; dirs[opt]; opt++) {
@@ -380,12 +382,12 @@ int main(int argc, gchar **argv) {
 					"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
 					"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
 					"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
-					t3 = g_strdup_printf(_app("compiled in %s with gtk %d.%d.%d and glib %d.%d.%d and pango %s"),
+					t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
 						cVersion,
 						GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
 						GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
 						PANGO_VERSION_STRING),
-					t4 = g_strdup_printf(_app(" started with gtk %d.%d.%d and glib %d.%d.%d and pango %s"),
+					t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
 						gtk_major_version, gtk_minor_version, gtk_micro_version,
 						glib_major_version, glib_minor_version, glib_micro_version,
 						pango_version_string())
@@ -549,6 +551,8 @@ static void update_theme(gchar *newTheme) {
 		g_object_set(gtk_settings_get_default(), "gtk-theme-name", "Default", NULL);
 		g_usleep(G_USEC_PER_SEC / 2);
 		g_object_set(gtk_settings_get_default(), "gtk-theme-name", current_theme, NULL);
+		g_object_notify(G_OBJECT(gtk_settings_get_default()), "gtk-theme-name");
+
 		gtk_window_resize(GTK_WINDOW(window), 50, 50);
 
 		if (opt_screenshot) {
@@ -586,6 +590,7 @@ static void update_theme(gchar *newTheme) {
 		g_free(current_theme);
 		g_object_set(gtk_settings_get_default(), "gtk-theme-name", newTheme, NULL); // @todo? useless for notify_updated_gtktheme
 		g_object_get(gtk_settings_get_default(), "gtk-theme-name", &current_theme, NULL);
+		g_object_notify(G_OBJECT(gtk_settings_get_default()), "gtk-theme-name");
 
 		while (gtk_events_pending())
 			gtk_main_iteration();
@@ -928,14 +933,14 @@ static void create_window(gpointer app) {
 	gtk_container_add(GTK_CONTAINER(window), vboxWindow);
 
 		menubar = gtk_menu_bar_new();
-		allow_update_theme = FALSE;
-		create_traditional_menubar(menubar);
 		add_to(vboxWindow, menubar, FALSE, FALSE, 0, 0);
-		allow_update_theme = TRUE;
+			allow_update_theme = FALSE;
+			create_traditional_menubar(menubar);
+			allow_update_theme = TRUE;
 
 		toolbar = gtk_toolbar_new();
-		create_toolbar(toolbar);
 		add_to(vboxWindow, toolbar, FALSE, FALSE, 0, 0);
+			create_toolbar(toolbar);
 
 		widgets = BOXV;
 		add_to(vboxWindow, widgets, TRUE, TRUE, 0, 0);
@@ -991,7 +996,7 @@ static void create_widgets(GtkWidget *root) {
 		// column 1
 		add_to(hboxColumns, vboxColumn1, TRUE, TRUE, 5, 0);
 			add_to(vboxColumn1, vboxComboEntry, FALSE, TRUE, 5, 3);
-				create_combos_entries(vboxComboEntry);
+				create_entries(vboxComboEntry);
 			add_to(vboxColumn1, hboxSpin, FALSE, FALSE, 5, 0);
 				create_spinbuttons(hboxSpin);
 			add_to(vboxColumn1, hboxCheckRadio, FALSE, TRUE, 5, 0);
@@ -1210,10 +1215,10 @@ static void create_toolbar(GtkWidget *root) {
 	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool13), -1); // = 13
 }
 
-static void create_combos_entries(GtkWidget *root) {
+static void create_entries(GtkWidget *root) {
 
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m create_combos_entries()\n");
+		g_printf("\033[36m[trace]\033[00m create_entries()\n");
 
 	GtkWidget *combo1, *combo2, *combo3, *combo4, *entry1, *entry2, *entry3, *entry4;
 
@@ -2173,7 +2178,8 @@ static void create_traditional_menubar(GtkWidget *root) {
 	menu = create_menu(root, _app("_Options"), TRUE, accels);
 
 		// @todo option command line?
-		if (g_getenv("AWF_TEAROFF") != NULL)
+		const gchar *config = g_getenv("AWF_TEAROFF");
+		if (config && (strcmp(config, "0") != 0))
 			create_menuitem_tearoff(menu);
 
 		create_menuitem(menu, "gtk-open", FALSE, AWF_ACCEL_OPEN, AWF_OPEN, dialog_open);
@@ -2318,21 +2324,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 	if (!list_user_theme)
 		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
 
-	// application language
-	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
-	group = NULL;
-	menu  = create_menu(root, _app("_Language"), TRUE, NULL);
-
-	for (iterator = list_language; iterator; iterator = iterator->next) {
-		menuitem = create_menuitem_radio(menu, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
-		if (g_str_has_prefix(current_language, (gchar*) iterator->data))
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-	}
-
-	g_free(current_language);
-
-	// text direction
+	// application text direction
 	group = NULL;
 	menu  = create_menu(root, _app("_Text direction"), TRUE, NULL);
 
@@ -2346,6 +2338,20 @@ static void create_traditional_menubar(GtkWidget *root) {
 		if (current_direction == 2)
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_text_direction), GINT_TO_POINTER(GTK_TEXT_DIR_RTL));
+
+	// application language
+	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
+	group = NULL;
+	menu  = create_menu(root, _app("_Language"), TRUE, NULL);
+
+	for (iterator = list_language; iterator; iterator = iterator->next) {
+		menuitem = create_menuitem_radio(menu, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
+		if (g_str_has_prefix(current_language, (gchar*) iterator->data))
+			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+	}
+
+	g_free(current_language);
 
 	// help
 	menu = create_menu(root, _app("_Help"), TRUE, accels);
@@ -2661,11 +2667,6 @@ static void dialog_page_setup() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_page_setup()\n");
 
-	// PKG_CHECK_MODULES(GTK2, [gtk+-2.0 >= 2.24.0 gtk+-unix-print-2.0], ...
-	//GtkWidget *dialog = gtk_page_setup_unix_dialog_new("GtkPageSetupUnixDialog", GTK_WINDOW(window));
-	//gtk_dialog_run(GTK_DIALOG(dialog));
-	//gtk_widget_destroy(dialog);
-
 	GtkPageSetup *setup = gtk_print_run_page_setup_dialog(GTK_WINDOW(window), NULL, NULL);
 	g_object_unref(setup);
 }
@@ -2674,10 +2675,6 @@ static void dialog_print() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_print()\n");
-
-	//GtkWidget *dialog = gtk_print_unix_dialog_new("GtkPrintUnixDialog", GTK_WINDOW(window));
-	//gtk_dialog_run(GTK_DIALOG(dialog));
-	//gtk_widget_destroy(dialog);
 
 	GtkPrintOperation *op = gtk_print_operation_new();
 	gtk_print_operation_run(op, GTK_PRINT_OPERATION_ACTION_PRINT_DIALOG, GTK_WINDOW(window), NULL);
@@ -2716,12 +2713,12 @@ static void dialog_about() {
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
-			t3 = g_strdup_printf(_app("compiled in %s with gtk %d.%d.%d and glib %d.%d.%d and pango %s"),
+			t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
 				cVersion,
 				GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
 				GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
 				PANGO_VERSION_STRING),
-			t4 = g_strdup_printf(_app(" started with gtk %d.%d.%d and glib %d.%d.%d and pango %s"),
+			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
 				gtk_major_version, gtk_minor_version, gtk_micro_version,
 				glib_major_version, glib_minor_version, glib_micro_version,
 				pango_version_string())
@@ -2733,6 +2730,12 @@ static void dialog_about() {
 		"logo", pixbuf,
 		"license", _app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."),
 		"wrap-license", TRUE,
+		"authors", (const char *[]){
+			"Fabrice Creuzot (luigifab)",
+			"Valère Monseur (valr) / original software",
+			NULL,
+		},
+		"translator-credits", _app("translator-credits"),
 		NULL);
 
 	g_free(t1);

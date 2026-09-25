@@ -212,8 +212,8 @@ Section "Qt Core - :ENGINEVERSION: - ${ARCH} ${ARCHNAME}" SecEngine
 	SetOutPath "$INSTDIR"
 	File    "${ENGINE}\*.dll"
 
-
 	File /r "${ENGINE}\platforms"
+	File /r "${ENGINE}\imageformats"
 	File /r "${ENGINE}\share"
 SectionEnd
 

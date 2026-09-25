@@ -1,0 +1,20 @@
+Source: awf-adw
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 14), bash-completion, libnotify-dev (>= 0.7.0), libgtk-4-dev (>= 4.18.0), libadwaita-1-dev (>= 1.7.0)
+Rules-Requires-Root: no
+Standards-Version: 4.7.4
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-adw
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for Adwaita
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Adwaita.

@@ -213,7 +213,7 @@ Section "Qt Core - :ENGINEVERSION: - ${ARCH} ${ARCHNAME}" SecEngine
 	File    "${ENGINE}\*.dll"
 
 
-
+	File /r "${ENGINE}\imageformats"
 	File /r "${ENGINE}\share"
 SectionEnd
 

@@ -6,4 +6,4 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure -- --disable-gtk5 --disable-qt
+	dh_auto_configure -- --disable-adw --disable-gtk5 --disable-qt

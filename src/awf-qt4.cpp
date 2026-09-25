@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/20/09/2026
+ * Updated V/25/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -26,14 +26,14 @@
  *
  *
  * Translations update:
- *  https://github.com/qt/qttranslations/blob/v6.11.0/translations/qtbase_fr.ts
+ *  https://github.com/qt/qttranslations/blob/v5.15.2/translations/qtbase_fr.ts
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-*.c*
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
  *  Ubuntu 17.04 Zesty Zapus 32        (1536 MB) Qt 4.8
- *  Windows XP SP3 MinGW/msys          (2048 MB) Qt 4.8
+ *  Windows-XP-SP3 MinGW/msys          (2048 MB) Qt 4.8
  */
 
 #pragma GCC diagnostic push
@@ -257,13 +257,13 @@ public slots:
 	void run() { fn(); }
 };
 
-static inline bool qEnvironmentVariableIsSet(const char *name) {
-	return !qgetenv(name).isNull();
+static inline bool envVarIsSet(const char *name) {
+	return !qgetenv(name).isNull() && (QString::fromLocal8Bit(qgetenv(name)) != "0");
 }
 
 // global variables
-static bool awf_debug = qEnvironmentVariableIsSet("AWF_DEBUG");
-static bool awf_trace = qEnvironmentVariableIsSet("AWF_TRACE");
+static bool awf_debug = envVarIsSet("AWF_DEBUG");
+static bool awf_trace = envVarIsSet("AWF_TRACE");
 static bool awf_gqss  = false;
 constexpr std::nullptr_t null = nullptr;
 static QStringList list_system_theme;
@@ -300,7 +300,7 @@ static bool take_screenshot();
 static void create_window();
 static void create_widgets(AwfVBox *root);
 static void create_toolbar(AwfToolBar *toolbar);
-static void create_combos_entries(AwfVBox *root);
+static void create_entries(AwfVBox *root);
 static void create_spinbuttons(AwfHBox *root);
 static void create_checkbuttons(AwfVBox *root);
 static void create_radiobuttons(AwfVBox *root);
@@ -350,7 +350,7 @@ public:
 protected:
 	void changeEvent(QEvent *e) override {
 		// check current theme in menus on desktop theme change from globalqss style plugin
-		if (qEnvironmentVariableIsSet("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
+		if (envVarIsSet("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
 			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
@@ -534,7 +534,7 @@ int main(int argc, char **argv) {
 	QString appDir = QCoreApplication::applicationDirPath();
 	QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
 	QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-	//awf_gqss = qEnvironmentVariableIsSet("GQSS_SET");
+	//awf_gqss = envVarIsSet("GQSS_SET");
 
 	/* if (awf_gqss) { // not available
 
@@ -559,7 +559,7 @@ int main(int argc, char **argv) {
 		list_user_theme.sort();
 	} */
 
-	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/awf-qt4.mo)
+	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/<GETTEXT_PACKAGE>.mo)
 	list_language.append("en");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
 		load_languages(list_language, QDir(appDir).filePath("share/locale"));
@@ -658,8 +658,8 @@ int main(int argc, char **argv) {
 					.arg("-s <filename> ").arg(QString(_app("Run and save a screenshot on %1 (PNG).")).arg("SIGHUP"))
 					.arg("--ltr         ").arg(_app("Run with text from left to right (Left-To-Right)."))
 					.arg("--rtl         ").arg(_app("Run with text from right to left (Right-To-Left)."))
-					.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
-					.arg(QString(_app(" started with qt %1")).arg(qVersion()));
+					.arg(QString(_app("compiled in %1 with: qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
+					.arg(QString(_app(" started with: qt %1")).arg(qVersion()));
 				QByteArray helpUtf8 = help.toUtf8();
 				fwrite(helpUtf8.constData(), 1, helpUtf8.size(), stdout);
 				return (opt == '?') ? 1 : status;
@@ -729,7 +729,6 @@ static void awf_load_themes(QStringList& themes, QString directory) {
 
 		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
 		for (QString theme : entries) {
-			QDir test(dir.filePath(theme + "/qt" + QString::number(QT_VERSION_MAJOR)));
 			if (!themes.contains(theme) && QFileInfo(dir.filePath(theme + "/qt" + QString::number(QT_VERSION_MAJOR) + "/qt.qss")).isFile())
 				themes.append(theme);
 		}
@@ -804,7 +803,7 @@ static void update_theme(QString newTheme) {
 
 			qputenv("GQSS_RELOAD", "yes");
 			qputenv("GQSS_THEME", newTheme.toUtf8());
-			if (!qEnvironmentVariableIsSet("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
+			if (!envVarIsSet("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
 				QApplication::style()->polish(qApp);
 				QApplication::processEvents();
 			}
@@ -1096,6 +1095,7 @@ static void create_window() {
 	window = new AwfMainWindow;
 	window->setWindowTitle(_app("A widget factory - Qt %1.%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	window->setObjectName("AwfMainWindow");
+	window->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	window->installEventFilter(window);
 
 	#if defined (Q_OS_UNIX)
@@ -1250,7 +1250,7 @@ static void create_widgets(AwfVBox *root) { // todo
 		// column 1
 		hboxColumns->addLayout(vboxColumn1);
 			vboxColumn1->addLayout(vboxComboEntry);
-				create_combos_entries(vboxComboEntry);
+				create_entries(vboxComboEntry);
 			vboxColumn1->addLayout(hboxSpin);
 				create_spinbuttons(hboxSpin);
 			vboxColumn1->addLayout(hboxCheckRadio);
@@ -1386,8 +1386,8 @@ static void create_toolbar(AwfToolBar *toolbar) {
 		caller->fn = display_notification;
 		QObject::connect(tool6, SIGNAL(clicked()), caller, SLOT(run()));
 	#if defined (Q_OS_UNIX)
-		//if (QStandardPaths::findExecutable("notify-send").isEmpty())
-		tool6->setEnabled(true); // @todo
+		// @todo if (QStandardPaths::findExecutable("notify-send").isEmpty())
+		tool6->setEnabled(true);
 	#else
 		tool6->setEnabled(false);
 	#endif
@@ -1456,10 +1456,10 @@ static void create_toolbar(AwfToolBar *toolbar) {
 	progress8->setProperty("action", QVariant::fromValue<QObject*>(action2));
 }
 
-static void create_combos_entries(AwfVBox *root) {
+static void create_entries(AwfVBox *root) {
 
 	if (awf_trace)
-		printf("\033[36m[trace]\033[00m create_combos_entries()\n");
+		printf("\033[36m[trace]\033[00m create_entries()\n");
 
 	QComboBox *combo1, *combo2, *combo3, *combo4;
 	QLineEdit *entry1, *entry2, *entry3, *entry4;
@@ -2218,7 +2218,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	menu->installEventFilter(shortcutFilter);
 
 		// @todo option command line?
-		if (qEnvironmentVariableIsSet("AWF_TEAROFF"))
+		if (envVarIsSet("AWF_TEAROFF"))
 			menu->setTearOffEnabled(true);
 
 		create_menuitem(menu, get_icon("document-open"), _qt("QFileDialog", "&Open"), false, AWF_ACCEL_OPEN, AWF_OPEN, dialog_open);
@@ -2376,20 +2376,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	else if (list_user_theme.isEmpty())
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
-	// application language
-	QString current_language = QLocale::system().name();
-	menu = root->addMenu(_app("_Language"));
-
-		group = new QActionGroup(window);
-		group->setExclusive(true);
-
-		for (QString lang : list_language) {
-			menuitem = create_menuitem_radio(menu, lang, false, false, true, group);
-			if (current_language.startsWith(lang))
-				menuitem->setChecked(true);
-		}
-
-	// text direction
+	// application text direction
 	menu = root->addMenu(_app("_Text direction"));
 
 		group = new QActionGroup(window);
@@ -2410,6 +2397,19 @@ static void create_traditional_menubar(QMenuBar *root) {
 			caller = new AwfCall(menuitem);
 			caller->fn = [](){ update_text_direction(2); };
 			QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
+
+	// application language
+	QString current_language = QLocale::system().name();
+	menu = root->addMenu(_app("_Language"));
+
+		group = new QActionGroup(window);
+		group->setExclusive(true);
+
+		for (QString lang : list_language) {
+			menuitem = create_menuitem_radio(menu, lang, false, false, true, group);
+			if (current_language.startsWith(lang))
+				menuitem->setChecked(true);
+		}
 
 	// help
 	menu = root->addMenu(_qt("QWizard", "&Help"));
@@ -2680,9 +2680,18 @@ static bool accels_change(QObject *obj, QEvent *event) {
 					continue;
 
 				for (QAction *action : menu->actions()) {
-					if ((action != menuitem) && (action->shortcut() == seq)) {
-						action->setProperty("shortcutModified", true);
-						action->setShortcut(QKeySequence());
+
+					QList<QAction*> items;
+					if (action->menu())
+						items = action->menu()->actions();
+					else
+						items << action;
+
+					for (QAction *item : items) {
+						if ((item != menuitem) && (item->shortcut() == seq)) {
+							item->setProperty("shortcutModified", true);
+							item->setShortcut(QKeySequence());
+						}
 					}
 				}
 			}
@@ -2872,12 +2881,17 @@ static void dialog_about() {
 		default:      cppVersion = "C++" + QString::number(__cplusplus); break;
 	}
 
+	QString credits = "Copyright © 2020-2027 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)";
+	QString translators = _app("translator-credits");
+	if (translators != "translator-credits")
+		credits += "<br>" + _app("Translated by:") + " " + translators;
+
 	QString t1 = QString("%1<br><br>%2 %3<br><br>%4<br>%5<br><i><small>QT_QPA_PLATFORMTHEME=%6 QT_STYLE_OVERRIDE=%7</small></i>")
 		.arg(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."))
 		.arg(QString(_app("Remove %1 file")).arg("~/.awf-accels"))
 		.arg(_app("to reset keyboard shortcuts."))
-		.arg(QString(_app("compiled in %1 with qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
-		.arg(QString(_app(" started with qt %1")).arg(qVersion()))
+		.arg(QString(_app("compiled in %1 with: qt %2.%3.%4")).arg(cppVersion).arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR).arg(QT_VERSION_PATCH))
+		.arg(QString(_app(" started with: qt %1")).arg(qVersion()))
 		.arg(QString::fromUtf8(qgetenv("QT_QPA_PLATFORMTHEME")))
 		.arg(QString::fromUtf8(qgetenv("QT_STYLE_OVERRIDE")));
 
@@ -2886,7 +2900,7 @@ static void dialog_about() {
 		.arg(VERSION)
 		.arg(t1)
 		.arg("<a href=\"https://github.com/luigifab/awf-extended\">https://github.com/luigifab/awf-extended</a>")
-		.arg("Copyright © 2020-2027 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)")
+		.arg(credits)
 		.arg(_app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."));
 
 	QMessageBox::about(window, _qt("QCocoaMenuItem", "About"), t2);
@@ -3021,6 +3035,7 @@ static void dialog_calendar() {
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	dialog->setObjectName("AwfDialogWindow");
+	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 
 	// QCalendar
 	QCalendarWidget *calendar = new QCalendarWidget;
@@ -3052,6 +3067,7 @@ static void dialog_sliders() {
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	dialog->setObjectName("AwfDialogWindow");
+	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 
 	// QTabWidget
 	AwfTabWidget *notebook = new AwfTabWidget;

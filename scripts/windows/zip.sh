@@ -267,7 +267,16 @@ for engine in "4" "5" "6"; do
 		mv src/awf-qt$engine.exe ../qt$engine/
 		copydeps ../qt$engine/awf-qt$engine.exe ../qt$engine/ $ROOT/bin/
 
-		if [ $engine -ne 4 ]; then
+		if [ $engine -eq 4 ]; then
+			echo " - plugins/imageformats/qsvg4.dll"
+			mkdir -p ../qt$engine/imageformats
+			cp -a $ROOTPLUG/plugins/imageformats/qsvg4.dll ../qt$engine/imageformats/
+			copydeps ../qt$engine/imageformats/qsvg4.dll ../qt$engine/ $ROOT/bin/
+		else
+			echo " - plugins/imageformats/qsvg.dll"
+			mkdir -p ../qt$engine/imageformats
+			cp -a $ROOTPLUG/plugins/imageformats/qsvg.dll ../qt$engine/imageformats/
+			copydeps ../qt$engine/imageformats/qsvg.dll ../qt$engine/ $ROOT/bin/
 			echo " - plugins/platforms/qwindows.dll"
 			mkdir -p ../qt$engine/platforms
 			cp -a $ROOTPLUG/plugins/platforms/qwindows.dll ../qt$engine/platforms/
