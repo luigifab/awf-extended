@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -97,6 +97,7 @@
 #include <QStyledItemDelegate>
 #include <QTabWidget>
 #include <QTextCodec>
+#include <QTextDocument>
 #include <QTextEdit>
 #include <QTextStream>
 #include <QTime>
@@ -515,8 +516,10 @@ int main(int argc, char **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -546,8 +549,9 @@ int main(int argc, char **argv) {
 				awf_load_themes(list_system_theme, QDir(dir).filePath("themes"));
 		}
 
-		#ifdef Q_OS_WIN
-			awf_load_themes(list_system_theme, QDir::cleanPath(appDir + "/../share/themes"));
+		#if defined (Q_OS_WIN) || defined (_WIN32)
+			// from /ucrt64/bin/ to /ucrt64/share/themes
+			awf_load_themes(list_system_theme, QDir::cleanPath(QDir(appDir).filePath("../share/themes")));
 		#endif
 
 		list_system_theme.sort();
@@ -563,6 +567,7 @@ int main(int argc, char **argv) {
 	list_language.append("en");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
 		load_languages(list_language, QDir(appDir).filePath("share/locale"));
+		load_languages(list_language, QDir::cleanPath(QDir(appDir).filePath("../share/locale")));
 	#else
 		QByteArray xdgDataDirs = qgetenv("XDG_DATA_DIRS");
 		QString dataDirs = xdgDataDirs.isEmpty() ? "/usr/local/share/:/usr/share/" : QString::fromLocal8Bit(xdgDataDirs);
@@ -1103,14 +1108,12 @@ static void create_window() {
 		window->setWindowIcon(QIcon::fromTheme(GETTEXT_PACKAGE));
 	#elif defined (Q_OS_WIN) || defined (_WIN32)
 		HICON hIcon = (HICON) LoadImage(GetModuleHandle(nullptr), "IDI_ICON1", IMAGE_ICON, 48, 48, LR_DEFAULTSIZE);
-		ICONINFO iconInfo;
-		GetIconInfo(hIcon, &iconInfo);
-		QIcon icon(QPixmap::fromWinHBITMAP(iconInfo.hbmColor, QPixmap::PremultipliedAlpha));
-		DeleteObject(iconInfo.hbmColor);
-		DeleteObject(iconInfo.hbmMask);
-		QApplication::setWindowIcon(icon);
-		window->setWindowIcon(icon);
-		DestroyIcon(hIcon);
+		if (hIcon) {
+			QIcon icon(QPixmap::fromWinHICON(hIcon));
+			QApplication::setWindowIcon(icon);
+			window->setWindowIcon(icon);
+			DestroyIcon(hIcon);
+		}
 	#endif
 
 	// theme auto or from command line
@@ -2884,7 +2887,7 @@ static void dialog_about() {
 	QString credits = "Copyright © 2020-2027 Fabrice Creuzot (luigifab)<br>Copyright © 2011-2017 Valère Monseur (valr)";
 	QString translators = _app("translator-credits");
 	if (translators != "translator-credits")
-		credits += "<br>" + _app("Translated by:") + " " + translators;
+		credits += "<br>" + _app("Translated by:") + " " + Qt::escape(translators);
 
 	QString t1 = QString("%1<br><br>%2 %3<br><br>%4<br>%5<br><i><small>QT_QPA_PLATFORMTHEME=%6 QT_STYLE_OVERRIDE=%7</small></i>")
 		.arg(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."))

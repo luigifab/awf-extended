@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -528,8 +528,10 @@ int main(int argc, char **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -557,8 +559,9 @@ int main(int argc, char **argv) {
 				awf_load_themes(list_system_theme, QDir(dir).filePath("themes"));
 		}
 
-		#ifdef Q_OS_WIN
-			awf_load_themes(list_system_theme, QDir::cleanPath(appDir + "/../share/themes"));
+		#if defined (Q_OS_WIN) || defined (_WIN32)
+			// from /ucrt64/bin/ to /ucrt64/share/themes
+			awf_load_themes(list_system_theme, QDir::cleanPath(QDir(appDir).filePath("../share/themes")));
 		#endif
 
 		list_system_theme.sort(Qt::CaseInsensitive);
@@ -574,6 +577,7 @@ int main(int argc, char **argv) {
 	list_language.append("en");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
 		load_languages(list_language, QDir(appDir).filePath("share/locale"));
+		load_languages(list_language, QDir::cleanPath(QDir(appDir).filePath("../share/locale")));
 	#else
 		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
 			load_languages(list_language, QDir(dir).filePath("locale"));
@@ -1130,10 +1134,12 @@ static void create_window() {
 		window->setWindowIcon(QIcon::fromTheme(GETTEXT_PACKAGE));
 	#elif (defined (Q_OS_WIN) || defined (_WIN32)) && (QT_VERSION >= QT_VERSION_CHECK(5,2,0))
 		HICON hIcon = (HICON) LoadImage(GetModuleHandle(nullptr), "IDI_ICON1", IMAGE_ICON, 48, 48, LR_DEFAULTSIZE);
-		QIcon icon = QIcon(QtWin::fromHICON(hIcon));
-		QApplication::setWindowIcon(icon);
-		window->setWindowIcon(icon);
-		DestroyIcon(hIcon);
+		if (hIcon) {
+			QIcon icon = QIcon(QtWin::fromHICON(hIcon));
+			QApplication::setWindowIcon(icon);
+			window->setWindowIcon(icon);
+			DestroyIcon(hIcon);
+		}
 	#endif
 
 	// theme auto or from command line

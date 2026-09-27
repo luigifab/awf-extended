@@ -4,6 +4,8 @@
 
 A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.
 
+It's modern, but not too much.
+
 ## Screenshots
 
 GTK 2.24 (Pango 1.58)\
@@ -18,20 +20,20 @@ GTK 3.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 3 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl-menu.png)
 [<img alt="Preview with GTK 3 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl.png)
 
-GTK 4.12..4.24-classic (Pango 1.58)\
+GTK 4.8..4.24-classic (Pango 1.58)\
 [<img alt="Preview with GTK 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4.png)
 [<img alt="Preview with GTK 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl.png)
 
 GTK 4.18..4.24-classic with Adwaita 1.7..1.10 (Pango 1.58)\
-_Todo_
+_Same as GTK 4, but always with CSD window._
 
 GTK 5.0\
-_GtkWindow will be probably deprecated... lol_
+_GtkWindow will be probably deprecated... lol!_
 
 Qt 4.8\
-_Yes I can... lol_
+_Yes I can... lol!_
 
 Qt 5.15\
 [<img alt="Preview with Qt 5 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5.png)
@@ -45,7 +47,7 @@ Qt 6.10\
 [<img alt="Preview with Qt 6 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl-menu.png)
 [<img alt="Preview with Qt 6 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl.png)
 
-Theme used for the screenshots is available [here](https://github.com/luigifab/human-theme).
+The theme used for the screenshots is available [here](https://github.com/luigifab/human-theme).
 
 ## Tricks
 
@@ -60,7 +62,7 @@ Theme used for the screenshots is available [here](https://github.com/luigifab/h
 * Menu keyboard shortcuts can be updated on hover _(GTK 2.24 3.x + Qt 4.8 5.x 6.x, gtk-can-change-accels)_
 * Use `AWF_DEBUG=1` and `AWF_TRACE=1` to enable some debug messages
 * Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu _(GTK 2.24 3.x + Qt 4.8 5.x 6.x)_
-* Use `AWF_BREAKPOINTS=0` to disable break points with Adwaita
+* Use `AWF_BREAKPOINTS=0` to disable breakpoints with Adwaita
 * Use `GTK_OVERLAY_SCROLLING=0` to make scrollbars always visible _(GTK 3.16+ 4.x)_
 * Use `GTK_CSD=1` to enable CSD windows _(GTK 3.12+ 4.x)_
 * Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover (GTK)
@@ -89,10 +91,12 @@ Replace `apt`/`dnf` with your package manager, or use a graphical interface.
 
 #### Build from source
 
-* To compile with all available major versions of GTK and Qt available run: `build.sh`
+* To compile with all available major versions of GTK and Qt run: `build.sh`
 * To compile and create DEB packages for Debian & Ubuntu run: `scripts/debian-[adw|gtkx|qtx]/deb.sh`
 * To compile and create RPM packages for Fedora run: `scripts/fedora/rpm-[adw|gtkx|qtx].sh`
-* To compile and create EXE for Windows (XP) run: `scripts/windows/zip.sh`
+* To compile and create EXE programs for Windows (XP) run: `scripts/windows/zip.sh`
+
+Note that starting with v4.3.0, PNG icons are generated from the SVG icon at build time, so _rsvg-convert_ (or _ImageMagick_ on Windows) and a _sans-serif_ font are required.
 
 #### Install via PPA
 
@@ -139,6 +143,8 @@ For better results, use gtk3-classic.
 
 For better results, use gtk4-classic.
 
+For a huge performance and memory improvement, run the program with: `GDK_DISABLE=gl,vulkan GSK_RENDERER=cairo awf-gtk4` / `GSK_RENDERER=cairo awf-adw`. Edit your desktop/panel/menu launcher like this: `env GDK_DISABLE=gl,vulkan GSK_RENDERER=cairo awf-gtk4`. Be careful: with `cairo`, some font sizes are blurry.
+
 If font rendering is bad, try to add in `~/.config/gtk-4.0/settings.ini`:
 
 ```ini
@@ -150,11 +156,11 @@ gtk-xft-antialias=0
 gtk-xft-hinting=1
 ```
 
-With Adwaita, the program disables the stylesheet that libadwaita normally applies, so the selected GTK theme is used instead.
+With Adwaita, the program disables the stylesheet that _libadwaita_ normally applies, so the selected GTK theme is used instead.
 
 #### GTK 5
 
-From [migrating guide](https://docs.gtk.org/gtk4/migrating-4to5.html#non-standard-css-extensions-are-going-away): _non-standard CSS extensions are going away [...] @define-color should be replaced [...] the color functions can all be replaced by combinations of calc() and color-mix()_.
+From the [migration guide](https://docs.gtk.org/gtk4/migrating-4to5.html#non-standard-css-extensions-are-going-away): _non-standard CSS extensions are going away [...] @define-color should be replaced [...] the color functions can all be replaced by combinations of calc() and color-mix()_.
 
 I think it would be nice to create a patch to fix this GTK regression.
 
@@ -186,7 +192,7 @@ Without GlobalQSS, you can also run the program like this: `awf-qt5 -stylesheet 
 
 ## Dev
 
-To reload theme when source files change, you can use [Entr](https://github.com/eradman/entr) with the `SIGHUP` signal:
+To reload the theme when source files change, you can use [Entr](https://github.com/eradman/entr) with the `SIGHUP` signal:
 ```
 sudo apt install entr  or  sudo dnf install entr  or  sudo zypper install entr  or  ...
 ls ~/.themes/yourtheme/gtk-3*/*.css | entr killall -s SIGHUP awf-gtk3
@@ -195,7 +201,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20260925
+- Current version: 4.3.0~nightly20260927
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.0..5.15 / 6.0..6.11, Adwaita 1.7..1.10
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

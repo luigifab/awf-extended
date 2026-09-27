@@ -11,7 +11,9 @@ BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
+BuildRequires: dejavu-fonts
 BuildRequires: libnotify-devel >= 0.7.0
+BuildRequires: rsvg-convert
 BuildRequires: gcc
 BuildRequires: gettext
 BuildRequires: gtk5-devel

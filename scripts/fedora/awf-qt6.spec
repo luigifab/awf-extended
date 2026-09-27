@@ -11,6 +11,7 @@ BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
+BuildRequires: librsvg2-tools
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: qt6-qtbase-devel
@@ -20,6 +21,7 @@ Requires:      hicolor-icon-theme
 Recommends:    qt6-globalqss
 Recommends:    qt6-qtsvg
 Suggests:      libnotify >= 0.7.0
+
 
 
 %description %{expand:

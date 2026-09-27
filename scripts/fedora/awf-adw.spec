@@ -12,6 +12,7 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
 BuildRequires: libnotify-devel >= 0.7.0
+BuildRequires: librsvg2-tools
 BuildRequires: gcc
 BuildRequires: gettext
 BuildRequires: gtk4-devel >= 4.18.0
@@ -20,6 +21,7 @@ Requires:      gtk4 >= 4.18.0
 Requires:      libadwaita >= 1.7.0
 Requires:      hicolor-icon-theme
 Requires:      libnotify >= 0.7.0
+
 
 
 %description %{expand:

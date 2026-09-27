@@ -12,6 +12,7 @@ BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
+BuildRequires: librsvg
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: qt6-devel
@@ -21,6 +22,7 @@ Requires:      hicolor-icon-theme
 Recommends:    qt6-globalqss
 Recommends:    qtsvg6
 Suggests:      libnotify >= 0.7.0
+
 
 %description %{expand:
 A widget factory is a theme preview application for GTK and Qt. It

@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -249,8 +249,10 @@ int main(int argc, gchar **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -2484,7 +2486,7 @@ static void accels_load() {
 		g_rename(oldPath, path);
 	g_free(oldPath);
 
-	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// gtk-can-change-accels for GTK 2.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (g_file_test(path, G_FILE_TEST_IS_REGULAR))
 		gtk_accel_map_load(path);
 

@@ -3,11 +3,24 @@ bin_PROGRAMS =
 BUILT_SOURCES =
 CLEANFILES = $(BUILT_SOURCES)
 
-if ADW
+ICON_SIZES     = 16 22 24 32 48 64 128
+ICON_CONVERT   = -background none svg:- \( -clone 0 -resize 64x64 \) \( -clone 0 -resize 48x48 \) \( -clone 0 -resize 32x32 \) \( -clone 0 -resize 24x24 \) \( -clone 0 -resize 16x16 \) -delete 0
+ICON_COLOR_ADW = 9141AC
+ICON_COLOR_GTK = 09F
+ICON_COLOR_QT  = 2ED03C
+
+if ADWAITA
 bin_PROGRAMS += awf-adw
 awf_adw_SOURCES = awf-adw.c
-awf_adw_CPPFLAGS = $(ADW_CFLAGS) $(LIBNOTIFY_CFLAGS)
-awf_adw_LDADD = $(ADW_LIBS) $(LIBNOTIFY_LIBS)
+awf_adw_CPPFLAGS = $(ADWAITA_CFLAGS) $(LIBNOTIFY_CFLAGS)
+awf_adw_LDADD = $(ADWAITA_LIBS) $(LIBNOTIFY_LIBS)
+if WINDOWS
+awf_adw_LDADD += awf-adw-res.o
+awf-adw-res.o: awf.rc
+	sed -e 's/>0</>A</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_ADW)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-adw.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=ADW $< -o $@
+endif
 endif
 
 if GTK2
@@ -18,7 +31,9 @@ awf_gtk2_LDADD = $(GTK2_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
 awf_gtk2_LDADD += awf-gtk2-res.o
 awf-gtk2-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK2 $< -o $@
+	sed -e 's/>0</>2</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-gtk2.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=GTK2 $< -o $@
 endif
 endif
 
@@ -30,7 +45,9 @@ awf_gtk3_LDADD = $(GTK3_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
 awf_gtk3_LDADD += awf-gtk3-res.o
 awf-gtk3-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK3 $< -o $@
+	sed -e 's/>0</>3</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-gtk3.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=GTK3 $< -o $@
 endif
 endif
 
@@ -42,7 +59,9 @@ awf_gtk4_LDADD = $(GTK4_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
 awf_gtk4_LDADD += awf-gtk4-res.o
 awf-gtk4-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK4 $< -o $@
+	sed -e 's/>0</>4</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-gtk4.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=GTK4 $< -o $@
 endif
 endif
 
@@ -54,7 +73,9 @@ awf_gtk5_LDADD = $(GTK5_LIBS) $(LIBNOTIFY_LIBS)
 if WINDOWS
 awf_gtk5_LDADD += awf-gtk5-res.o
 awf-gtk5-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=GTK5 $< -o $@
+	sed -e 's/>0</>5</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-gtk5.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=GTK5 $< -o $@
 endif
 endif
 
@@ -70,7 +91,9 @@ awf_qt4_CXXFLAGS = -fPIC -std=gnu++11
 if WINDOWS
 awf_qt4_LDADD += awf-qt4-res.o -lintl
 awf-qt4-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT4 $< -o $@
+	sed -e 's/>0</>4</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-qt4.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=QT4 $< -o $@
 endif
 endif
 
@@ -86,7 +109,9 @@ awf_qt5_CXXFLAGS = -fPIC -std=c++17
 if WINDOWS
 awf_qt5_LDADD += awf-qt5-res.o -lintl
 awf-qt5-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT5 $< -o $@
+	sed -e 's/>0</>5</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-qt5.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=QT5 $< -o $@
 endif
 endif
 
@@ -102,7 +127,9 @@ awf_qt6_CXXFLAGS = -fPIC -std=c++17
 if WINDOWS
 awf_qt6_LDADD += awf-qt6-res.o -lintl
 awf-qt6-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT6 $< -o $@
+	sed -e 's/>0</>6</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-qt6.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=QT6 $< -o $@
 endif
 endif
 
@@ -118,15 +145,20 @@ awf_qt7_CXXFLAGS = -fPIC -std=c++17
 if WINDOWS
 awf_qt7_LDADD += awf-qt7-res.o -lintl
 awf-qt7-res.o: awf.rc
-	$(WINDRES) -c 65001 -DENGINE=QT7 $< -o $@
+	sed -e 's/>0</>7</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $(srcdir)/../data/awf.svg | \
+	$(CONVERT) $(ICON_CONVERT) $(srcdir)/awf-qt7.ico && \
+	$(WINDRES) -I$(srcdir) -c 65001 -DENGINE=QT7 $< -o $@
 endif
 endif
+
+clean-local:
+	rm -f awf-*.ico
 
 # install (desktop files)
 if !WINDOWS
 desktop_DATA =
 desktopdir = $(datadir)/applications
-if ADW
+if ADWAITA
 desktop_DATA += $(srcdir)/../data/awf-adw.desktop
 endif
 if GTK2
@@ -157,7 +189,7 @@ endif
 
 # install (man pages)
 man_MANS =
-if ADW
+if ADWAITA
 man_MANS += $(srcdir)/../data/awf-adw.1
 endif
 if GTK2
@@ -193,10 +225,25 @@ install-data-hook:
 		install -Dpm 644 $(srcdir)/../data/$$app.fr.1 $(DESTDIR)$(mandir)/fr/man1/$$app.1; \
 		install -Dpm 644 $(srcdir)/../data/$$app.ka.1 $(DESTDIR)$(mandir)/ka/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
-			install -Dpm 644 $(srcdir)/../data/icons/scalable/apps/awf.svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
-			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
-				install -Dpm 644 $(srcdir)/../data/icons/$$size/apps/awf.png $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
+			svg=$$app.tmp.svg; \
+			cp $(srcdir)/../data/awf.svg $$svg; \
+			case $$app in \
+				awf-adw)  sed -i -e 's/>0</>A</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_ADW)"/g' $$svg ;; \
+				awf-gtk2) sed -i -e 's/>0</>2</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $$svg ;; \
+				awf-gtk3) sed -i -e 's/>0</>3</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $$svg ;; \
+				awf-gtk4) sed -i -e 's/>0</>4</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $$svg ;; \
+				awf-gtk5) sed -i -e 's/>0</>5</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_GTK)"/g' $$svg ;; \
+				awf-qt4)  sed -i -e 's/>0</>4</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $$svg ;; \
+				awf-qt5)  sed -i -e 's/>0</>5</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $$svg ;; \
+				awf-qt6)  sed -i -e 's/>0</>6</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $$svg ;; \
+				awf-qt7)  sed -i -e 's/>0</>7</' -e 's/fill="#09F"/fill="#$(ICON_COLOR_QT)"/g' $$svg ;; \
+			esac; \
+			install -Dpm 644 $$svg $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
+			for size in $(ICON_SIZES); do \
+				install -dm 755 $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps; \
+				$(CONVERT) -w $$size -h $$size $$svg -o $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/$$app.png; \
 			done; \
+			rm -f $$svg; \
 		fi; \
 		for file in $(srcdir)/po/*.po; do \
 			code=`basename $$file .po`; \
@@ -212,8 +259,8 @@ uninstall-hook:
 		rm -f $(DESTDIR)$(mandir)/*/man1/$$app.1; \
 		if test -z "$(EXEEXT)"; then \
 			rm -f $(DESTDIR)$(datadir)/icons/hicolor/scalable/apps/$$app.svg; \
-			for size in 16x16 22x22 24x24 32x32 48x48 64x64 128x128; do \
-				rm -f $(DESTDIR)$(datadir)/icons/hicolor/$$size/apps/$$app.png; \
+			for size in $(ICON_SIZES); do \
+				rm -f $(DESTDIR)$(datadir)/icons/hicolor/$${size}x$${size}/apps/$$app.png; \
 			done; \
 		fi; \
 		for file in $(srcdir)/po/*.po; do \

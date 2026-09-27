@@ -33,8 +33,8 @@ RequestExecutionLevel admin
 !define MUI_LANGDLL_ALLLANGUAGES
 !define MUI_COMPONENTSPAGE_NODESC
 !define MUI_LICENSEPAGE_TEXT_TOP ""
-!define MUI_ICON "awf-extended-${VERSION}\data\awf.ico"
-!define MUI_UNICON "awf-extended-${VERSION}\data\awf.ico"
+!define MUI_ICON "awf-extended-${VERSION}\src\${APPNAME}.ico"
+!define MUI_UNICON "awf-extended-${VERSION}\src\${APPNAME}.ico"
 
 ; Pages
 !insertmacro MUI_PAGE_WELCOME

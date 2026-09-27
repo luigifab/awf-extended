@@ -204,10 +204,10 @@ AC_ARG_ENABLE([qt],
    enable_qt7=no],
   [])
 
-# gettext
+# gettext (for translations)
 AC_PATH_PROG([MSGFMT], [msgfmt])
 if test -z "$MSGFMT"; then
-  AC_MSG_ERROR([gettext/msgfmt not found (FATAL)])
+  AC_MSG_WARN([gettext/msgfmt not found (fatal for install)])
 fi
 
 # check if it's windows
@@ -219,9 +219,24 @@ case "`uname -s`" in
 esac
 AM_CONDITIONAL([WINDOWS], [test "x$windows" = "xyes"])
 
-AC_CHECK_TOOL([WINDRES], [windres])
-if test "x$windows" = "xyes" && test -z "$WINDRES"; then
-  AC_MSG_ERROR([windres not found (FATAL)])
+if test "x$windows" = "xyes"; then
+  AC_PATH_PROG([WINDRES], [windres])
+  if test -z "$WINDRES"; then
+    AC_MSG_ERROR([windres not found (FATAL)])
+  fi
+fi
+
+# imagemagick (for windows icons) or rsvg-convert (for icons)
+if test "x$windows" = "xyes"; then
+  AC_PATH_PROG([CONVERT], [convert])
+  if test -z "$CONVERT" || ! "$CONVERT" -version 2>/dev/null | grep -q ImageMagick; then
+    AC_MSG_ERROR([imagemagick/convert not found (FATAL)])
+  fi
+else
+  AC_PATH_PROG([CONVERT], [rsvg-convert])
+  if test -z "$CONVERT"; then
+    AC_MSG_WARN([rsvg-convert not found (fatal for install)])
+  fi
 fi
 
 # C & libnotify / C++
@@ -270,14 +285,14 @@ if test "x$enable_qt4" = "xyes" || test "x$enable_qt5" = "xyes" || test "x$enabl
 fi
 
 # ADW
-PKG_CHECK_MODULES(ADW, libadwaita-1 >= 1.7.0, ADW_SUFFIX=1, ADW_SUFFIX=-1)
+PKG_CHECK_MODULES(ADWAITA, libadwaita-1 >= 1.7.0, ADW_SUFFIX=1, ADW_SUFFIX=-1)
 if test "x$enable_adw" = "xyes"; then
   if test "x$only_adw" = "xyes" && test "x$ADW_SUFFIX" != "x1"; then
-    AC_MSG_ERROR([ADW not found (FATAL)])
+    AC_MSG_ERROR([ADWAITA not found (FATAL)])
   fi
-  AM_CONDITIONAL([ADW], [test "x$ADW_SUFFIX" = "x1"])
+  AM_CONDITIONAL([ADWAITA], [test "x$ADW_SUFFIX" = "x1"])
 else
-  AM_CONDITIONAL([ADW], [false])
+  AM_CONDITIONAL([ADWAITA], [false])
 fi
 
 # GTK 2

@@ -11,6 +11,8 @@ BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
+BuildRequires: dejavu-fonts
+BuildRequires: rsvg-convert
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: hicolor-icon-theme

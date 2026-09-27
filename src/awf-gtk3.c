@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -240,8 +240,10 @@ int main(int argc, gchar **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -995,12 +997,25 @@ static gboolean take_screenshot() { // without window borders
 		g_printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
 	gboolean result = FALSE;
-	int width = 0, height = 0;
+	int width = 0, height = 0, top = 0, left = 0;
 
 	GdkWindow *root = gtk_widget_get_window(window);
 	gtk_window_get_size(GTK_WINDOW(window), &width, &height);
 
-	GdkPixbuf *image = gdk_pixbuf_get_from_window(root, 0, 0, width, height);
+	#if GTK_CHECK_VERSION (3,16,0)
+		// remove headerbar from screenshot (3.16 not 3.12)
+		if (awf_csd) {
+			GtkWidget *titlebar = gtk_window_get_titlebar(GTK_WINDOW(window));
+			if (gtk_widget_get_visible(titlebar)) {
+				GtkAllocation alloc;
+				gtk_widget_get_allocation(titlebar, &alloc);
+				left = alloc.x;
+				top  = alloc.y + alloc.height;
+			}
+		}
+	#endif
+
+	GdkPixbuf *image = gdk_pixbuf_get_from_window(root, left, top, width, height);
 
 	if (image) {
 		GError *error = NULL;
@@ -1068,10 +1083,8 @@ static void create_window(gpointer app) {
 				// except for custom dialogs
 				g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
+				GtkWidget *headerbar = gtk_header_bar_new(), *button;
 				gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
-
-				GtkWidget *button;
-				GtkWidget *headerbar = gtk_header_bar_new();
 				gtk_header_bar_set_title(GTK_HEADER_BAR(headerbar), gtk_window_get_title(GTK_WINDOW(window)));
 				gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(headerbar), FALSE);
 				gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbar), TRUE);
@@ -2865,7 +2878,7 @@ static void accels_load() {
 		g_rename(oldPath, path);
 	g_free(oldPath);
 
-	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (g_file_test(path, G_FILE_TEST_IS_REGULAR))
 		gtk_accel_map_load(path);
 

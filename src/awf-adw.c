@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -128,7 +128,8 @@ static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
 static GList *list_language = NULL;
 static GMenu *menuwrap = NULL;
-static GtkWidget *window = NULL, *menubar = NULL, *scroll = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
+static GtkWidget *headerbar = NULL, *menubar = NULL, *scroll = NULL;
+static GtkWidget *window = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
 static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
 static GtkWidget *scale1 = NULL, *scale2 = NULL, *scale3 = NULL, *scale4 = NULL, *scale5 = NULL, *scale6 = NULL;
@@ -219,8 +220,10 @@ int main(int argc, gchar **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -927,19 +930,41 @@ static gboolean take_screenshot() { // without window borders
 		g_printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
 	gboolean result = FALSE;
+	graphene_rect_t bounds;
 	GdkPaintable *paintable = gtk_widget_paintable_new(window);
-	int width = gdk_paintable_get_intrinsic_width(paintable), height = gdk_paintable_get_intrinsic_height(paintable);
+	int width = gdk_paintable_get_intrinsic_width(paintable), height = gdk_paintable_get_intrinsic_height(paintable), top = 0;
+
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
+	GtkBorder padding = { 0 };
+	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
+	G_GNUC_END_IGNORE_DEPRECATIONS
+
+	// remove extra spaces for screenshot
+	GtkWidget *child = adw_application_window_get_content(ADW_APPLICATION_WINDOW(window));
+	if (gtk_widget_compute_bounds(child, window, &bounds)) {
+		width  = (int) (bounds.origin.x + bounds.size.width - 3); // @todo why -3 ?
+		height = (int) (bounds.origin.y + bounds.size.height);
+	}
+	// find the window padding
+	gtk_style_context_get_padding(context, &padding);
 
 	GtkSnapshot *snapshot = gtk_snapshot_new();
 	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
-	gtk_snapshot_render_background(snapshot, gtk_widget_get_style_context(GTK_WIDGET(window)), 0, 0, (double)width, (double)height);
+	gtk_snapshot_render_background(snapshot, context,
+		-padding.left, -padding.top,
+		width + padding.left + padding.right, height + padding.top + padding.bottom);
 	G_GNUC_END_IGNORE_DEPRECATIONS
+
 	GTK_WIDGET_GET_CLASS(GTK_WIDGET(window))->snapshot(GTK_WIDGET(window), snapshot);
 	GskRenderNode *node = gtk_snapshot_free_to_node(snapshot);
 
 	if (node) {
+		// remove headerbar from screenshot
+		if (gtk_widget_get_visible(headerbar) && gtk_widget_compute_bounds(headerbar, window, &bounds))
+			top = (int) (bounds.origin.y + bounds.size.height);
+
 		GskRenderer *renderer = gtk_native_get_renderer(GTK_NATIVE(window));
-		graphene_rect_t bounds = GRAPHENE_RECT_INIT(0, 0, (float)width, (float)height);
+		bounds = GRAPHENE_RECT_INIT(0, (float) top, (float) width, (float) (height - top));
 		GdkTexture *texture = gsk_renderer_render_texture(renderer, node, &bounds);
 		result = gdk_texture_save_to_png(texture, opt_screenshot);
 		g_object_unref(texture);
@@ -1008,7 +1033,7 @@ static void create_window(GtkApplication *app) {
 			g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
 			GtkWidget *button;
-			GtkWidget *headerbar = adw_header_bar_new();
+			headerbar = adw_header_bar_new();
 
 			gchar *tokens; // minimize, maximize, close, icon, menu
 			g_object_get(gtk_widget_get_settings(headerbar), "gtk-decoration-layout", &tokens, NULL);
@@ -1065,7 +1090,8 @@ static void create_window(GtkApplication *app) {
 			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), headerbar);
 		}
 		else {
-			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), adw_header_bar_new());
+			headerbar = adw_header_bar_new();
+			adw_toolbar_view_add_top_bar(ADW_TOOLBAR_VIEW(vboxWindow), headerbar);
 		}
 
 		if (awf_brkps) {
@@ -3098,7 +3124,7 @@ static void accels_save() { // todo
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		// @todo
 	}
@@ -3185,6 +3211,17 @@ static void dialog_about() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
 
+	GdkPixbuf *pixbuf = NULL;
+	GdkPaintable *logo = NULL;
+	#if defined (G_OS_WIN32)
+		extern GdkPixbuf *gdk_win32_icon_to_pixbuf_libgtk_only(HICON hicon);
+		HICON hIcon = (HICON) LoadImage(GetModuleHandle(NULL), "IDI_ICON1", IMAGE_ICON, 64, 64, LR_DEFAULTSIZE);
+		if (hIcon)
+			pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
+		if (pixbuf)
+			logo = GDK_PAINTABLE(gdk_texture_new_for_pixbuf(pixbuf));
+	#endif
+
 	gchar *cVersion;
 	#ifdef __STDC_VERSION__
 		if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
@@ -3200,7 +3237,7 @@ static void dialog_about() {
 	gchar *t1, *t2, *t3, *t4;
 	adw_show_about_dialog(window,
 		"application-name", "awf-adw",
-		"application-icon", GETTEXT_PACKAGE,
+		"application-icon", GETTEXT_PACKAGE, // @todo logo
 		"version", VERSION,
 		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s",
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
@@ -3234,6 +3271,16 @@ static void dialog_about() {
 	g_free(t2);
 	g_free(t3);
 	g_free(t4);
+
+	#if defined (G_OS_WIN32)
+		if (hIcon) {
+			if (logo)
+				g_object_unref(logo);
+			if (pixbuf)
+				g_object_unref(pixbuf);
+			DestroyIcon(hIcon);
+		}
+	#endif
 }
 
 static void dialog_inspector() {

@@ -1,7 +1,7 @@
 #!/bin/bash
-# Debian: sudo apt install build-essential dh-make dh-autoreconf pkgconf intltool libnotify-dev libgtk2.0-dev libgtk-3-dev libgtk-4-dev libgtk-5-dev qtbase5-dev qt6-base-dev qt7-base-dev libnotify-bin libadwaita-1-dev
-# Fedora: sudo dnf install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-qtbase-devel qt6-qtbase-devel qt7-qtbase-devel libadwaita-devel
-# openSUSE: sudo zypper install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-base-devel qt6-base-devel qt7-base-devel libadwaita-devel
+# Debian: sudo apt install build-essential dh-make dh-autoreconf pkgconf intltool libnotify-dev libgtk2.0-dev libgtk-3-dev libgtk-4-dev libgtk-5-dev qtbase5-dev qt6-base-dev qt7-base-dev libnotify-bin libadwaita-1-dev librsvg2-bin
+# Fedora: sudo dnf install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-qtbase-devel qt6-qtbase-devel qt7-qtbase-devel libadwaita-devel librsvg2-tools
+# openSUSE: sudo zypper install autoconf automake libnotify-devel gtk2-devel gtk3-devel gtk4-devel gtk5-devel desktop-file-utils qt5-base-devel qt6-base-devel qt7-base-devel libadwaita-devel rsvg-convert
 #
 # supported options for build.sh/configure.ac
 #  none
@@ -39,13 +39,12 @@ cp src/awf-adw*.c    builder/src/
 cp src/awf-gtk*.c    builder/src/
 cp src/awf-qt*.cpp   builder/src/
 cp src/awf.rc        builder/src/
-# for windows
-cp data/awf.ico      builder/data/
+# for icons
+cp data/awf.*        builder/data/
 # for make install
 cp data/awf*.bash    builder/data/
 cp data/awf*.desktop builder/data/
 cp data/awf*.1       builder/data/
-cp -r data/icons     builder/data/
 
 # build
 cd builder/

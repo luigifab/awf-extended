@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated V/25/09/2026
+ * Updated D/27/09/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -59,7 +59,7 @@
  *  Ubuntu 11.04 Natty Narwhal 32      (1024 MB) GTK 2.24/3.0  + GLIB 2.28 + Pango 1.28
  *  Windows XP SP3 MinGW/msys          (2048 MB) GTK 2.24 + GLIB 2.28 + Pango 1.29  &  GTK 3.6 + GLIB 2.34 + Pango 1.30
  *
- * This source file is working with GTK 4.0+ and GLIB 2.66+ (like GTK 4.0.0)
+ * This source file is working with GTK 4.0+ and GLIB 2.68+ (2.66 like GTK 4.0.0, 2.68 for g_string_replace)
  */
 
 #pragma GCC diagnostic push
@@ -231,8 +231,10 @@ int main(int argc, gchar **argv) {
 		// enable console on Windows
 		if ((awf_debug || awf_trace || (argc > 1)) && AttachConsole(ATTACH_PARENT_PROCESS)) {
 			SetConsoleOutputCP(CP_UTF8);
-			freopen("CONOUT$", "w", stdout);
-			freopen("CONOUT$", "w", stderr);
+			if (GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stdout);
+			if (GetFileType(GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN)
+				freopen("CONOUT$", "w", stderr);
 		}
 
 		// enable ANSI/VT colors on Windows
@@ -909,19 +911,44 @@ static gboolean take_screenshot() { // without window borders
 		g_printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
 	gboolean result = FALSE;
+	graphene_rect_t bounds;
 	GdkPaintable *paintable = gtk_widget_paintable_new(window);
-	int width = gdk_paintable_get_intrinsic_width(paintable), height = gdk_paintable_get_intrinsic_height(paintable);
+	int width = gdk_paintable_get_intrinsic_width(paintable), height = gdk_paintable_get_intrinsic_height(paintable), top = 0;
+
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
+	GtkBorder padding = { 0 };
+	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
+	G_GNUC_END_IGNORE_DEPRECATIONS
+
+	if (awf_csd) {
+		// remove extra spaces for screenshot
+		GtkWidget *child = gtk_window_get_child(GTK_WINDOW(window));
+		if (gtk_widget_compute_bounds(child, window, &bounds)) {
+			width  = (int) (bounds.origin.x + bounds.size.width);
+			height = (int) (bounds.origin.y + bounds.size.height);
+		}
+		// find the window padding
+		gtk_style_context_get_padding(context, &padding);
+	}
 
 	GtkSnapshot *snapshot = gtk_snapshot_new();
 	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
-	gtk_snapshot_render_background(snapshot, gtk_widget_get_style_context(GTK_WIDGET(window)), 0, 0, (double)width, (double)height);
+	gtk_snapshot_render_background(snapshot, context,
+		-padding.left, -padding.top,
+		width + padding.left + padding.right, height + padding.top + padding.bottom);
 	G_GNUC_END_IGNORE_DEPRECATIONS
+
 	GTK_WIDGET_GET_CLASS(GTK_WIDGET(window))->snapshot(GTK_WIDGET(window), snapshot);
 	GskRenderNode *node = gtk_snapshot_free_to_node(snapshot);
 
 	if (node) {
+		// remove headerbar from screenshot
+		GtkWidget *titlebar = gtk_window_get_titlebar(GTK_WINDOW(window));
+		if (titlebar && gtk_widget_get_visible(titlebar) && gtk_widget_compute_bounds(titlebar, window, &bounds))
+			top = (int) (bounds.origin.y + bounds.size.height);
+
 		GskRenderer *renderer = gtk_native_get_renderer(GTK_NATIVE(window));
-		graphene_rect_t bounds = GRAPHENE_RECT_INIT(0, 0, (float)width, (float)height);
+		bounds = GRAPHENE_RECT_INIT(0, (float) top, (float) width, (float) (height - top));
 		GdkTexture *texture = gsk_renderer_render_texture(renderer, node, &bounds);
 		result = gdk_texture_save_to_png(texture, opt_screenshot);
 		g_object_unref(texture);
@@ -987,10 +1014,8 @@ static void create_window(GtkApplication *app) {
 			// except for custom dialogs
 			g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
+			GtkWidget *headerbar = gtk_header_bar_new(), *button;
 			gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
-
-			GtkWidget *button;
-			GtkWidget *headerbar = gtk_header_bar_new();
 			gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(headerbar), TRUE);
 
 			gchar *tokens; // minimize, maximize, close, icon, menu
@@ -2871,7 +2896,7 @@ static void accels_save() { // todo
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
-	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		// @todo
 	}
@@ -3018,11 +3043,14 @@ static void dialog_about() {
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
 
 	GdkPixbuf *pixbuf = NULL;
+	GdkPaintable *logo = NULL;
 	#if defined (G_OS_WIN32)
-		//extern GdkPixbuf *gdk_win32_icon_to_pixbuf_libgtk_only(HICON hicon);
+		extern GdkPixbuf *gdk_win32_icon_to_pixbuf_libgtk_only(HICON hicon);
 		HICON hIcon = (HICON) LoadImage(GetModuleHandle(NULL), "IDI_ICON1", IMAGE_ICON, 64, 64, LR_DEFAULTSIZE);
-		//if (hIcon)
-		//	pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
+		if (hIcon)
+			pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
+		if (pixbuf)
+			logo = GDK_PAINTABLE(gdk_texture_new_for_pixbuf(pixbuf));
 	#endif
 
 	gchar *cVersion;
@@ -3056,9 +3084,9 @@ static void dialog_about() {
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
-		"logo", pixbuf,
-		"icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
-		"logo-icon-name", pixbuf ? NULL : GETTEXT_PACKAGE,
+		"logo", logo,
+		"icon-name", logo ? NULL : GETTEXT_PACKAGE,
+		"logo-icon-name", logo ? NULL : GETTEXT_PACKAGE,
 		"license", _app("A widget factory is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the free software foundation, either version 3 of the license, or (at your option) any later version."),
 		"wrap-license", TRUE,
 		"authors", (const char *[]){
@@ -3076,6 +3104,8 @@ static void dialog_about() {
 
 	#if defined (G_OS_WIN32)
 		if (hIcon) {
+			if (logo)
+				g_object_unref(logo);
 			if (pixbuf)
 				g_object_unref(pixbuf);
 			DestroyIcon(hIcon);

@@ -12,6 +12,8 @@ BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
+BuildRequires: fonts-ttf-dejavu
+BuildRequires: librsvg
 BuildRequires: gcc-c++
 BuildRequires: gettext
 BuildRequires: qt5-devel

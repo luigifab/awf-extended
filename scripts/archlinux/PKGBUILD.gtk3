@@ -6,6 +6,7 @@ url='https://github.com/luigifab/awf-extended'
 license=('GPL3')
 arch=('x86_64')
 depends=('gtk3' 'libnotify>=0.7.0' 'hicolor-icon-theme')
+makedepends=('librsvg' 'ttf-dejavu')
 #makedepends=('autoconf' 'automake' 'desktop-file-utils' 'gcc' 'gettext' 'gtk3')
 conflicts=('awf-git')
 source=("https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz")

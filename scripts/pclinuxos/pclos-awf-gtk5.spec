@@ -13,12 +13,14 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
 BuildRequires: libnotify-devel >= 0.7.0
+BuildRequires: librsvg
 BuildRequires: gcc
 BuildRequires: gettext
 BuildRequires: gtk5-devel
 Requires:      gtk5
 Requires:      hicolor-icon-theme
 Requires:      libnotify >= 0.7.0
+
 
 
 

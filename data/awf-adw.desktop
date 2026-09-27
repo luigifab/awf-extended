@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=AWF ADW
+Name=AWF Adwaita
 Comment=A widget factory is a theme preview application for GTK and Qt.
 Comment[fr]=La fabrique à widgets est une application d'aperçu de thème pour GTK et Qt.
 Exec=awf-adw

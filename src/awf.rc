@@ -1,5 +1,6 @@
 #include <winver.h>
 
+#define ADW  01
 #define GTK2 12
 #define GTK3 13
 #define GTK4 14
@@ -8,33 +9,45 @@
 #define QT5  25
 #define QT6  26
 #define QT7  27
-#if ENGINE == GTK2
+#if ENGINE == ADW
+# define EXE_NAME "awf-adw\0"
+# define EXE_FILE "awf-adw.exe\0"
+# define ICO_FILE "awf-adw.ico"
+#elif ENGINE == GTK2
 # define EXE_NAME "awf-gtk2\0"
 # define EXE_FILE "awf-gtk2.exe\0"
+# define ICO_FILE "awf-gtk2.ico"
 #elif ENGINE == GTK3
 # define EXE_NAME "awf-gtk3\0"
 # define EXE_FILE "awf-gtk3.exe\0"
+# define ICO_FILE "awf-gtk3.ico"
 #elif ENGINE == GTK4
 # define EXE_NAME "awf-gtk4\0"
 # define EXE_FILE "awf-gtk4.exe\0"
+# define ICO_FILE "awf-gtk4.ico"
 #elif ENGINE == GTK5
 # define EXE_NAME "awf-gtk5\0"
 # define EXE_FILE "awf-gtk5.exe\0"
+# define ICO_FILE "awf-gtk5.ico"
 #elif ENGINE == QT4
 # define EXE_NAME "awf-qt4\0"
 # define EXE_FILE "awf-qt4.exe\0"
+# define ICO_FILE "awf-qt4.ico"
 #elif ENGINE == QT5
 # define EXE_NAME "awf-qt5\0"
 # define EXE_FILE "awf-qt5.exe\0"
+# define ICO_FILE "awf-qt5.ico"
 #elif ENGINE == QT6
 # define EXE_NAME "awf-qt6\0"
 # define EXE_FILE "awf-qt6.exe\0"
+# define ICO_FILE "awf-qt6.ico"
 #elif ENGINE == QT7
 # define EXE_NAME "awf-qt7\0"
 # define EXE_FILE "awf-qt7.exe\0"
+# define ICO_FILE "awf-qt7.ico"
 #endif
 
-IDI_ICON1 ICON "../data/awf.ico"
+IDI_ICON1 ICON ICO_FILE
 
 VS_VERSION_INFO VERSIONINFO
   FILEVERSION    4,3,0,0

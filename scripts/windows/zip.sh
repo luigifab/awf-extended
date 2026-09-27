@@ -31,32 +31,35 @@
 #	copy ./Qt*.pc in C:\QT4\lib\pkgconfig
 #
 # 5/ download pkg.m4 from https://raw.githubusercontent.com/pkgconf/pkgconf/refs/heads/master/pkg.m4
-#    put the file pkg.m4 in C:\MinGW\msys\1.0\share\aclocal
+#	put the file pkg.m4 in C:\MinGW\msys\1.0\share\aclocal
 #
-# 6/ download and install NSIS from https://sourceforge.net/projects/nsis/files/
+# 6/ download ImageMagick from https://imagemagick.en.uptodown.com/windows/download/22214
+#	only install in C:\ImageMagick
+#
+# 7/ download and install NSIS from https://sourceforge.net/projects/nsis/files/
 #
 #
 # To manually build with GTK2 run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
-#  export PATH=/c/GTK2/bin:$PATH
+#  export PATH=/c/GTK2/bin:/c/ImageMagick:$PATH
 #  export PKG_CONFIG_PATH=/c/GTK2/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows" --enable-only-gtk2
 #
 # To manually build with GTK3 run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
-#  export PATH=/c/GTK3/bin:$PATH
+#  export PATH=/c/GTK3/bin:/c/ImageMagick:$PATH
 #  export PKG_CONFIG_PATH=/c/GTK3/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows" --enable-only-gtk3
 #
 # To manually build with QT4 run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
-#  export PATH=/c/QT4/bin:$PATH
+#  export PATH=/c/QT4/bin:/c/ImageMagick:$PATH
 #  export PKG_CONFIG_PATH=/c/QT4/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows" --enable-only-qt4
 #
 # To manually build with QT5 run: C:\MinGW\msys\1.0\msys.bat
 #  cd /c/awf-gtk
-#  export PATH=/c/QT5/bin:$PATH
+#  export PATH=/c/QT5/bin:/c/ImageMagick:$PATH
 #  export PKG_CONFIG_PATH=/c/QT5/lib/pkgconfig
 #  bash build.sh LDFLAGS="-mwindows" --enable-only-qt5
 #
@@ -166,7 +169,7 @@ for engine in "2" "3" "4"; do
 		fi
 	fi
 
-	export PATH=$ROOT/bin:/c/Program\ Files/NSIS:$PATH
+	export PATH=$ROOT/bin:/c/ImageMagick:/c/Program\ Files/NSIS:$PATH
 	export PKG_CONFIG_PATH=$ROOT/lib/pkgconfig
 	export PKG_CONFIG_LIBDIR=$ROOT/lib/pkgconfig
 	autoreconf -fi && ./configure $host LDFLAGS="-mwindows" CFLAGS="-O2 -DNDEBUG" --enable-only-gtk$engine && make -s
@@ -252,7 +255,7 @@ for engine in "4" "5" "6"; do
 		fi
 	fi
 
-	export PATH=$ROOT/bin:/c/Program\ Files/NSIS:$PATH
+	export PATH=$ROOT/bin:/c/ImageMagick:/c/Program\ Files/NSIS:$PATH
 	export PKG_CONFIG_PATH=$ROOT/lib/pkgconfig
 	export PKG_CONFIG_LIBDIR=$ROOT/lib/pkgconfig
 	autoreconf -fi && ./configure $host LDFLAGS="-mwindows" CXXFLAGS="-O2 -DNDEBUG" --enable-only-qt$engine && sed -i 's/-lQt5\([A-Za-z]*\)d\b/-lQt5\1/g' src/Makefile && make -s
