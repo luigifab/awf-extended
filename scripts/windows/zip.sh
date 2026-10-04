@@ -14,7 +14,6 @@
 #
 #	download gtk+-bundle_3.6.4-20130513_win32.zip from https://tarnyko.net/dl/gtk3.htm
 #	extract the archive in C:\GTK3
-#	copy C:\GTK3\share\themes\Default to C:\GTK3\share\themes\gtk-win32-xp
 #
 # 3/ download qt-opensource-windows-x86-mingw482_opengl-5.3.2.exe from https://download.qt.io/archive/qt/5.3/5.3.2/
 #	install in C:\tempQT

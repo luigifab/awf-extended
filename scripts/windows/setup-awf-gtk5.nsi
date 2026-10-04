@@ -25,7 +25,11 @@ VIAddVersionKey  "OriginalFilename" "setup-${APPNAME}-${VERSION}-${ARCH}.exe"
 
 Name "${APPNAME}"
 OutFile "setup-${APPNAME}-${VERSION}-${ARCH}.exe"
-InstallDir "$PROGRAMFILES\${APPNAME}"
+!if "${ARCH}" == "x86"
+	InstallDir "$PROGRAMFILES\${APPNAME}"
+!else
+	InstallDir "$PROGRAMFILES64\${APPNAME}"
+!endif
 InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APPNAME}" "InstallLocation"
 RequestExecutionLevel admin
 

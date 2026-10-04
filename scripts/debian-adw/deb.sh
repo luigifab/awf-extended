@@ -5,7 +5,7 @@
 cd "$(dirname "$0")" || exit 1
 export DH_QUIET=1
 version="4.3.0"
-
+engine="adw"
 
 mkdir -p builder
 rm -rf builder/*
@@ -31,10 +31,10 @@ else
 fi
 
 
-# create packages for Debian and Ubuntu and MX Linux
-for serie in experimental unstable stonking resolute mx25; do
+# build binary packages for Debian and source packages for Ubuntu
+for serie in experimental stonking resolute; do
 
-	printf "\n\n#################################################################### $serie ## awf-adw\n\n"
+	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"
 	if [ $serie = "experimental" ]; then
 		# copy for Ubuntu
 		cp -a builder/awf-extended-$version/ builder/awf-extended-$version+src/
@@ -48,21 +48,18 @@ for serie in experimental unstable stonking resolute mx25; do
 		cd builder/awf-extended-$serie-$version/
 	fi
 
-	dh_make -s -y -f ../awf-extended-$version.tar.gz -p awf-adw
+	dh_make -s -y -f ../awf-extended-$version.tar.gz -p awf-$engine
 
 	rm -rf debian/*/*ex debian/*ex debian/*EX debian/README* debian/*doc*
-	cp scripts/debian-adw/* debian/
-	rm -f debian/*.sh
+	cp scripts/debian/* debian/
+	cp scripts/debian-$engine/* debian/
+	rm -f debian/*.sh debian/*.ubuntu debian/*.debian
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata
 
 
-
 	# debhelper: experimental:14 ubuntu:13 focal:12 bionic:9 xenial:9 trusty:9
-	if [ $serie = "experimental" ]; then
-		mv debian/control.ubuntu debian/control # yes
-	elif [ $serie = "unstable" ]; then
+	if [ $serie = "experimental" ] || [ $serie = "unstable" ]; then
 		mv debian/control.debian debian/control
-
 	elif [ $serie = "focal" ]; then
 		mv debian/control.ubuntu debian/control
 		sed -i 's/debhelper-compat (= 14)/debhelper-compat (= 12)/g' debian/control
@@ -95,19 +92,12 @@ for serie in experimental unstable stonking resolute mx25; do
 		sed -i 's/-1) /-1~'$serie'+1) /' debian/changelog
 		sed -i 's/ experimental; / mx; /' debian/changelog
 		sed -i 's/ unstable; / mx; /' debian/changelog
-
-	elif [ $serie = "experimental" ]; then
-		mv debian/changelog.debian debian/changelog
-
-	elif [ $serie = "unstable" ]; then
-		mv debian/changelog.debian debian/changelog
+	elif [ $serie = "experimental" ] || [ $serie = "unstable" ]; then
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
-
-		sed -i '/Priority:/d;/Rules-Requires-Root:/d' debian/control
+		mv debian/changelog.debian debian/changelog
 	else
 		sed -i 's/ experimental; / '$serie'; /g' debian/changelog
 		sed -i 's/-1) /-1+'$serie') /' debian/changelog
-
 	fi
 	rm -f debian/*.mx debian/*.debian debian/*.ubuntu
 
@@ -115,7 +105,7 @@ for serie in experimental unstable stonking resolute mx25; do
 		echo "===================== build package ($serie) =="
 		dpkg-buildpackage -us -uc
 		echo "=========================== lintian ($serie) =="
-		lintian -EviIL +pedantic ../awf-adw_$version*.changes
+		lintian -EviIL +pedantic ../awf-${engine}_$version*.changes
 		rm ../*amd64.changes
 	fi
 
@@ -126,10 +116,10 @@ for serie in experimental unstable stonking resolute mx25; do
 
 	if [ $serie = "experimental" ] || [ $serie = "unstable" ]; then
 		echo "=========================== debsign ($serie) =="
-		debsign awf-adw*$version-*_source.changes
+		debsign awf-$engine*$version-*_source.changes
 	else
 		echo "=========================== debsign ($serie) =="
-		debsign awf-adw*$version*$serie*source.changes
+		debsign awf-$engine*$version*$serie*source.changes
 	fi
 	cd ..
 done

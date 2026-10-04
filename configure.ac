@@ -1,10 +1,12 @@
 # supported options
 #  none
 # OR
-#  --disable-adw --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
-#                --disable-gtk                                                             --disable-qt
+#  --disable-adw --disable-hdy --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
+#                              --disable-gtk                                                             --disable-qt
 # OR
 #  --enable-only-adw
+# OR
+#  --enable-only-hdy
 # OR
 #  --enable-only-gtk2
 # OR
@@ -29,11 +31,15 @@ AC_PROG_CC
 AC_PROG_CXX
 PKG_PROG_PKG_CONFIG
 
-# --disable-adw --disable-gtkx --disable-qtx
+# --disable-adw --disable-hdy --disable-gtkx --disable-qtx
 AC_ARG_ENABLE([adw],
   AS_HELP_STRING([--disable-adw], [disable adw (default: enabled if available)]),
   [enable_adw=no],
   [enable_adw=yes])
+AC_ARG_ENABLE([hdy],
+  AS_HELP_STRING([--disable-hdy], [disable hdy (default: enabled if available)]),
+  [enable_hdy=no],
+  [enable_hdy=yes])
 AC_ARG_ENABLE([gtk2],
   AS_HELP_STRING([--disable-gtk2], [disable gtk2 (default: enabled if available)]),
   [enable_gtk2=no],
@@ -67,7 +73,7 @@ AC_ARG_ENABLE([qt7],
   [enable_qt7=no],
   [enable_qt7=yes])
 
-# --enable-only-adw --enable-only-gtkx --enable-only-qtx
+# --enable-only-adw --enable-only-hdy --enable-only-gtkx --enable-only-qtx
 AC_ARG_ENABLE([only-adw],
   AS_HELP_STRING([--enable-only-adw], [only enable adw]),
   [only_adw=yes
@@ -76,6 +82,21 @@ AC_ARG_ENABLE([only-adw],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=yes
+   enable_hdy=no
+   enable_qt4=no
+   enable_qt5=no
+   enable_qt6=no
+   enable_qt7=no],
+  [])
+AC_ARG_ENABLE([only-hdy],
+  AS_HELP_STRING([--enable-only-hdy], [only enable hdy]),
+  [only_hdy=yes
+   enable_gtk2=no
+   enable_gtk3=no
+   enable_gtk4=no
+   enable_gtk5=no
+   enable_adw=no
+   enable_hdy=yes
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -89,6 +110,7 @@ AC_ARG_ENABLE([only-gtk2],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -102,6 +124,7 @@ AC_ARG_ENABLE([only-gtk3],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -115,6 +138,7 @@ AC_ARG_ENABLE([only-gtk4],
    enable_gtk4=yes
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -128,6 +152,7 @@ AC_ARG_ENABLE([only-gtk5],
    enable_gtk4=no
    enable_gtk5=yes
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -141,6 +166,7 @@ AC_ARG_ENABLE([only-qt4],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=yes
    enable_qt5=no
    enable_qt6=no
@@ -154,6 +180,7 @@ AC_ARG_ENABLE([only-qt5],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=yes
    enable_qt6=no
@@ -167,6 +194,7 @@ AC_ARG_ENABLE([only-qt6],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=yes
@@ -180,6 +208,7 @@ AC_ARG_ENABLE([only-qt7],
    enable_gtk4=no
    enable_gtk5=no
    enable_adw=no
+   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -205,6 +234,7 @@ AC_ARG_ENABLE([qt],
   [])
 
 # gettext (for translations)
+AC_SEARCH_LIBS([libintl_gettext], [intl])
 AC_PATH_PROG([MSGFMT], [msgfmt])
 if test -z "$MSGFMT"; then
   AC_MSG_WARN([gettext/msgfmt not found (fatal for install)])
@@ -260,6 +290,15 @@ if test "x$enable_adw" = "xyes"; then
   fi
 fi
 
+if test "x$enable_hdy" = "xyes"; then
+  compiler=$(command -v ${CC%% *})
+  if test "x$only_hdy" = "xyes" && test "x$compiler" = "x"; then
+    AC_MSG_ERROR([C compiler not found (FATAL)])
+  elif test "x$compiler" = "x"; then
+    enable_hdy=no
+  fi
+fi
+
 if test "x$enable_gtk2" = "xyes" || test "x$enable_gtk3" = "xyes" || test "x$enable_gtk4" = "xyes" || test "x$enable_gtk5" = "xyes"; then
   compiler=$(command -v ${CC%% *})
   if test "x$only_gtk" = "xyes" && test "x$compiler" = "x"; then
@@ -293,6 +332,17 @@ if test "x$enable_adw" = "xyes"; then
   AM_CONDITIONAL([ADWAITA], [test "x$ADW_SUFFIX" = "x1"])
 else
   AM_CONDITIONAL([ADWAITA], [false])
+fi
+
+# HDY
+PKG_CHECK_MODULES(HANDY, libhandy-1, HDY_SUFFIX=1, HDY_SUFFIX=-1)
+if test "x$enable_hdy" = "xyes"; then
+  if test "x$only_hdy" = "xyes" && test "x$HDY_SUFFIX" != "x1"; then
+    AC_MSG_ERROR([HANDY not found (FATAL)])
+  fi
+  AM_CONDITIONAL([HANDY], [test "x$HDY_SUFFIX" = "x1"])
+else
+  AM_CONDITIONAL([HANDY], [false])
 fi
 
 # GTK 2

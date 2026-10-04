@@ -21,6 +21,7 @@ jobs:
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-make
             mingw-w64-x86_64-gettext
+            mingw-w64-x86_64-imagemagick
             mingw-w64-x86_64-gtk2
             mingw-w64-x86_64-gtk3
             mingw-w64-x86_64-gtk4

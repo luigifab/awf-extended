@@ -1,0 +1,20 @@
+Source: awf-hdy
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 14), bash-completion, librsvg2-bin, libnotify-dev (>= 0.7.0), libgtk-3-dev (>= 3.24.1), libhandy-1-dev
+Rules-Requires-Root: no
+Standards-Version: 4.7.4
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-hdy
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for Handy
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Handy.

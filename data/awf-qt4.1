@@ -1,4 +1,4 @@
-.Dd 06/09/26
+.Dd 2026-10-04
 .Dt AWF 1
 .Os Linux
 .Sh NAME
@@ -17,7 +17,7 @@ A widget factory is a theme preview application for GTK and Qt. It
 displays the various widget types in a single window allowing to see
 the visual effect of the applied theme.
 .Sh OPTIONS
-.Bl -tag
+.Bl -tag -width Ds
 .It Fl h , Fl Fl help
 Show help.
 .It Fl v , Fl Fl version
@@ -39,8 +39,8 @@ Run with text from right to left (Right-To-Left).
 Configuration of keyboard shortcuts.
 .El
 .Sh ENVIRONMENT VARIABLES
-.Bl -tag -width "QT_X11_NO_NATIVE_MENUBAR=" -compact
-.It QT_X11_NO_NATIVE_MENUBAR=
+.Bl -tag -width "QT_X11_NO_NATIVE_MENUBAR=1" -compact
+.It QT_X11_NO_NATIVE_MENUBAR=1
 Disable the Ubuntu global menu.
 .It AWF_DEBUG=1
 Enable some debug messages.

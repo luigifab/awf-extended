@@ -14,26 +14,26 @@ GTK 2.24 (Pango 1.58)\
 [<img alt="Preview with GTK 2 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk2-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk2-rtl-menu.png)
 [<img alt="Preview with GTK 2 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk2-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk2-rtl.png)
 
-GTK 3.24-classic (Pango 1.58)\
+GTK 3.24-classic (with or without Handy 1.0..1.8, Pango 1.58)\
 [<img alt="Preview with GTK 3 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3.png)
 [<img alt="Preview with GTK 3 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-menu.png)
 [<img alt="Preview with GTK 3 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl-menu.png)
 [<img alt="Preview with GTK 3 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk3-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk3-rtl.png)
 
-GTK 4.8..4.24-classic (Pango 1.58)\
+GTK 4.8..4.24-classic (with or without Adwaita 1.7..1.10, Pango 1.58)\
 [<img alt="Preview with GTK 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4.png)
 [<img alt="Preview with GTK 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl-menu.png)
 [<img alt="Preview with GTK 4 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl.png)
 
-GTK 4.18..4.24-classic with Adwaita 1.7..1.10 (Pango 1.58)\
-_Same as GTK 4, but always with CSD window._
-
 GTK 5.0\
 _GtkWindow will be probably deprecated... lol!_
 
 Qt 4.8\
-_Yes I can... lol!_
+[<img alt="Preview with Qt 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4.png)
+[<img alt="Preview with Qt 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-menu.png)
+[<img alt="Preview with Qt 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-rtl-menu.png)
+[<img alt="Preview with Qt 4 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-rtl.png)
 
 Qt 5.15\
 [<img alt="Preview with Qt 5 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5.png)
@@ -41,7 +41,7 @@ Qt 5.15\
 [<img alt="Preview with Qt 5 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl-menu.png)
 [<img alt="Preview with Qt 5 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl.png)
 
-Qt 6.10\
+Qt 6.11\
 [<img alt="Preview with Qt 6 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6.png)
 [<img alt="Preview with Qt 6 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-menu.png)
 [<img alt="Preview with Qt 6 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl-menu.png)
@@ -63,8 +63,8 @@ The theme used for the screenshots is available [here](https://github.com/luigif
 * Use `AWF_DEBUG=1` and `AWF_TRACE=1` to enable some debug messages
 * Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu _(GTK 2.24 3.x + Qt 4.8 5.x 6.x)_
 * Use `AWF_BREAKPOINTS=0` to disable breakpoints with Adwaita
-* Use `GTK_OVERLAY_SCROLLING=0` to make scrollbars always visible _(GTK 3.16+ 4.x)_
 * Use `GTK_CSD=1` to enable CSD windows _(GTK 3.12+ 4.x)_
+* Use `GTK_OVERLAY_SCROLLING=0` to set scrollbars always visible _(GTK 3.16+ 4.x)_
 * Use `UBUNTU_MENUPROXY=` on Ubuntu to allow updating menu keyboard shortcuts on hover (GTK)
 * Use `QT_X11_NO_NATIVE_MENUBAR=1` on Ubuntu to allow updating menu keyboard shortcuts on hover (Qt)
 
@@ -76,27 +76,29 @@ Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, the
 
 For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.24)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
+For Handy, it requires **GTK 3.24+**, *Handy 1.0+*, *GLIB 2.44+*, *libnotify 0.7+*.
+
 For Adwaita, it requires **GTK 4.18+** *(including 4.24)*, *Adwaita 1.7+*, *GLIB 2.68+*, *libnotify 0.7+*.
 
-For Qt, it requires **Qt 4.8** or **Qt 5.0+** *(including 5.15)* or **Qt 6.0+** *(including 6.11)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
+For Qt, it requires **Qt 4.8** or **Qt 5.2+** *(including 5.15)* or **Qt 6.0+** *(including 6.12)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
 > The road is long, but the way is free — we always have a choice.
 
 #### Install via package manager
 
-* `sudo apt install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6`
-* `sudo dnf install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6`
+* `sudo apt install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6`
+* `sudo dnf install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6`
 
 Replace `apt`/`dnf` with your package manager, or use a graphical interface.
 
 #### Build from source
 
 * To compile with all available major versions of GTK and Qt run: `build.sh`
-* To compile and create DEB packages for Debian & Ubuntu run: `scripts/debian-[adw|gtkx|qtx]/deb.sh`
-* To compile and create RPM packages for Fedora run: `scripts/fedora/rpm-[adw|gtkx|qtx].sh`
+* To compile and create DEB packages for Debian & Ubuntu run: `scripts/debian[-adw|-hdy|-gtkx|-qtx]/deb.sh`
+* To compile and create RPM packages for Fedora run: `scripts/fedora/rpm-[adw|hdy|gtkx|qtx].sh`
 * To compile and create EXE programs for Windows (XP) run: `scripts/windows/zip.sh`
 
-Note that starting with v4.3.0, PNG icons are generated from the SVG icon at build time, so _rsvg-convert_ (or _ImageMagick_ on Windows) and a _sans-serif_ font are required.
+Starting from version 4.3.0, PNG icons are generated from the SVG icon at build time, so _rsvg-convert_ (or _ImageMagick_ on Windows) and a sans-serif font are required.
 
 #### Install via PPA
 
@@ -105,22 +107,22 @@ Note that starting with v4.3.0, PNG icons are generated from the SVG icon at bui
 
 sudo add-apt-repository ppa:luigifab/packages
 sudo apt update
-sudo apt install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
+sudo apt install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
 # or
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys FFE5BD439356DF7D
 echo "deb http://ppa.launchpad.net/luigifab/packages/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 sudo apt update
-sudo apt install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
+sudo apt install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
 # or
 sudo wget -O /etc/apt/trusted.gpg.d/luigifab.gpg https://www.luigifab.fr/apt.gpg
 echo "deb http://ppa.launchpad.net/luigifab/packages/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 sudo apt update
-sudo apt install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
+sudo apt install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
 # or
 wget -qO - https://www.luigifab.fr/apt.gpg | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/luigifab.gpg
 echo "deb http://ppa.launchpad.net/luigifab/packages/ubuntu focal main" | sudo tee -a /etc/apt/sources.list
 sudo apt update
-sudo apt install awf-adw awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
+sudo apt install awf-adw awf-hdy awf-gtk2 awf-gtk3 awf-gtk4 awf-qt5 awf-qt6
 
 # ... and for full installation
 sudo apt install qt5-gtk-platformtheme qt5-style-globalqss qttranslations5-l10n qt6-gtk-platformtheme qt6-style-globalqss qt6-svg-plugins qt6-translations-l10n libnotify-bin
@@ -131,6 +133,9 @@ sudo apt install qt5-gtk-platformtheme qt5-style-globalqss qttranslations5-l10n 
 /etc/apt/trusted.gpg.d/luigifab.gpg
 pub   rsa4096 2020-10-31 [SC]
       458B 0C46 D024 FD8C B8BC  99CD FFE5 BD43 9356 DF7D
+
+# for awf-qt4-static
+# https://launchpad.net/~luigifab/+archive/ubuntu/static-packages
 ```
 
 ## Known issues
@@ -143,7 +148,7 @@ For better results, use gtk3-classic.
 
 For better results, use gtk4-classic.
 
-For a huge performance and memory improvement, run the program with: `GDK_DISABLE=gl,vulkan GSK_RENDERER=cairo awf-gtk4` / `GSK_RENDERER=cairo awf-adw`. Edit your desktop/panel/menu launcher like this: `env GDK_DISABLE=gl,vulkan GSK_RENDERER=cairo awf-gtk4`. Be careful: with `cairo`, some font sizes are blurry.
+For a huge performance and memory improvement, run the program like this: `env GDK_DISABLE=gl,vulkan GSK_RENDERER=cairo awf-gtk4` / `env GSK_RENDERER=cairo awf-adw`. Be careful: with `cairo`, some font sizes are blurry.
 
 If font rendering is bad, try to add in `~/.config/gtk-4.0/settings.ini`:
 
@@ -169,6 +174,8 @@ I think it would be nice to create a patch to fix this GTK regression.
 Only for fun.
 
 #### Qt 5
+
+For a huge memory improvement, run the program like this: `env QT_XCB_GL_INTEGRATION=none awf-qt5`.
 
 On Fedora with Qt 5, the GTK 3 platform theme _(qt5-qtbase-gui)_ works better than on Debian _(qt5-gtk-platformtheme)_, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509).
 
@@ -201,8 +208,8 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20260927
-- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.0..5.15 / 6.0..6.11, Adwaita 1.7..1.10
+- Current version: 4.3.0~nightly20261004
+- Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 
 This program is provided under the terms of the **GNU GPLv3+** license.\

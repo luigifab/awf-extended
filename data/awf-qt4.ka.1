@@ -1,7 +1,7 @@
-.Dd 16/09/26
+.Dd 2026-10-04
 .Dt AWF 1
 .Os Linux
-.Sh NOM
+.Sh NAME
 .Nm awf-qt4
 .Nd Theme preview application for Qt 4.
 .Sh SYNOPSIS
@@ -17,7 +17,7 @@ A widget factory თემების მინიატურის აპლ�
 და Qt. ის აჩვენებს სხვადასხვა ვიჯეტის ტიპებს ერთ ფანჯარაში, რითიც
 საშუალებას გაძლევთ, დაინახოთ გამოყენებული თემის ვიზუალური ეფექტი.
 .Sh OPTIONS
-.Bl -tag
+.Bl -tag -width Ds
 .It Fl h , Fl Fl help
 Show help.
 .It Fl v , Fl Fl version
@@ -39,8 +39,8 @@ Show help.
 Configuration of keyboard shortcuts.
 .El
 .Sh ENVIRONMENT VARIABLES
-.Bl -tag -width "QT_X11_NO_NATIVE_MENUBAR=" -compact
-.It QT_X11_NO_NATIVE_MENUBAR=
+.Bl -tag -width "QT_X11_NO_NATIVE_MENUBAR=1" -compact
+.It QT_X11_NO_NATIVE_MENUBAR=1
 Disable the Ubuntu global menu.
 .It AWF_DEBUG=1
 Enable some debug messages.

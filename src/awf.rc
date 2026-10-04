@@ -1,6 +1,7 @@
 #include <winver.h>
 
 #define ADW  01
+#define HDY  02
 #define GTK2 12
 #define GTK3 13
 #define GTK4 14
@@ -13,6 +14,10 @@
 # define EXE_NAME "awf-adw\0"
 # define EXE_FILE "awf-adw.exe\0"
 # define ICO_FILE "awf-adw.ico"
+#elif ENGINE == HDY
+# define EXE_NAME "awf-hdy\0"
+# define EXE_FILE "awf-hdy.exe\0"
+# define ICO_FILE "awf-hdy.ico"
 #elif ENGINE == GTK2
 # define EXE_NAME "awf-gtk2\0"
 # define EXE_FILE "awf-gtk2.exe\0"

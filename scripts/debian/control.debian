@@ -1,0 +1,62 @@
+Source: awf-gtk
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 14), bash-completion, librsvg2-bin, libnotify-dev (>= 0.7.0), libgtk-3-dev, libgtk-4-dev, qt6-base-dev, libadwaita-1-dev (>= 1.7.0), libhandy-1-dev
+Rules-Requires-Root: no
+Standards-Version: 4.7.4
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-gtk3
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for GTK 3
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for GTK 3.
+
+Package: awf-gtk4
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for GTK 4
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for GTK 4.
+
+Package: awf-qt6
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: qt6-gtk-platformtheme, qt6-translations-l10n, qt6-svg-plugins
+Suggests: libnotify-bin
+Description: theme preview application for Qt 6
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Qt 6.
+
+Package: awf-adw
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for Adwaita
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Adwaita.
+
+Package: awf-hdy
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: theme preview application for Handy
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Handy.

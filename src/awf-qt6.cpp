@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/27/09/2026
+ * Updated D/04/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -32,7 +32,7 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) Qt 5.15/6.10
+ *  Debian Testing 64                  (1536 MB) Qt 5.15/6.11
  *  Fedora Rawhide 64                  (1536 MB) Qt 5.15/6.11
  *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) Qt 5.15/6.10
  *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) Qt 5.15/6.9
@@ -42,11 +42,13 @@
  *  Ubuntu 23.10 Mantic Minotaur 64    (3072 MB) Qt 5.15/6.4
  *  Ubuntu 23.04 Lunar Lobster 64      (3072 MB) Qt 5.15/6.4
  *  Ubuntu 22.10 Kinetic Kudu 64       (2176 MB) Qt 5.15/6.3
- *  Windows-XP-SP3 MinGW/msys          (2048 MB) Qt 5.3
+ *
+ * This source file is working with Qt 6.0+
  */
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wsfinae-incomplete"
 #include <functional>
 #if defined (Q_OS_WIN) || defined (_WIN32)
 	#undef _WIN32_WINNT
@@ -251,11 +253,12 @@ static inline bool envVarIsSet(const char *name) {
 // global variables
 static bool awf_debug = envVarIsSet("AWF_DEBUG");
 static bool awf_trace = envVarIsSet("AWF_TRACE");
+static bool awf_sheet = false;
 static bool awf_gqss  = false;
+static bool awf_gqss2 = false;
 constexpr std::nullptr_t null = nullptr;
 static QStringList list_system_theme;
 static QStringList list_user_theme;
-static QStringList list_language;
 static QMainWindow *window = null;
 static QDialog *inspector = null;
 static QLineEdit *toolbarentry = null;
@@ -266,13 +269,12 @@ static int current_direction    = 0;
 static QString current_theme    = "auto";
 static QString opt_theme        = "auto";
 static QString opt_screenshot   = "";
-static QString original_style   = "";
+static QString original_sheet   = "";
 static bool allow_update_values = true;
 static bool must_save_accels    = false;
 
 // global functions
 static QIcon get_icon(QString name);
-static void load_languages(QStringList& languages, QString directory);
 static void awf_load_themes(QStringList& themes, QString directory);
 static void update_text_direction(int direction);
 static void update_theme(QString newTheme);
@@ -321,6 +323,22 @@ static void dialog_calendar();
 static void dialog_sliders();
 
 
+// globalqss v1 (environment variables) or v2 (qApp properties)
+static bool gqss_isset(const char *name) {
+	return awf_gqss2 ? qApp->property(name).toBool() : envVarIsSet(name);
+}
+
+static QString gqss_get(const char *name) {
+	return awf_gqss2 ? qApp->property(name).toString() : QString::fromUtf8(qgetenv(name));
+}
+
+static void gqss_set(const char *name, QString value) {
+	if (awf_gqss2)
+		qApp->setProperty(name, value);
+	else
+		qputenv(name, value.toUtf8());
+}
+
 // other
 
 class AwfMainWindow : public QMainWindow {
@@ -337,8 +355,8 @@ public:
 protected:
 	void changeEvent(QEvent *e) override {
 		// check current theme in menus on desktop theme change from globalqss style plugin
-		if (envVarIsSet("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
-			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
+		if (gqss_isset("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
+			QString newTheme = gqss_get("GQSS_THEME");
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
 			find_and_check_menu(menuBar()->actions().mid(1), newTheme);
@@ -495,6 +513,7 @@ public:
 
 int main(int argc, char **argv) {
 
+	bool nodisplay = false;
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m main()\n");
 
@@ -516,12 +535,18 @@ int main(int argc, char **argv) {
 		DWORD mode = 0;
 		if ((hOut != INVALID_HANDLE_VALUE) && GetConsoleMode(hOut, &mode))
 			SetConsoleMode(hOut, mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+	#else
+		if (qgetenv("DISPLAY").isEmpty() && qgetenv("WAYLAND_DISPLAY").isEmpty() && qgetenv("QT_QPA_PLATFORM").isEmpty()) {
+			qputenv("QT_QPA_PLATFORM", "offscreen");
+			nodisplay = true;
+		}
 	#endif
 
 	int opt = 0, status = 0;
 	QApplication app(argc, argv);
 	QString appDir = QCoreApplication::applicationDirPath();
-	awf_gqss = envVarIsSet("GQSS_SET");
+	awf_gqss2 = qApp->property("GQSS_SET").toBool();
+	awf_gqss = awf_gqss2 || envVarIsSet("GQSS_SET");
 
 	if (awf_gqss) {
 
@@ -547,36 +572,30 @@ int main(int argc, char **argv) {
 		list_user_theme.sort(Qt::CaseInsensitive);
 	}
 
-	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/<GETTEXT_PACKAGE>.mo)
-	list_language.append("en");
-	#if defined (Q_OS_WIN) || defined (_WIN32)
-		load_languages(list_language, QDir(appDir).filePath("share/locale"));
-		load_languages(list_language, QDir::cleanPath(QDir(appDir).filePath("../share/locale")));
-	#else
-		for (QString dir : QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation))
-			load_languages(list_language, QDir(dir).filePath("locale"));
-	#endif
-	list_language.sort(Qt::CaseInsensitive);
-
 	// qt locale
 	QLocale::setDefault(QLocale::system());
+	QString transDir1 = QLibraryInfo::path(QLibraryInfo::TranslationsPath),
+	        transDir2 = QDir(appDir).filePath("translations"),
+	        lang = QLocale::system().name();
 
 	QTranslator *qtTr = new QTranslator(qApp);
-	if (qtTr->load("qt_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+	if (qtTr->load("qt_" + lang, transDir1))
 		qApp->installTranslator(qtTr);
-	else if (qtTr->load("qt_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
+	else if (qtTr->load("qt_" + lang, transDir2))
 		qApp->installTranslator(qtTr);
 
 	QTranslator *qtBaseTr = new QTranslator(qApp);
-	if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
+	if (qtBaseTr->load("qtbase_" + lang, transDir1))
 		qApp->installTranslator(qtBaseTr);
-	else if (qtBaseTr->load("qtbase_" + QLocale::system().name(), QDir(appDir).filePath("translations")))
+	else if (qtBaseTr->load("qtbase_" + lang, transDir2))
 		qApp->installTranslator(qtBaseTr);
 
 	// awf locale
 	setlocale(LC_ALL, "");
 	#if defined (Q_OS_WIN) || defined (_WIN32)
 		bindtextdomain(GETTEXT_PACKAGE, (QDir(appDir).filePath("share/locale")).toLocal8Bit().constData());
+	#else
+		bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -653,6 +672,9 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (nodisplay)
+		qFatal("Could not connect to display");
+
 	// --rtl via -reverse/--reverse
 	if ((current_direction == 0) && (qApp->layoutDirection() == Qt::RightToLeft))
 		current_direction = 3;
@@ -692,25 +714,6 @@ static QIcon get_icon(QString name) {
 		icon = qApp->style()->standardIcon(map.value(name, QStyle::SP_FileIcon));
 
 	return icon;
-}
-
-static void load_languages(QStringList& languages, QString directory) {
-
-	if (awf_trace)
-		printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory.toUtf8().constData());
-
-	QDir dir(directory);
-	if (dir.exists()) {
-
-		if (awf_debug)
-			printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory.toUtf8().constData());
-
-		QStringList entries = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-		for (QString lang : entries) {
-			if (!languages.contains(lang) && QFileInfo(dir.filePath(lang + "/LC_MESSAGES/" GETTEXT_PACKAGE ".mo")).isFile())
-				languages.append(lang);
-		}
-	}
 }
 
 static void awf_load_themes(QStringList& themes, QString directory) {
@@ -755,7 +758,7 @@ static void update_text_direction(int direction) {
 
 static void update_theme(QString newTheme) {
 
-	if (awf_gqss) {
+	if (awf_gqss || awf_sheet) {
 
 		if (awf_trace)
 			printf("\033[36m[trace]\033[00m update_theme(%s)*\n", newTheme.toUtf8().constData());
@@ -764,8 +767,13 @@ static void update_theme(QString newTheme) {
 
 		if (newTheme == "refresh") {
 
-			qputenv("GQSS_RELOAD", "yes");
-			QApplication::style()->polish(qApp);
+			if (awf_gqss) {
+				gqss_set("GQSS_RELOAD", "yes");
+				QApplication::style()->polish(qApp);
+			}
+			else if (current_theme == "-stylesheet") {
+				qApp->setStyleSheet(original_sheet);
+			}
 
 			update_notebooks();
 			window->setMinimumHeight(0);
@@ -788,7 +796,7 @@ static void update_theme(QString newTheme) {
 		}
 		else if (newTheme == "auto") {
 
-			current_theme = QString::fromUtf8(qgetenv("GQSS_THEME"));
+			current_theme = gqss_get("GQSS_THEME");
 			window->adjustSize();
 
 			if (awf_debug)
@@ -798,11 +806,17 @@ static void update_theme(QString newTheme) {
 
 			current_theme = newTheme;
 
-			qputenv("GQSS_RELOAD", "yes");
-			qputenv("GQSS_THEME", newTheme.toUtf8());
-			if (!envVarIsSet("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
-				QApplication::style()->polish(qApp);
-				QApplication::processEvents();
+			if (awf_gqss) {
+				gqss_set("GQSS_RELOAD", "yes");
+				gqss_set("GQSS_THEME", newTheme);
+				if (!gqss_isset("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
+					QApplication::style()->polish(qApp);
+					QApplication::processEvents();
+				}
+			}
+			else {
+				// apply None theme or restore -stylesheet theme
+				qApp->setStyleSheet((current_theme == "None") ? "" : original_sheet);
 			}
 
 			if (notebook1)
@@ -818,8 +832,6 @@ static void update_theme(QString newTheme) {
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m update_theme_after3: %s\n", current_theme.toUtf8().constData());
 		}
-
-		original_style = "!^!";
 	}
 }
 
@@ -834,7 +846,7 @@ static void update_statusbar(QString message) {
 		statusbar->showMessage(QTime::currentTime().toString("HH:mm:ss") + " - " + message, 0);
 
 		QVariantAnimation *anim = new QVariantAnimation(statusbar);
-		anim->setStartValue(QColor(255,255,0,255)); // yellow
+		anim->setStartValue(QColor(QStringLiteral("#" AWF_COLOR)));
 		anim->setEndValue(window->palette().color(QPalette::Window));
 		anim->setDuration(1000);
 		QObject::connect(anim, &QVariantAnimation::valueChanged, [statusbar](const QVariant &value) {
@@ -1109,6 +1121,19 @@ static void create_window() {
 	#endif
 
 	// theme auto or from command line
+	QString qssSheet = qApp->styleSheet();
+	if (qssSheet.startsWith("file:///")) {
+		QString qssFile = qssSheet.mid(8);
+		QFileInfo f(qssFile);
+		if (f.isFile() && f.isReadable()) {
+			awf_sheet = true;
+			current_theme  = "-stylesheet";
+			original_sheet = qssSheet;
+			if (!awf_gqss)
+				list_system_theme.push_front("None");
+		}
+	}
+
 	if (awf_gqss)
 		update_theme((current_theme == opt_theme) ? current_theme : opt_theme);
 
@@ -1151,7 +1176,7 @@ static void create_window() {
 	update_text_direction(current_direction);
 
 	#if defined (Q_OS_UNIX)
-		if (awf_gqss)
+		if (awf_gqss || awf_sheet)
 			std::signal(SIGHUP, on_sighup);
 	#endif
 
@@ -1235,16 +1260,16 @@ static void create_widgets(AwfVBox *root) { // todo
 	hboxNotebook2->setSpacing(3);  hboxNotebook2->setContentsMargins(10,10,10,10);
 
 	QFrame *sep1 = new QFrame, *sep2 = new QFrame, *sep3 = new QFrame, *sep4 = new QFrame;
-	sep1->setFrameShape(awf_gqss ? QFrame::NoFrame : QFrame::VLine);
+	sep1->setFrameShape(QFrame::VLine);
 	sep1->setFrameShadow(QFrame::Plain);
 	sep1->setProperty("class", "separator vertical");
-	sep2->setFrameShape(awf_gqss ? QFrame::NoFrame : QFrame::VLine);
+	sep2->setFrameShape(QFrame::VLine);
 	sep2->setFrameShadow(QFrame::Plain);
 	sep2->setProperty("class", "separator vertical");
-	sep3->setFrameShape(awf_gqss ? QFrame::NoFrame : QFrame::VLine);
+	sep3->setFrameShape(QFrame::VLine);
 	sep3->setFrameShadow(QFrame::Plain);
 	sep3->setProperty("class", "separator vertical");
-	sep4->setFrameShape(awf_gqss ? QFrame::NoFrame : QFrame::HLine);
+	sep4->setFrameShape(QFrame::HLine);
 	sep4->setFrameShadow(QFrame::Plain);
 	sep4->setProperty("class", "separator horizontal");
 
@@ -1362,7 +1387,7 @@ static void create_toolbar(AwfToolBar *toolbar) {
 
 	tool4 = new QToolButton;
 	tool4->setIcon(get_icon("view-refresh"));
-	tool4->setEnabled(awf_gqss);
+	tool4->setEnabled(awf_gqss || awf_sheet);
 	QObject::connect(tool4, &QToolButton::clicked, [](){ on_sighup(0); });
 
 	tool5 = new QToolButton;
@@ -2163,7 +2188,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	QAction *menuitem;
 	QString theme;
 	int i, total, count, look;
-	bool mini, is_user, noRefresh = !awf_gqss, noPrint = false;
+	bool mini, is_user, noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
@@ -2265,7 +2290,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 			is_user = list_user_theme.contains(theme);
 
 			menuitem = create_menuitem_radio(base, theme, false, false, is_user, group);
-			if (theme == current_theme)
+			if (current_theme == theme)
 				menuitem->setChecked(true);
 			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
 
@@ -2273,7 +2298,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		}
 	}
 
-	if (noRefresh)
+	if (!awf_gqss)
 		create_menuitem(menu, QIcon(), _app("GlobalQSS not available"), true, QKeySequence(), null, null);
 	else if (list_system_theme.isEmpty())
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
@@ -2313,7 +2338,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 			theme = list_user_theme[i];
 
 			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-			if (theme == current_theme)
+			if (current_theme == theme)
 				menuitem->setChecked(true);
 			QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
 
@@ -2321,9 +2346,16 @@ static void create_traditional_menubar(QMenuBar *root) {
 		}
 	}
 
-	if (noRefresh)
+	if (awf_sheet) {
+		menuitem = create_menuitem_radio(menu, "-stylesheet", false, false, false, group);
+		if (current_theme == "-stylesheet")
+			menuitem->setChecked(true);
+		QObject::connect(menuitem, &QAction::triggered, [](){ update_theme("-stylesheet"); });
+	}
+
+	if (!awf_gqss)
 		create_menuitem(menu, QIcon(), _app("GlobalQSS not available"), true, QKeySequence(), null, null);
-	else if (list_user_theme.isEmpty())
+	else if (!awf_sheet && list_user_theme.isEmpty())
 		create_menuitem(menu, QIcon(), _app("No themes found"), true, QKeySequence(), null, null);
 
 	// application text direction
@@ -2341,19 +2373,6 @@ static void create_traditional_menubar(QMenuBar *root) {
 		if (current_direction == 2)
 			menuitem->setChecked(true);
 		QObject::connect(menuitem, &QAction::triggered, [](){ update_text_direction(2); }); // Qt::RightToLeft
-
-	// application language
-	QString current_language = QLocale::system().name();
-	menu = root->addMenu(_app("_Language"));
-
-		group = new QActionGroup(window);
-		group->setExclusive(true);
-
-		for (QString lang : list_language) {
-			menuitem = create_menuitem_radio(menu, lang, false, false, true, group);
-			if (current_language.startsWith(lang))
-				menuitem->setChecked(true);
-		}
 
 	// help
 	menu = root->addMenu(_qt("QWizard", "&Help"));
@@ -2561,7 +2580,7 @@ static void accels_load() {
 				Qt::Key key = parseKey(acl);
 
 				if (key == Qt::Key_unknown) {
-					printf("\033[33m[debug]\033[00m accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), acl.toUtf8().constData());
+					printf("\033[95m[warn]\033[00m accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), accels.value(kmp).toUtf8().constData());
 				}
 				else {
 					actions.value(kmp)->setProperty("shortcutModified", true);
@@ -2595,17 +2614,15 @@ static bool accels_change(QObject *obj, QEvent *event) {
 		printf("\033[36m[trace]\033[00m accels_change()\n");
 
 	Qt::KeyboardModifiers mods = keyEvent->modifiers();
-	mods &= ~Qt::KeypadModifier;
+	mods &= (Qt::ControlModifier | Qt::ShiftModifier | Qt::MetaModifier);
 	bool del = (key == Qt::Key_Delete) || (key == Qt::Key_Backspace);
 
 	if (
 		del ||
-		// 0..9
-		((key >= Qt::Key_0) && (key <= Qt::Key_9)) ||
 		// f1..12
 		((key >= Qt::Key_F1) && (key <= Qt::Key_F12)) ||
-		// ctrl/shift/super/alt + ?
-		mods
+		// ctrl/shift/super/alt + 0-9/a..z/return
+		(mods && (((key >= Qt::Key_0) && (key <= Qt::Key_9)) || ((key >= Qt::Key_A) && (key <= Qt::Key_Z)) || (key == Qt::Key_Return)))
 	) {
 		must_save_accels = true;
 		QKeySequence seq = del ? QKeySequence() : QKeySequence(mods | key);
@@ -2903,47 +2920,29 @@ static void dialog_inspector() {
 		});
 
 		QObject::connect(btnClear, &QPushButton::clicked, inspector, [=](){
-
-			if (awf_gqss && (original_style == "!^!"))
-				original_style = qApp->styleSheet();
-
-			qApp->setStyleSheet(original_style);
-			if (awf_gqss)
-				original_style = "!^!";
-
+			window->setStyleSheet("");
 			QSignalBlocker blocker(textEdit);
 			textEdit->clear();
 			textEdit->setFocus();
 		});
 
 		QObject::connect(inspector, &QWidget::destroyed, window, [=](){
-
-			if (awf_gqss && (original_style == "!^!"))
-				original_style = qApp->styleSheet();
-
-			qApp->setStyleSheet(original_style);
-			if (awf_gqss)
-				original_style = "!^!";
-
+			window->setStyleSheet("");
 			inspector = null;
 		});
 
 		QObject::connect(window, &QWidget::destroyed, inspector, &QWidget::close);
 
 		QObject::connect(counter, &QTimer::timeout, inspector, [=](){
-
-			if (awf_gqss && (original_style == "!^!"))
-				original_style = qApp->styleSheet();
-
 			#if defined (Q_OS_UNIX)
 				int savedFd = dup(fileno(stderr));
 				FILE* ignored = freopen("/dev/null", "w", stderr);
-				qApp->setStyleSheet(original_style + "\n\n" + textEdit->toPlainText());
+				window->setStyleSheet(textEdit->toPlainText());
 				fflush(stderr);
 				dup2(savedFd, fileno(stderr));
 				close(savedFd);
 			#else
-				qApp->setStyleSheet(original_style + "\n\n" + textEdit->toPlainText());
+				window->setStyleSheet(textEdit->toPlainText());
 			#endif
 		});
 

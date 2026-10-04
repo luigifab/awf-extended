@@ -10,3 +10,4 @@ Type=Application
 Keywords=gtk;css;
 Categories=GTK;Development;
 StartupNotify=true
+StartupWMClass=fr.luigifab.awfgtk4

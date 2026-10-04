@@ -56,6 +56,7 @@ autoreconf -fi
 %doc README.md
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
+%{_datadir}/metainfo/fr.luigifab.awfgtk5.metainfo.xml
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 %{_datadir}/bash-completion/completions/%{name}

@@ -60,6 +60,7 @@ autoreconf -fi
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 %{bash_completions_dir}/%{name}
 %{_mandir}/man1/%{name}.1*
+%{_metainfodir}/fr.luigifab.awfgtk5.metainfo.xml
 
 
 %changelog

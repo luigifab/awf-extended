@@ -1,0 +1,25 @@
+Source: awf-qt4-static
+Section: x11
+Priority: optional
+Maintainer: Fabrice Creuzot <code@luigifab.fr>
+Build-Depends: debhelper-compat (= 14), bash-completion, librsvg2-bin, pkgconf, libqt4-dev (>= 4.8.0), libqt4-svg (>= 4.8.0)
+Rules-Requires-Root: no
+Standards-Version: 4.7.4
+Homepage: https://github.com/luigifab/awf-extended
+Vcs-Browser: https://github.com/luigifab/awf-extended
+Vcs-Git: https://github.com/luigifab/awf-extended.git
+
+Package: awf-qt4-static
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: libnotify-bin
+Conflicts: awf-qt4
+Replaces: awf-qt4
+Provides: awf-qt4
+Description: theme preview application for Qt 4
+ A widget factory is a theme preview application for GTK and Qt. It
+ displays the various widget types in a single window allowing to see
+ the visual effect of the applied theme.
+ .
+ This package provides the program for Qt 4, bundled with its own copy of
+ the Qt 4 libraries (no system Qt 4 required).

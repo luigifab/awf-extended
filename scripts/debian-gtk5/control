@@ -12,7 +12,6 @@ Vcs-Git: https://github.com/luigifab/awf-extended.git
 Package: awf-gtk5
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: awf
 Description: theme preview application for GTK 5
  A widget factory is a theme preview application for GTK and Qt. It
  displays the various widget types in a single window allowing to see

@@ -31,7 +31,7 @@ else
 fi
 
 
-# create packages for Debian and Ubuntu
+# build binary packages for Debian and source packages for Ubuntu
 for serie in experimental bionic xenial trusty; do
 
 	printf "\n\n#################################################################### $serie ## awf-$engine\n\n"
@@ -51,11 +51,11 @@ for serie in experimental bionic xenial trusty; do
 	dh_make -s -y -f ../awf-extended-$version.tar.gz -p awf-$engine
 
 	rm -rf debian/*/*ex debian/*ex debian/*EX debian/README* debian/*doc*
+	cp scripts/debian/* debian/
 	cp scripts/debian-$engine/* debian/
-	cp scripts/debian-qt/*$engine* scripts/debian-qt/copyright scripts/debian-qt/metadata debian/
-	head -n -1 debian/*$engine*.install > debian/install ; rm debian/awf-$engine.install
-	rm -f debian/*.sh
+	rm -f debian/*.sh debian/*.ubuntu debian/*.debian
 	mkdir debian/upstream ; mv debian/metadata debian/upstream/metadata
+
 
 	# debhelper: experimental:14 ubuntu:13 focal:12 bionic:9 xenial:9 trusty:9
 	if [ $serie = "experimental" ] || [ $serie = "unstable" ]; then

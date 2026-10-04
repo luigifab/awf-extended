@@ -1,0 +1,8 @@
+usr/bin/awf-gtk2
+usr/share/applications/awf-gtk2.desktop
+usr/share/bash-completion/completions/awf-gtk2
+usr/share/icons/hicolor/*/apps/awf-gtk2.*
+usr/share/locale/*/LC_MESSAGES/awf-gtk2.mo
+usr/share/man/man1/awf-gtk2.1
+usr/share/man/*/man1/awf-gtk2.1
+usr/share/metainfo/fr.luigifab.awfgtk2.metainfo.xml

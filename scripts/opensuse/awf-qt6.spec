@@ -22,7 +22,7 @@ Requires:      hicolor-icon-theme
 Recommends:    qt6-platformtheme-gtk3
 Recommends:    qt6-globalqss
 Recommends:    libQt6Svg6
-Suggests:      libnotify >= 0.7.0
+Suggests:      libnotify-tools >= 0.7.0
 
 %description %{expand:
 A widget factory is a theme preview application for GTK and Qt. It
@@ -56,6 +56,7 @@ autoreconf -fi
 %doc README.md
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
+%{_datadir}/metainfo/fr.luigifab.awfqt6.metainfo.xml
 %{_datadir}/icons/hicolor/*/apps/%{name}.png
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 %{_datadir}/bash-completion/completions/%{name}

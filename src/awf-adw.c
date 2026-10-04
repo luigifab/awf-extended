@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/27/09/2026
+ * Updated D/04/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -42,7 +42,7 @@
  *  diff -U0 --color=always --ignore-all-space --ignore-blank-lines -I GETTEXT_PACKAGE -I _application_window_ -I _header_bar_pack_ code/gtk-awf/src/awf-gtk4.c code/gtk-awf/src/awf-adw.c | sed -e '/\*  Ubuntu/d' -e 's/\x1b\[31m/\x1b[36m/g' -e 's/\x1b\[36m\(@@.*@@\)/\x1b[37m\1/g' | most
  *  it replaces: red by cyan + cyan for @@ lines with white
  *
- * This source file is working with GTK 4.18+ and Adwaita 1.7+ and GLIB 2.80+ (like GTK 4.18.0)
+ * This source file is working with GTK 4.18+ and Adwaita 1.7+ and GLIB 2.80+ (like GTK 4.18.0, else 2.68+)
  */
 
 #pragma GCC diagnostic push
@@ -123,13 +123,11 @@ static gboolean awf_trace = FALSE;
 static gboolean awf_brkps = TRUE;
 static GHashTable *hash_system_theme = NULL;
 static GHashTable *hash_user_theme = NULL;
-static GHashTable *hash_language = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
-static GList *list_language = NULL;
 static GMenu *menuwrap = NULL;
 static GtkWidget *headerbar = NULL, *menubar = NULL, *scroll = NULL;
-static GtkWidget *window = NULL, *toolbar = NULL, *toolbarentry = NULL, *toolbarend = NULL, *statusbar = NULL;
+static GtkWidget *window = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
 static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
 static GtkWidget *scale1 = NULL, *scale2 = NULL, *scale3 = NULL, *scale4 = NULL, *scale5 = NULL, *scale6 = NULL;
@@ -144,7 +142,6 @@ static gboolean allow_update_values = TRUE;
 static gboolean must_save_accels    = FALSE;
 
 // global functions
-static void load_languages(GHashTable* hashtable, gchar *directory);
 static void awf_load_themes(GHashTable* hashtable, gchar *directory);
 static inline int awf_sort(gconstpointer a, gconstpointer b);
 static void notify_updated_gtktheme(GSettings *settings, gchar *key);
@@ -164,7 +161,6 @@ static gboolean take_screenshot();
 static void create_window(GtkApplication *app);
 static GPtrArray* create_widgets(GtkWidget *root);
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing);
-static void add_progressbar_and_entrybar();
 static void create_toolbar(GtkWidget *root);
 static void create_entries(GtkWidget *root);
 static void create_spinbuttons(GtkWidget *root);
@@ -277,16 +273,6 @@ int main(int argc, gchar **argv) {
 
 	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_sort);
 
-	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/<GETTEXT_PACKAGE>.mo)
-	hash_language = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-	g_hash_table_replace(hash_language, g_strdup("en"), g_strdup("en"));
-	for (opt = 0; dirs[opt]; opt++) {
-		directory = g_build_filename(dirs[opt], "locale", NULL);
-		load_languages(hash_language, directory);
-		g_free(directory);
-	}
-	list_language = g_list_sort(g_hash_table_get_keys(hash_language), (GCompareFunc) awf_sort);
-
 	// gtk/awf locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
@@ -294,6 +280,8 @@ int main(int argc, gchar **argv) {
 		bindtextdomain(GETTEXT_PACKAGE, directory);
 		g_free(directory);
 		g_free(prefix);
+	#else
+		bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -397,7 +385,7 @@ int main(int argc, gchar **argv) {
 		gtkThemeFaked = TRUE;
 	}
 
-	AdwApplication *app = adw_application_new("org.gtk.awf", G_APPLICATION_NON_UNIQUE);
+	AdwApplication *app = adw_application_new("fr.luigifab.awfadw", G_APPLICATION_NON_UNIQUE);
 	g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
 
 	// --version -v
@@ -447,44 +435,16 @@ static void quit() {
 
 	g_list_free(list_system_theme);
 	g_list_free(list_user_theme);
-	g_list_free(list_language);
 	list_system_theme = NULL;
 	list_user_theme   = NULL;
-	list_language     = NULL;
 
 	g_hash_table_destroy(hash_system_theme);
 	g_hash_table_destroy(hash_user_theme);
-	g_hash_table_destroy(hash_language);
 	hash_system_theme = NULL;
 	hash_user_theme   = NULL;
-	hash_language     = NULL;
 
 	accels_save();
 	g_application_quit(g_application_get_default());
-}
-
-static void load_languages(GHashTable* hashtable, gchar *directory) {
-
-	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory);
-
-	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
-
-		if (awf_debug)
-			g_printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory);
-
-		GDir *dir = g_dir_open(directory, 0, NULL);
-		if (dir) {
-			const gchar *lang;
-			while ((lang = g_dir_read_name(dir)) != NULL) {
-				gchar *mo = g_build_filename(directory, lang, "LC_MESSAGES", GETTEXT_PACKAGE ".mo", NULL);
-				if (g_file_test(mo, G_FILE_TEST_IS_REGULAR))
-					g_hash_table_replace(hashtable, g_strdup(lang), g_strdup(lang));
-				g_free(mo);
-			}
-			g_dir_close(dir);
-		}
-	}
 }
 
 static void awf_load_themes(GHashTable* hashtable, gchar *directory) {
@@ -735,7 +695,6 @@ static void update_widgets() {
 	// when toggle = true, the [+] toolbar button is NOT checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
-	// via add_progressbar_and_entrybar
 	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		gtk_widget_set_visible(progress8, FALSE);
@@ -939,15 +898,17 @@ static gboolean take_screenshot() { // without window borders
 	GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(window));
 	G_GNUC_END_IGNORE_DEPRECATIONS
 
-	// remove extra spaces for screenshot
+	// remove headerbar and extra spaces for screenshot
 	GtkWidget *child = adw_application_window_get_content(ADW_APPLICATION_WINDOW(window));
 	if (gtk_widget_compute_bounds(child, window, &bounds)) {
 		width  = (int) (bounds.origin.x + bounds.size.width - 3); // @todo why -3 ?
 		height = (int) (bounds.origin.y + bounds.size.height);
 	}
+
 	// find the window padding
 	gtk_style_context_get_padding(context, &padding);
 
+	// action
 	GtkSnapshot *snapshot = gtk_snapshot_new();
 	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
 	gtk_snapshot_render_background(snapshot, context,
@@ -1166,25 +1127,34 @@ static void create_window(GtkApplication *app) {
 		// statusbar
 		G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
 		statusbar = gtk_statusbar_new();
-		GtkCssProvider *provider = gtk_css_provider_new();
-		gtk_css_provider_load_from_data(provider,
-			"@keyframes statusbarflash {"
-			"  0%   { background-color: yellow; }"
-			"  100% { background-color: transparent; }"
-			"}"
-			"#AwfMainWindow statusbar.flash {"
-			"  animation: statusbarflash 1s ease-out forwards;"
-			"}"
-		, -1);
-		gtk_style_context_add_provider_for_display(gdk_display_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-		g_object_unref(provider);
-		G_GNUC_END_IGNORE_DEPRECATIONS
-		// via add_progressbar_and_entrybar
-		// for the progressbar of the statusbar, before adding statusbar
 		gtk_widget_set_halign(gtk_widget_get_first_child(statusbar), GTK_ALIGN_FILL); // statusbar > box
 		gtk_widget_set_hexpand(gtk_widget_get_first_child(statusbar), TRUE);          // statusbar > box
 		gtk_widget_set_hexpand(gtk_widget_get_first_child(gtk_widget_get_first_child(statusbar)), TRUE); // statusbar > box > label
 		adw_toolbar_view_add_bottom_bar(ADW_TOOLBAR_VIEW(vboxWindow), statusbar);
+
+			progress9 = gtk_progress_bar_new();
+			gtk_widget_set_size_request(progress9, 140, 1);
+			gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress9), 0);
+			gtk_orientable_set_orientation(GTK_ORIENTABLE(progress9), GTK_ORIENTATION_HORIZONTAL);
+			gtk_widget_set_visible(progress9, FALSE);
+			gtk_widget_set_valign(progress9, GTK_ALIGN_CENTER);
+			gtk_widget_set_halign(progress9, GTK_ALIGN_END);
+			gtk_widget_set_hexpand(progress9, TRUE);
+			gtk_widget_insert_after(progress9, gtk_widget_get_first_child(statusbar), gtk_widget_get_first_child(gtk_widget_get_first_child(statusbar))); // statusbar > box > label, statusbar > box > progressbar
+
+			GtkCssProvider *provider = gtk_css_provider_new();
+			gtk_css_provider_load_from_data(provider,
+				"@keyframes statusbarflash {"
+				"  0%   { background-color: #" AWF_COLOR "; }"
+				"  100% { background-color: transparent; }"
+				"}"
+				"#AwfMainWindow statusbar.flash {"
+				"  animation: statusbarflash 1s ease-out forwards;"
+				"}"
+			, -1);
+			gtk_style_context_add_provider_for_display(gdk_display_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+			g_object_unref(provider);
+			G_GNUC_END_IGNORE_DEPRECATIONS
 
 		text = g_strdup_printf(_app("Theme %s loaded."), current_theme);
 		update_statusbar(text);
@@ -1222,11 +1192,6 @@ static void create_window(GtkApplication *app) {
 
 	gtk_window_present(GTK_WINDOW(window));
 	gtk_widget_grab_focus(gtk_widget_get_first_child(toolbar)); // focus on the first toolbar button
-	if (headbarCloseLeft && headbarCloseRight) { // @todo not working here
-		gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-		gtk_widget_set_visible(headbarCloseRight, closeRight);
-	}
-	add_progressbar_and_entrybar();
 
 	if (awf_brkps && breakpoints) {
 		// not yet applied
@@ -1525,42 +1490,6 @@ static GPtrArray* create_widgets(GtkWidget *root) {
 	return NULL;
 }
 
-static void add_progressbar_and_entrybar() {
-
-	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m add_progressbar_and_entrybar()\n");
-
-	// entry toolbar
-	toolbarentry = gtk_entry_new();
-	gtk_entry_set_placeholder_text(GTK_ENTRY(toolbarentry), "...");
-	gtk_widget_set_visible(toolbarentry, FALSE);
-	gtk_widget_set_valign(toolbarentry, GTK_ALIGN_CENTER);
-	gtk_widget_set_vexpand(toolbarentry, FALSE);
-	gtk_widget_insert_after(toolbarentry, toolbar, toolbarend); // end left
-
-	// progressbar toolbar
-	progress8 = gtk_progress_bar_new();
-	gtk_widget_set_size_request(progress8, 140, 1);
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress8), 0);
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress8), GTK_ORIENTATION_HORIZONTAL);
-	gtk_widget_set_visible(progress8, FALSE);
-	gtk_widget_set_valign(progress8, GTK_ALIGN_CENTER);
-	gtk_widget_set_halign(progress8, GTK_ALIGN_END);
-	gtk_widget_set_hexpand(progress8, TRUE);
-	gtk_widget_insert_after(progress8, toolbar, gtk_widget_get_last_child(toolbar)); // end right
-
-	// progressbar statusbar
-	progress9 = gtk_progress_bar_new();
-	gtk_widget_set_size_request(progress9, 140, 1);
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress9), 0);
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress9), GTK_ORIENTATION_HORIZONTAL);
-	gtk_widget_set_visible(progress9, FALSE);
-	gtk_widget_set_valign(progress9, GTK_ALIGN_CENTER);
-	gtk_widget_set_halign(progress9, GTK_ALIGN_END);
-	gtk_widget_set_hexpand(progress9, TRUE);
-	gtk_widget_insert_after(progress9, gtk_widget_get_first_child(statusbar), gtk_widget_get_first_child(gtk_widget_get_first_child(statusbar))); // statusbar > box > label, statusbar > box > progressbar
-}
-
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) {
 
 	if (expand && fill) {
@@ -1653,7 +1582,22 @@ static void create_toolbar(GtkWidget *root) {
 	gtk_button_set_icon_name(GTK_BUTTON(icon9), "window-close");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(icon9), FALSE);
 	gtk_widget_set_sensitive(icon9, FALSE);
-	toolbarend = icon9;
+
+	// GTK_ENTRY
+	toolbarentry = gtk_entry_new();
+	gtk_entry_set_placeholder_text(GTK_ENTRY(toolbarentry), "...");
+	gtk_widget_set_visible(toolbarentry, FALSE);
+	gtk_widget_set_valign(toolbarentry, GTK_ALIGN_CENTER);
+	gtk_widget_set_vexpand(toolbarentry, FALSE);
+
+	// GTK_PROGRESS_BAR
+	progress8 = gtk_progress_bar_new();
+	gtk_widget_set_size_request(progress8, 140, 1);
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress8), 0);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress8), GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_visible(progress8, FALSE);
+	gtk_widget_set_valign(progress8, GTK_ALIGN_CENTER);
+	gtk_widget_set_halign(progress8, GTK_ALIGN_END);
 
 	// layout
 	add_to(root, icon1, FALSE, FALSE, 0, 0);
@@ -1667,6 +1611,9 @@ static void create_toolbar(GtkWidget *root) {
 	add_to(root, icon7, FALSE, FALSE, 0, 0);
 	add_to(root, icon8, FALSE, FALSE, 0, 0);
 	add_to(root, icon9, FALSE, FALSE, 0, 0);
+	add_to(root, toolbarentry, FALSE, FALSE, 0, 0);
+	add_to(root, progress8, FALSE, FALSE, 0, 0);
+	gtk_widget_set_hexpand(progress8, TRUE);
 }
 
 static void create_entries(GtkWidget *root) {
@@ -2922,28 +2869,6 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 
 	g_object_unref(menu);
 
-	// application language
-	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
-	for (iterator = list_language; iterator; iterator = iterator->next) {
-		if (g_str_has_prefix(current_language, (gchar*) iterator->data)) {
-			g_free(current_language);
-			current_language = g_strdup((gchar*) iterator->data);
-			break;
-		}
-	}
-	action = g_simple_action_new_stateful("set-language", G_VARIANT_TYPE_STRING, g_variant_new_string(current_language));
-	g_simple_action_set_enabled(action, FALSE);
-	g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
-	g_object_unref(action);
-	g_free(current_language);
-
-	menu = g_menu_new();
-	g_menu_append_submenu(root, _app("_Language"), G_MENU_MODEL(menu));
-	for (iterator = list_language; iterator; iterator = iterator->next)
-		create_menuitem_radio(menu, iterator->data, FALSE, g_strdup_printf("app.set-language::%s", (gchar*) iterator->data), TRUE);
-
-	g_object_unref(menu);
-
 	// help
 	menu = g_menu_new();
 	g_menu_append_submenu(root, _app("_Help"), G_MENU_MODEL(menu));
@@ -3211,15 +3136,11 @@ static void dialog_about() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_about()\n");
 
-	GdkPixbuf *pixbuf = NULL;
-	GdkPaintable *logo = NULL;
+	//GdkPaintable *logo = NULL;
 	#if defined (G_OS_WIN32)
-		extern GdkPixbuf *gdk_win32_icon_to_pixbuf_libgtk_only(HICON hicon);
 		HICON hIcon = (HICON) LoadImage(GetModuleHandle(NULL), "IDI_ICON1", IMAGE_ICON, 64, 64, LR_DEFAULTSIZE);
-		if (hIcon)
-			pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
-		if (pixbuf)
-			logo = GDK_PAINTABLE(gdk_texture_new_for_pixbuf(pixbuf));
+		//if (hIcon) @todo logo
+		//	logo = GDK_PAINTABLE(hicon_to_texture(hIcon));
 	#endif
 
 	gchar *cVersion;
@@ -3234,12 +3155,16 @@ static void dialog_about() {
 		cVersion = "C89/C90";
 	#endif
 
+	gchar *classic = "";
+	if (g_object_class_find_property(G_OBJECT_GET_CLASS(gtk_settings_get_default()), "gtk-classic") != NULL)
+		classic = "\ngtk4-classic";
+
 	gchar *t1, *t2, *t3, *t4;
 	adw_show_about_dialog(window,
 		"application-name", "awf-adw",
 		"application-icon", GETTEXT_PACKAGE, // @todo logo
 		"version", VERSION,
-		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s",
+		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s%s",
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
@@ -3253,7 +3178,8 @@ static void dialog_about() {
 				gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
 				adw_get_major_version(), adw_get_minor_version(), adw_get_micro_version(),
 				glib_major_version, glib_minor_version, glib_micro_version,
-				pango_version_string())
+				pango_version_string()),
+			classic
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
@@ -3274,10 +3200,8 @@ static void dialog_about() {
 
 	#if defined (G_OS_WIN32)
 		if (hIcon) {
-			if (logo)
-				g_object_unref(logo);
-			if (pixbuf)
-				g_object_unref(pixbuf);
+			//if (logo)
+			//	g_object_unref(logo);
 			DestroyIcon(hIcon);
 		}
 	#endif

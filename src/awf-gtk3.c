@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/27/09/2026
+ * Updated D/04/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -139,10 +139,8 @@ static gboolean awf_trace = FALSE;
 static gboolean awf_csd = FALSE;
 static GHashTable *hash_system_theme = NULL;
 static GHashTable *hash_user_theme = NULL;
-static GHashTable *hash_language = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
-static GList *list_language = NULL;
 static GtkWidget *window = NULL, *menubar = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
 static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
@@ -160,7 +158,6 @@ static gboolean allow_update_values = TRUE;
 static gboolean must_save_accels    = FALSE;
 
 // global functions
-static void load_languages(GHashTable* hashtable, gchar *directory);
 static void awf_load_themes(GHashTable* hashtable, gchar *directory);
 static inline int awf_sort(gconstpointer a, gconstpointer b);
 static void notify_updated_gtktheme(GSettings *settings, gchar *key);
@@ -179,7 +176,6 @@ static gboolean take_screenshot();
 static void create_window(gpointer app);
 static void create_widgets(GtkWidget *root);
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing);
-static void add_progressbar_and_entrybar();
 static void create_toolbar(GtkWidget *root);
 static void create_entries(GtkWidget *root);
 static void create_spinbuttons(GtkWidget *root);
@@ -301,16 +297,6 @@ int main(int argc, gchar **argv) {
 
 	list_user_theme = g_list_sort(g_hash_table_get_keys(hash_user_theme), (GCompareFunc) awf_sort);
 
-	// load available languages (/usr/share/locale/<lang>/LC_MESSAGES/<GETTEXT_PACKAGE>.mo)
-	hash_language = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-	g_hash_table_replace(hash_language, g_strdup("en"), g_strdup("en"));
-	for (opt = 0; dirs[opt]; opt++) {
-		directory = g_build_filename(dirs[opt], "locale", NULL);
-		load_languages(hash_language, directory);
-		g_free(directory);
-	}
-	list_language = g_list_sort(g_hash_table_get_keys(hash_language), (GCompareFunc) awf_sort);
-
 	// gtk/awf locale
 	setlocale(LC_ALL, "");
 	#if defined (G_OS_WIN32)
@@ -318,6 +304,8 @@ int main(int argc, gchar **argv) {
 		bindtextdomain(GETTEXT_PACKAGE, directory);
 		g_free(directory);
 		g_free(prefix);
+	#else
+		bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
 	#endif
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
@@ -431,7 +419,7 @@ int main(int argc, gchar **argv) {
 			}
 		#endif
 
-		GtkApplication *app = gtk_application_new("org.gtk.awf", G_APPLICATION_NON_UNIQUE);
+		GtkApplication *app = gtk_application_new("fr.luigifab.awfgtk3", G_APPLICATION_NON_UNIQUE);
 		g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
 
 		#if GLIB_CHECK_VERSION (2,42,0) && GTK_CHECK_VERSION (3,4,0)
@@ -481,17 +469,13 @@ static void quit() {
 
 	g_list_free(list_system_theme);
 	g_list_free(list_user_theme);
-	g_list_free(list_language);
 	list_system_theme = NULL;
 	list_user_theme   = NULL;
-	list_language     = NULL;
 
 	g_hash_table_destroy(hash_system_theme);
 	g_hash_table_destroy(hash_user_theme);
-	g_hash_table_destroy(hash_language);
 	hash_system_theme = NULL;
 	hash_user_theme   = NULL;
-	hash_language     = NULL;
 
 	accels_save();
 	#if GTK_CHECK_VERSION (3,4,0)
@@ -499,30 +483,6 @@ static void quit() {
 	#else
 		gtk_main_quit();
 	#endif
-}
-
-static void load_languages(GHashTable* hashtable, gchar *directory) {
-
-	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m load_languages(%s)\n", directory);
-
-	if (g_file_test(directory, G_FILE_TEST_IS_DIR)) {
-
-		if (awf_debug)
-			g_printf("\033[33m[debug]\033[00m languages_dir: %s\n", directory);
-
-		GDir *dir = g_dir_open(directory, 0, NULL);
-		if (dir) {
-			const gchar *lang;
-			while ((lang = g_dir_read_name(dir)) != NULL) {
-				gchar *mo = g_build_filename(directory, lang, "LC_MESSAGES", GETTEXT_PACKAGE ".mo", NULL);
-				if (g_file_test(mo, G_FILE_TEST_IS_REGULAR))
-					g_hash_table_replace(hashtable, g_strdup(lang), g_strdup(lang));
-				g_free(mo);
-			}
-			g_dir_close(dir);
-		}
-	}
 }
 
 static void awf_load_themes(GHashTable* hashtable, gchar *directory) {
@@ -803,7 +763,6 @@ static void update_widgets() {
 	// when toggle = true, the [+] toolbar button is NOT checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
-	// via add_progressbar_and_entrybar
 	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		gtk_widget_set_visible(progress8, FALSE);
@@ -1003,8 +962,8 @@ static gboolean take_screenshot() { // without window borders
 	gtk_window_get_size(GTK_WINDOW(window), &width, &height);
 
 	#if GTK_CHECK_VERSION (3,16,0)
-		// remove headerbar from screenshot (3.16 not 3.12)
 		if (awf_csd) {
+			// remove headerbar from screenshot (3.16 not 3.12)
 			GtkWidget *titlebar = gtk_window_get_titlebar(GTK_WINDOW(window));
 			if (gtk_widget_get_visible(titlebar)) {
 				GtkAllocation alloc;
@@ -1015,6 +974,7 @@ static gboolean take_screenshot() { // without window borders
 		}
 	#endif
 
+	// action
 	GdkPixbuf *image = gdk_pixbuf_get_from_window(root, left, top, width, height);
 
 	if (image) {
@@ -1103,6 +1063,7 @@ static void create_window(gpointer app) {
 				headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
 				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseLeft), "app-icon");
 				gtk_widget_set_visible(headbarCloseLeft, closeLeft);
+				gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
 				gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), headbarCloseLeft);
 
 				button = gtk_menu_button_new();
@@ -1131,6 +1092,7 @@ static void create_window(gpointer app) {
 				headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
 				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseRight), "app-icon");
 				gtk_widget_set_visible(headbarCloseRight, closeRight);
+				gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
 				gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), headbarCloseRight);
 
 				button = gtk_menu_button_new();
@@ -1178,21 +1140,31 @@ static void create_window(gpointer app) {
 
 		// statusbar
 		statusbar = gtk_statusbar_new();
-		#if GTK_CHECK_VERSION (3,20,0)
-			GtkCssProvider *provider = gtk_css_provider_new();
-			gtk_css_provider_load_from_data(provider,
-				"@keyframes statusbarflash {"
-				"  0%   { background-color: yellow; }"
-				"  100% { background-color: transparent; }"
-				"}"
-				"#AwfMainWindow statusbar.flash {"
-				"  animation: statusbarflash 1s ease-out forwards;"
-				"}"
-			, -1, NULL);
-			gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
-			g_object_unref(provider);
-		#endif
 		add_to(vboxWindow, statusbar, FALSE, FALSE, 0, 0);
+
+			progress9 = gtk_progress_bar_new();
+			gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress9), 0);
+			gtk_orientable_set_orientation(GTK_ORIENTABLE(progress9), GTK_ORIENTATION_HORIZONTAL);
+			gtk_widget_set_visible(progress9, FALSE);
+			gtk_widget_set_no_show_all(progress9, TRUE);
+			gtk_widget_set_vexpand(progress9, FALSE);
+			gtk_widget_set_valign(progress9, GTK_ALIGN_CENTER);
+			gtk_box_pack_start(GTK_BOX(statusbar), progress9, FALSE, FALSE, 0);
+
+			#if GTK_CHECK_VERSION (3,20,0)
+				GtkCssProvider *provider = gtk_css_provider_new();
+				gtk_css_provider_load_from_data(provider,
+					"@keyframes statusbarflash {"
+					"  0%   { background-color: #" AWF_COLOR "; }"
+					"  100% { background-color: transparent; }"
+					"}"
+					"#AwfMainWindow statusbar.flash {"
+					"  animation: statusbarflash 1s ease-out forwards;"
+					"}"
+				, -1, NULL);
+				gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_FALLBACK);
+				g_object_unref(provider);
+			#endif
 
 		text = g_strdup_printf(_app("Theme %s loaded."), current_theme);
 		update_statusbar(text);
@@ -1227,11 +1199,6 @@ static void create_window(gpointer app) {
 	#endif
 
 	gtk_widget_show_all(window);
-	if (headbarCloseLeft && headbarCloseRight) {
-		gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-		gtk_widget_set_visible(headbarCloseRight, closeRight);
-	}
-	add_progressbar_and_entrybar();
 
 	#if !GTK_CHECK_VERSION (3,4,0)
 		gtk_main();
@@ -1332,40 +1299,6 @@ static void create_widgets(GtkWidget *root) {
 			create_notebooks(hboxNotebook1, hboxNotebook2);
 }
 
-static void add_progressbar_and_entrybar() {
-
-	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m add_progressbar_and_entrybar()\n");
-
-	// entry toolbar (= 11)
-	toolbarentry = gtk_entry_new();
-	#if GTK_CHECK_VERSION (3,2,0)
-		gtk_entry_set_placeholder_text(GTK_ENTRY(toolbarentry), "...");
-	#endif
-	gtk_widget_set_visible(toolbarentry, FALSE);
-	gtk_widget_set_vexpand(toolbarentry, FALSE);
-	gtk_widget_set_valign(toolbarentry, GTK_ALIGN_CENTER);
-	gtk_container_add(GTK_CONTAINER(gtk_toolbar_get_nth_item(GTK_TOOLBAR(toolbar), 11)), toolbarentry); // end left
-
-	// progressbar toolbar (= 13)
-	progress8 = gtk_progress_bar_new();
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress8), 0);
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress8), GTK_ORIENTATION_HORIZONTAL);
-	gtk_widget_set_visible(progress8, FALSE);
-	gtk_widget_set_vexpand(progress8, FALSE);
-	gtk_widget_set_valign(progress8, GTK_ALIGN_CENTER);
-	gtk_container_add(GTK_CONTAINER(gtk_toolbar_get_nth_item(GTK_TOOLBAR(toolbar), 13)), progress8); // end right
-
-	// progressbar statusbar
-	progress9 = gtk_progress_bar_new();
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress9), 0);
-	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress9), GTK_ORIENTATION_HORIZONTAL);
-	gtk_widget_set_visible(progress9, FALSE);
-	gtk_widget_set_vexpand(progress9, FALSE);
-	gtk_widget_set_valign(progress9, GTK_ALIGN_CENTER);
-	gtk_box_pack_start(GTK_BOX(statusbar), progress9, FALSE, FALSE, 0);
-}
-
 static void add_to(GtkWidget *root, GtkWidget *widget, gboolean expand, gboolean fill, guint padding, guint spacing) {
 
 	if (GTK_IS_INFO_BAR(root))
@@ -1453,13 +1386,31 @@ static void create_toolbar(GtkWidget *root) {
 	gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(tool9), FALSE);
 	gtk_widget_set_sensitive(tool9, FALSE);
 
-	// placeholder & separators
+	// GTK_ENTRY
+	toolbarentry = gtk_entry_new();
+	#if GTK_CHECK_VERSION (3,2,0)
+		gtk_entry_set_placeholder_text(GTK_ENTRY(toolbarentry), "...");
+	#endif
+	gtk_widget_set_visible(toolbarentry, FALSE);
+	gtk_widget_set_no_show_all(toolbarentry, TRUE);
+	gtk_widget_set_vexpand(toolbarentry, FALSE);
+	gtk_widget_set_valign(toolbarentry, GTK_ALIGN_CENTER);
 	tool11 = GTK_WIDGET(gtk_tool_item_new());
+	gtk_container_add(GTK_CONTAINER(tool11), toolbarentry);
 
 	tool12 = GTK_WIDGET(gtk_tool_item_new());
 	gtk_tool_item_set_expand(GTK_TOOL_ITEM(tool12), TRUE);
 
+	// GTK_PROGRESS_BAR
+	progress8 = gtk_progress_bar_new();
+	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress8), 0);
+	gtk_orientable_set_orientation(GTK_ORIENTABLE(progress8), GTK_ORIENTATION_HORIZONTAL);
+	gtk_widget_set_visible(progress8, FALSE);
+	gtk_widget_set_no_show_all(progress8, TRUE);
+	gtk_widget_set_vexpand(progress8, FALSE);
+	gtk_widget_set_valign(progress8, GTK_ALIGN_CENTER);
 	tool13 = GTK_WIDGET(gtk_tool_item_new());
+	gtk_container_add(GTK_CONTAINER(tool13), progress8);
 
 	// layout
 	add_to(root, tool1, FALSE, FALSE, 0, 0);
@@ -1473,9 +1424,9 @@ static void create_toolbar(GtkWidget *root) {
 	add_to(root, tool7, FALSE, FALSE, 0, 0);
 	add_to(root, tool8, FALSE, FALSE, 0, 0);
 	add_to(root, tool9, FALSE, FALSE, 0, 0);
-	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool11), -1); // = 11
+	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool11), -1);
 	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool12), -1);
-	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool13), -1); // = 13
+	gtk_toolbar_insert(GTK_TOOLBAR(root), GTK_TOOL_ITEM(tool13), -1);
 }
 
 static void create_entries(GtkWidget *root) {
@@ -2726,20 +2677,6 @@ static void create_traditional_menubar(GtkWidget *root) {
 			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
 		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_text_direction), GINT_TO_POINTER(GTK_TEXT_DIR_RTL));
 
-	// application language
-	gchar *current_language = g_strdup(setlocale(LC_MESSAGES, NULL));
-	group = NULL;
-	menu  = create_menu(root, _app("_Language"), TRUE, NULL);
-
-	for (iterator = list_language; iterator; iterator = iterator->next) {
-		menuitem = create_menuitem_radio(menu, iterator->data, FALSE, FALSE, FALSE, TRUE, group);
-		if (g_str_has_prefix(current_language, (gchar*) iterator->data))
-			gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-		group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-	}
-
-	g_free(current_language);
-
 	// help
 	menu = create_menu(root, _app("_Help"), TRUE, accels);
 
@@ -2938,8 +2875,11 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 
 				// @todo new shorcut (CTRL+SHIFT+...) not always displayed (in More and Help menus)
 
-				if (awf_debug)
-					g_printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : gtk_accelerator_name(gdk_keyval_to_lower(event->keyval), event->state & gtk_accelerator_get_default_mod_mask()));
+				if (awf_debug) {
+					key = gtk_accelerator_name(gdk_keyval_to_lower(event->keyval), event->state & gtk_accelerator_get_default_mod_mask());
+					g_printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : key);
+					g_free(key);
+				}
 
 				return TRUE;
 			}
@@ -3117,10 +3057,14 @@ static void dialog_about() {
 		cVersion = "C89/C90";
 	#endif
 
+	gchar *classic = "";
+	if (g_object_class_find_property(G_OBJECT_GET_CLASS(gtk_settings_get_default()), "gtk-classic") != NULL)
+		classic = "\ngtk3-classic";
+
 	gchar *t1, *t2, *t3, *t4;
 	gtk_show_about_dialog(GTK_WINDOW(window),
 		"version", VERSION,
-		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s",
+		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s%s",
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
@@ -3132,7 +3076,8 @@ static void dialog_about() {
 			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
 				gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
 				glib_major_version, glib_minor_version, glib_micro_version,
-				pango_version_string())
+				pango_version_string()),
+			classic
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",

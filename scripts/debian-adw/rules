@@ -6,7 +6,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh $@ --without=single-binary
 
 override_dh_auto_configure:
-	dh_auto_configure -- --disable-gtk --disable-qt
+	dh_auto_configure -- --enable-only-adw
 
 override_dh_auto_install:
 	# 1 binary

@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,-rpath,/usr/lib/awf-qt4 -Wl,--disable-new-dtags
+export DEB_CPPFLAGS_MAINT_APPEND = -DAWF_STATIC
+
+%:
+	dh $@ --without=single-binary
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-only-qt4
+
+override_dh_auto_install:
+	# 1 binary
+	dh_auto_install --destdir=debian/tmp
+
+override_dh_shlibdeps:
+	# copy qt4 libs
+	mkdir -p debian/awf-qt4-static/usr/lib/awf-qt4/plugins/imageformats debian/awf-qt4-static/usr/lib/awf-qt4/plugins/iconengines
+	cp -L /usr/lib/$(DEB_HOST_MULTIARCH)/qt4/plugins/imageformats/libqsvg.so debian/awf-qt4-static/usr/lib/awf-qt4/plugins/imageformats/
+	cp -L /usr/lib/$(DEB_HOST_MULTIARCH)/qt4/plugins/iconengines/libqsvgicon.so debian/awf-qt4-static/usr/lib/awf-qt4/plugins/iconengines/
+	ldd debian/awf-qt4-static/usr/bin/awf-qt4 debian/awf-qt4-static/usr/lib/awf-qt4/plugins/*/*.so | awk '/libQt|libicu/ {print $$3}' | sort -u | xargs -r cp -L -t debian/awf-qt4-static/usr/lib/awf-qt4/
+	dh_shlibdeps -l/usr/lib/awf-qt4

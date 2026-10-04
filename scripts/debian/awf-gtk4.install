@@ -1,0 +1,8 @@
+usr/bin/awf-gtk4
+usr/share/applications/awf-gtk4.desktop
+usr/share/bash-completion/completions/awf-gtk4
+usr/share/icons/hicolor/*/apps/awf-gtk4.*
+usr/share/locale/*/LC_MESSAGES/awf-gtk4.mo
+usr/share/man/man1/awf-gtk4.1
+usr/share/man/*/man1/awf-gtk4.1
+usr/share/metainfo/fr.luigifab.awfgtk4.metainfo.xml
