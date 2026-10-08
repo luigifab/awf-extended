@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/04/10/2026
+ * Updated M/06/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -2207,7 +2207,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	QAction *menuitem;
 	QString theme;
 	int i, total, count, look;
-	bool mini, is_user, noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
+	bool mini, isUser, noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
@@ -2305,10 +2305,10 @@ static void create_traditional_menubar(QMenuBar *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			theme   = list_system_theme[i];
-			is_user = list_user_theme.contains(theme);
+			theme  = list_system_theme[i];
+			isUser = list_user_theme.contains(theme);
 
-			menuitem = create_menuitem_radio(base, theme, false, false, is_user, group);
+			menuitem = create_menuitem_radio(base, theme, false, false, isUser, group);
 			if (current_theme == theme)
 				menuitem->setChecked(true);
 			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
@@ -2915,7 +2915,7 @@ static void dialog_inspector() {
 		inspector = new QDialog(window, Qt::Window);
 		inspector->setAttribute(Qt::WA_DeleteOnClose);
 		inspector->setWindowTitle(QString("%1 - Qt %2.%3").arg("QtInspector").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
-		inspector->resize(500, 400);
+		inspector->resize(600, 400);
 
 		QTextEdit *textEdit = new QTextEdit;
 		textEdit->setAcceptRichText(false);
@@ -2923,6 +2923,21 @@ static void dialog_inspector() {
 			fixedFont.setStyleHint(QFont::TypeWriter);
 		textEdit->setFont(fixedFont);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+		QPushButton *btnRefresh = null;
+		if (awf_gqss || awf_sheet) {
+			btnRefresh = new QPushButton(_app("_Refresh"));
+			btnRefresh->setIcon(get_icon("view-refresh"));
+			//QObject::connect(btnRefresh, &QToolButton::clicked, [](){ on_sighup(0); });
+				caller = new AwfCall(btnRefresh);
+				caller->fn = [](){ on_sighup(0); };
+				QObject::connect(btnRefresh, SIGNAL(clicked()), caller, SLOT(run()));
+			QAction *refresh = window->findChild<QAction*>(AWF_REFR);
+			if (!refresh->shortcut().isEmpty()) {
+				inspector->addAction(refresh);
+				btnRefresh->setText(QString("%1 (%2)").arg(btnRefresh->text(), refresh->shortcut().toString(QKeySequence::NativeText)));
+			}
+		}
 
 		QPushButton *btnCopy = new QPushButton(_qt("QShortcut", "Copy"));
 		btnCopy->setIcon(get_icon("edit-copy"));
@@ -2932,6 +2947,8 @@ static void dialog_inspector() {
 		btnClose->setIcon(get_icon("dialog-close"));
 
 		AwfHBox *buttonLayout = new AwfHBox;
+		if (awf_gqss || awf_sheet)
+			buttonLayout->addWidget(btnRefresh);
 		buttonLayout->addWidget(btnCopy);
 		buttonLayout->addWidget(btnClear);
 		buttonLayout->addWidget(btnClose);

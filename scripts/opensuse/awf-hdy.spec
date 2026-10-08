@@ -19,7 +19,7 @@ BuildRequires: gettext
 BuildRequires: gtk3-devel >= 3.24.1
 BuildRequires: libhandy-devel
 Requires:      gtk3 >= 3.24.1
-Requires:      libhandy
+Requires:      libhandy-1-0
 Requires:      hicolor-icon-theme
 Requires:      libnotify >= 0.7.0
 

@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/04/10/2026
+ * Updated M/06/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -32,8 +32,8 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
- *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58
+ *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58 / HANDY 1.8
+ *  Fedora Rawhide 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58 / HANDY 1.8
  *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 2.24/3.24/4.22 + GLIB 2.87 + Pango 1.56
  *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 2.24/3.24/4.20 + GLIB 2.86 + Pango 1.56
  *  Ubuntu 25.04 Plucky Puffin 64      (4096 MB) GTK 2.24/3.24/4.18 + GLIB 2.84 + Pango 1.56
@@ -59,7 +59,7 @@
  *  Ubuntu 11.04 Natty Narwhal 32      (1024 MB) GTK 2.24/3.0  + GLIB 2.28 + Pango 1.28
  *  Windows XP SP3 MinGW/msys          (2048 MB) GTK 2.24 + GLIB 2.28 + Pango 1.29  &  GTK 3.6 + GLIB 2.34 + Pango 1.30
  *
- * This source file is working with GTK 3.0+ and GLIB 2.28+
+ * This source file is working with GTK 3.0+ and GLIB 2.28+ / with GTK 3.24+ and Handy 1.0+ and GLIB 2.44+ (like GTK 3.24)
  */
 
 #pragma GCC diagnostic push
@@ -78,16 +78,21 @@
 	#define WINVER 0x0501
 	#include <windows.h>
 	#include <gdk/gdkwin32.h>
-#elif defined (HAVE_LIBNOTIFY)
+#elif defined (WITH_LIBNOTIFY)
 	#include <libnotify/notify.h>
 #endif
 #if defined (G_OS_UNIX) && GLIB_CHECK_VERSION (2,30,0)
 	#include <glib-unix.h>
 #endif
+#if defined (WITH_HANDY)
+	#include <handy.h>
+	#define GETTEXT_PACKAGE "awf-hdy"
+#else
+	#define GETTEXT_PACKAGE "awf-gtk3"
+#endif
 #pragma GCC diagnostic pop
 
 #define GTK_DIRNAME "gtk-3.0"
-#define GETTEXT_PACKAGE "awf-gtk3"
 #define BOXH (gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0))
 #define BOXV (gtk_box_new (GTK_ORIENTATION_VERTICAL, 0))
 #define SEPH (gtk_separator_new (GTK_ORIENTATION_HORIZONTAL))
@@ -375,24 +380,47 @@ int main(int argc, gchar **argv) {
 				#else
 					cVersion = "C89/C90";
 				#endif
-				g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
-					t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION),
-					"-v            ", _app("Show version number."),
-					"-l            ", _app("List available themes."),
-					"-t <theme>    ", _app("Run with the specified theme."),
-					"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
-					"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
-					"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
-					t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-						cVersion,
-						GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-						GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-						PANGO_VERSION_STRING),
-					t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-						gtk_major_version, gtk_minor_version, gtk_micro_version,
-						glib_major_version, glib_minor_version, glib_micro_version,
-						pango_version_string())
-				);
+				#if defined (WITH_HANDY)
+					g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
+						t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d Handy %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION),
+						"-v            ", _app("Show version number."),
+						"-l            ", _app("List available themes."),
+						"-t <theme>    ", _app("Run with the specified theme."),
+						"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
+						"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
+						"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
+						t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
+							cVersion,
+							GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+							HDY_MAJOR_VERSION, HDY_MINOR_VERSION, HDY_MICRO_VERSION,
+							GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+							PANGO_VERSION_STRING),
+						t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
+							gtk_major_version, gtk_minor_version, gtk_micro_version,
+							0,0,0,//hdy_major_version, hdy_minor_version, hdy_micro_version,
+							glib_major_version, glib_minor_version, glib_micro_version,
+							pango_version_string())
+					);
+				#else
+					g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
+						t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION),
+						"-v            ", _app("Show version number."),
+						"-l            ", _app("List available themes."),
+						"-t <theme>    ", _app("Run with the specified theme."),
+						"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
+						"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
+						"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
+						t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+							cVersion,
+							GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+							GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+							PANGO_VERSION_STRING),
+						t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+							gtk_major_version, gtk_minor_version, gtk_micro_version,
+							glib_major_version, glib_minor_version, glib_micro_version,
+							pango_version_string())
+					);
+				#endif
 				g_free(t1);
 				g_free(t2);
 				g_free(t3);
@@ -419,8 +447,14 @@ int main(int argc, gchar **argv) {
 			}
 		#endif
 
-		GtkApplication *app = gtk_application_new("fr.luigifab.awfgtk3", G_APPLICATION_NON_UNIQUE);
-		g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
+		#if defined (WITH_HANDY)
+			GtkApplication *app = gtk_application_new("fr.luigifab.awfhdy", G_APPLICATION_NON_UNIQUE);
+			g_signal_connect(app, "startup", G_CALLBACK(hdy_init), NULL);
+			g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
+		#else
+			GtkApplication *app = gtk_application_new("fr.luigifab.awfgtk3", G_APPLICATION_NON_UNIQUE);
+			g_signal_connect(app, "activate", G_CALLBACK(create_window), NULL);
+		#endif
 
 		#if GLIB_CHECK_VERSION (2,42,0) && GTK_CHECK_VERSION (3,4,0)
 
@@ -848,7 +882,7 @@ static void display_notification() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
 
-	#if defined (HAVE_LIBNOTIFY)
+	#if defined (WITH_LIBNOTIFY)
 		if (notify_init(GETTEXT_PACKAGE)) {
 			// Ubuntu 11.04 with libnotify-dev 0.5.x, so you must use libnotify-dev 0.7.x from Ubuntu 11.10
 			NotifyNotification *notif = notify_notification_new(GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."), "dialog-information");
@@ -961,7 +995,19 @@ static gboolean take_screenshot() { // without window borders
 	GdkWindow *root = gtk_widget_get_window(window);
 	gtk_window_get_size(GTK_WINDOW(window), &width, &height);
 
-	#if GTK_CHECK_VERSION (3,16,0)
+	#if defined (WITH_HANDY)
+		if (awf_csd) {
+			// remove extra spaces plus headerbar and theme borders from screenshot (menubar is in content box)
+			GtkWidget *content = gtk_widget_get_parent(menubar);
+			GtkStyleContext *context = gtk_widget_get_style_context(content);
+			GtkBorder border, padding;
+			gtk_style_context_get_border(context, gtk_style_context_get_state(context), &border);
+			gtk_style_context_get_padding(context, gtk_style_context_get_state(context), &padding);
+			gtk_widget_translate_coordinates(content, window, border.left + padding.left, border.top + padding.top, &left, &top);
+			width  = gtk_widget_get_allocated_width(content)  - border.left - padding.left - border.right  - padding.right;
+			height = gtk_widget_get_allocated_height(content) - border.top  - padding.top  - border.bottom - padding.bottom;
+		}
+	#elif GTK_CHECK_VERSION (3,16,0)
 		if (awf_csd) {
 			// remove headerbar from screenshot (3.16 not 3.12)
 			GtkWidget *titlebar = gtk_window_get_titlebar(GTK_WINDOW(window));
@@ -1011,15 +1057,20 @@ static void create_window(gpointer app) {
 	gchar *text, *value;
 
 	// window
-	#if GTK_CHECK_VERSION (3,4,0)
+	#if defined (WITH_HANDY)
+		window = hdy_application_window_new();
+		gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
+		text = g_strdup_printf(_app("A widget factory - GTK %d.%d Handy %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#elif GTK_CHECK_VERSION (3,4,0)
 		window = gtk_application_window_new(GTK_APPLICATION(app));
+		text = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 	#else
 		window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+		text = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 	#endif
+
 	gtk_widget_set_name(GTK_WIDGET(window), "AwfMainWindow");
 	gtk_window_set_icon_name(GTK_WINDOW(window), GETTEXT_PACKAGE);
-
-	text = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 	gtk_window_set_title(GTK_WINDOW(window), text);
 	g_free(text);
 
@@ -1034,13 +1085,106 @@ static void create_window(gpointer app) {
 
 	// layout
 	vboxWindow = BOXV;
-	gtk_container_add(GTK_CONTAINER(window), vboxWindow);
+
+	#if defined (WITH_HANDY)
+		GtkWidget *vboxHandy = BOXV;
+		gtk_container_add(GTK_CONTAINER(window), vboxHandy);
+		gtk_box_pack_end(GTK_BOX(vboxHandy), vboxWindow, TRUE, TRUE, 0);
+	#else
+		gtk_container_add(GTK_CONTAINER(window), vboxWindow);
+	#endif
 
 		// headerbar
-		#if GTK_CHECK_VERSION (3,12,0)
+		#if defined (WITH_HANDY)
+			GtkStyleContext *context = gtk_widget_get_style_context(window);
+			GtkWidget *headerbar = hdy_header_bar_new();
+			hdy_header_bar_set_title(HDY_HEADER_BAR(headerbar), gtk_window_get_title(GTK_WINDOW(window)));
+			hdy_header_bar_set_has_subtitle(HDY_HEADER_BAR(headerbar), FALSE);
+			hdy_header_bar_set_show_close_button(HDY_HEADER_BAR(headerbar), TRUE);
+			gtk_box_pack_start(GTK_BOX(vboxHandy), headerbar, FALSE, FALSE, 0);
+
 			if (awf_csd) {
+
 				// enable CSD for dialogs
-				// except for custom dialogs
+				g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
+
+				GtkWidget *button;
+
+				gchar *tokens; // minimize, maximize, close, icon, menu
+				g_object_get(gtk_widget_get_settings(headerbar), "gtk-decoration-layout", &tokens, NULL);
+				if (g_str_has_prefix(tokens, "icon") || g_str_has_prefix(tokens, "menu"))
+					closeLeft = TRUE;
+				else if (g_str_has_suffix(tokens, "icon") || g_str_has_suffix(tokens, "menu"))
+					closeRight = TRUE;
+				if (awf_debug)
+					g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s %d %d\n", tokens, closeLeft, closeRight);
+				g_free(tokens);
+
+				// left
+				headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseLeft), "app-icon");
+				gtk_widget_set_visible(headbarCloseLeft, closeLeft);
+					gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), headbarCloseLeft);
+
+				button = gtk_menu_button_new();
+				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
+				GtkWidget *menu1 = gtk_menu_new();
+				create_menuitem(menu1, "Menu item 1", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu1, "Menu item 2", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu1, "Menu item 3", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu1, "gtk-about", FALSE, NULL, NULL, dialog_about);
+				create_menuitem(menu1, "gtk-quit",  FALSE, NULL, NULL, quit);
+				gtk_widget_show_all(menu1);
+				gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), menu1);
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn1");
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn2");
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn3");
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), button);
+
+				// right
+				headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseRight), "app-icon");
+				gtk_widget_set_visible(headbarCloseRight, closeRight);
+					gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), headbarCloseRight);
+
+				button = gtk_menu_button_new();
+				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
+				GtkWidget *menu2 = gtk_menu_new();
+				create_menuitem(menu2, "Menu item 1", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu2, "Menu item 2", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu2, "Menu item 3", FALSE, NULL, NULL, NULL);
+				create_menuitem(menu2, "gtk-about", FALSE, NULL, NULL, dialog_about);
+				create_menuitem(menu2, "gtk-quit",  FALSE, NULL, NULL, quit);
+				gtk_widget_show_all(menu2);
+				gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), menu2);
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn6");
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn5");
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), button);
+
+				button = gtk_toggle_button_new_with_label("Btn4");
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), button);
+			}
+			else if (!gtk_style_context_has_class(context, "csd") && !gtk_style_context_has_class(context, "solid-csd")) {
+				gtk_widget_set_no_show_all(headerbar, TRUE);
+			}
+		#elif GTK_CHECK_VERSION (3,12,0)
+			if (awf_csd) {
+
+				// enable CSD for dialogs
 				g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
 				GtkWidget *headerbar = gtk_header_bar_new(), *button;
@@ -1366,7 +1510,7 @@ static void create_toolbar(GtkWidget *root) {
 	tool6 = GTK_WIDGET(gtk_tool_button_new(NULL, NULL));
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(tool6), "dialog-information");
 	g_signal_connect(tool6, "clicked", G_CALLBACK(display_notification), NULL);
-	#if !defined (HAVE_LIBNOTIFY)
+	#if !defined (WITH_LIBNOTIFY)
 		gtk_widget_set_sensitive(tool6, FALSE);
 	#endif
 
@@ -2507,7 +2651,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 	GtkAccelGroup *accels = gtk_accel_group_new();
 	GSList *group = NULL;
 	GList *iterator, *look;
-	gboolean mini, is_user;
+	gboolean mini, isUser;
 	int total, count;
 
 	gtk_window_add_accel_group(GTK_WINDOW(window), accels);
@@ -2602,9 +2746,9 @@ static void create_traditional_menubar(GtkWidget *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			is_user = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
+			isUser = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
 
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, is_user, group);
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, isUser, group);
 			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
 			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
 				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
@@ -3065,6 +3209,23 @@ static void dialog_about() {
 	gtk_show_about_dialog(GTK_WINDOW(window),
 		"version", VERSION,
 		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s%s",
+		#if defined (WITH_HANDY)
+			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
+			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
+			_app("to reset keyboard shortcuts."),
+			t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
+				cVersion,
+				GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+				HDY_MAJOR_VERSION, HDY_MINOR_VERSION, HDY_MICRO_VERSION,
+				GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+				PANGO_VERSION_STRING),
+			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
+				gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
+				0,0,0,//hdy_major_version, hdy_minor_version, hdy_micro_version,
+				glib_major_version, glib_minor_version, glib_micro_version,
+				pango_version_string()),
+			classic
+		#else
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
@@ -3078,6 +3239,7 @@ static void dialog_about() {
 				glib_major_version, glib_minor_version, glib_micro_version,
 				pango_version_string()),
 			classic
+		#endif
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
@@ -3124,7 +3286,6 @@ static void dialog_calendar() {
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
 	GtkWidget *dialog, *infobar, *label, *calendar, *area, *btn, *vbox = BOXV;
-	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 
 	// info bars and calendar
 	infobar = gtk_info_bar_new_with_buttons("gtk-ok", GTK_RESPONSE_OK, NULL);
@@ -3156,14 +3317,24 @@ static void dialog_calendar() {
 		GTK_CALENDAR_SHOW_DAY_NAMES | GTK_CALENDAR_SHOW_WEEK_NUMBERS);
 	add_to(vbox, calendar, FALSE, FALSE, 0, 0);
 
-	// dialog
+	// GtkDialog
+	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
+
 	area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	gtk_box_set_spacing(GTK_BOX(area), 2);
 	add_to(area, vbox, TRUE, TRUE, 5, 5);
 	btn = gtk_dialog_add_button(GTK_DIALOG(dialog), "gtk-close", GTK_RESPONSE_OK);
 
-	#if GTK_CHECK_VERSION (3,12,0)
+	#if defined (WITH_HANDY)
+		if (awf_csd) {
+			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
+			GtkWidget *headerbardialog = hdy_header_bar_new();
+			hdy_header_bar_set_has_subtitle(HDY_HEADER_BAR(headerbardialog), FALSE);
+			hdy_header_bar_set_show_close_button(HDY_HEADER_BAR(headerbardialog), TRUE);
+			gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
+		}
+	#elif GTK_CHECK_VERSION (3,12,0)
 		if (awf_csd) {
 			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
 			GtkWidget *headerbardialog = gtk_header_bar_new();
@@ -3208,7 +3379,15 @@ static void dialog_scales() {
 	add_to(area, notebook, TRUE, TRUE, 5, 5);
 	btn = gtk_dialog_add_button(GTK_DIALOG(dialog), "gtk-close", GTK_RESPONSE_OK);
 
-	#if GTK_CHECK_VERSION (3,12,0)
+	#if defined (WITH_HANDY)
+		if (awf_csd) {
+			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
+			GtkWidget *headerbardialog = hdy_header_bar_new();
+			hdy_header_bar_set_has_subtitle(HDY_HEADER_BAR(headerbardialog), FALSE);
+			hdy_header_bar_set_show_close_button(HDY_HEADER_BAR(headerbardialog), TRUE);
+			gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
+		}
+	#elif GTK_CHECK_VERSION (3,12,0)
 		if (awf_csd) {
 			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
 			GtkWidget *headerbardialog = gtk_header_bar_new();

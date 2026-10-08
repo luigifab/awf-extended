@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/04/10/2026
+ * Updated M/06/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -78,7 +78,7 @@
 	#define WINVER 0x0501
 	#include <windows.h>
 	#include <gdk/win32/gdkwin32.h>
-#elif defined (HAVE_LIBNOTIFY)
+#elif defined (WITH_LIBNOTIFY)
 	#include <libnotify/notify.h>
 #endif
 #if defined (G_OS_UNIX)
@@ -776,7 +776,7 @@ static void display_notification() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
 
-	#if defined (HAVE_LIBNOTIFY)
+	#if defined (WITH_LIBNOTIFY)
 		if (notify_init(GETTEXT_PACKAGE)) {
 			// Ubuntu 11.04 with libnotify-dev 0.5.x, so you must use libnotify-dev 0.7.x from Ubuntu 11.10
 			NotifyNotification *notif = notify_notification_new(GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."), "dialog-information");
@@ -971,12 +971,12 @@ static void create_window(GtkApplication *app) {
 
 		// headerbar
 		if (awf_csd) {
+
 			// enable CSD for dialogs
-			// except for custom dialogs
 			g_object_set(gtk_settings_get_default(), "gtk-dialogs-use-header", TRUE, NULL);
 
-			GtkWidget *headerbar = gtk_header_bar_new(), *button;
 			gtk_window_set_decorated(GTK_WINDOW(window), TRUE);
+			GtkWidget *headerbar = gtk_header_bar_new(), *button;
 			gtk_header_bar_set_show_title_buttons(GTK_HEADER_BAR(headerbar), TRUE);
 
 			gchar *tokens; // minimize, maximize, close, icon, menu
@@ -1302,7 +1302,7 @@ static void create_toolbar(GtkWidget *root) {
 
 	icon6 = gtk_button_new_from_icon_name("dialog-information");
 	g_signal_connect(icon6, "clicked", G_CALLBACK(display_notification), NULL);
-	#if !defined (HAVE_LIBNOTIFY)
+	#if !defined (WITH_LIBNOTIFY)
 		gtk_widget_set_sensitive(icon6, FALSE);
 	#endif
 
@@ -2558,7 +2558,7 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			if (g_hash_table_lookup(hash_user_theme, iterator->data)) // is_user
+			if (g_hash_table_lookup(hash_user_theme, iterator->data)) // isUser
 				create_menuitem_radio(base, iterator->data, FALSE, "disabled", FALSE); // @todo
 			else
 				create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
@@ -2933,7 +2933,6 @@ static void dialog_message() {
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
-	// dialog window
 	#if GTK_CHECK_VERSION (4,10,0)
 		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
@@ -3051,7 +3050,6 @@ static void dialog_calendar() {
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
 	GtkWidget *dialog, *infobar, *label, *calendar, *area, *btn, *vbox = BOXV, *hbox;
-	gchar *text;
 
 	// info bars and calendar
 	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
@@ -3092,7 +3090,7 @@ static void dialog_calendar() {
 		dialog = gtk_window_new();
 		gtk_widget_add_css_class(dialog, "dialog");
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 		gtk_window_set_title(GTK_WINDOW(dialog), text);
 		g_free(text);
 
@@ -3113,7 +3111,7 @@ static void dialog_calendar() {
 	#else
 		dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 		gtk_window_set_title(GTK_WINDOW(dialog), text);
 		g_free(text);
 
@@ -3129,7 +3127,6 @@ static void dialog_calendar() {
 		gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
 	}
 
-	// dialog window
 	#if GTK_CHECK_VERSION (4,10,0)
 		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));
@@ -3150,7 +3147,6 @@ static void dialog_scales() {
 		g_printf("\033[36m[trace]\033[00m dialog_scales()\n");
 
 	GtkWidget *dialog, *notebook, *area, *btn, *hbox;
-	gchar *text;
 
 	// notebook and scales
 	notebook = gtk_notebook_new();
@@ -3166,7 +3162,7 @@ static void dialog_scales() {
 		dialog = gtk_window_new();
 		gtk_widget_add_css_class(dialog, "dialog");
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkWindow:Modal", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 		gtk_window_set_title(GTK_WINDOW(dialog), text);
 		g_free(text);
 
@@ -3187,7 +3183,7 @@ static void dialog_scales() {
 	#else
 		dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 
-		text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
 		gtk_window_set_title(GTK_WINDOW(dialog), text);
 		g_free(text);
 
@@ -3203,7 +3199,6 @@ static void dialog_scales() {
 		gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
 	}
 
-	// dialog window
 	#if GTK_CHECK_VERSION (4,10,0)
 		gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
 		gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(window));

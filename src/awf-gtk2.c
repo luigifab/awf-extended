@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/04/10/2026
+ * Updated M/06/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -78,7 +78,7 @@
 	#define WINVER 0x0501
 	#include <windows.h>
 	#include <gdk/gdkwin32.h>
-#elif defined (HAVE_LIBNOTIFY)
+#elif defined (WITH_LIBNOTIFY)
 	#include <libnotify/notify.h>
 #endif
 #if defined (G_OS_UNIX) && GLIB_CHECK_VERSION (2,30,0)
@@ -746,7 +746,7 @@ static void display_notification() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
 
-	#if defined (HAVE_LIBNOTIFY)
+	#if defined (WITH_LIBNOTIFY)
 		if (notify_init(GETTEXT_PACKAGE)) {
 			// Ubuntu 11.04 with libnotify-dev 0.5.x, so you must use libnotify-dev 0.7.x from Ubuntu 11.10
 			NotifyNotification *notif = notify_notification_new(GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."), "dialog-information");
@@ -1108,7 +1108,7 @@ static void create_toolbar(GtkWidget *root) {
 	tool6 = GTK_WIDGET(gtk_tool_button_new(NULL, NULL));
 	gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(tool6), "dialog-information");
 	g_signal_connect(tool6, "clicked", G_CALLBACK(display_notification), NULL);
-	#if !defined (HAVE_LIBNOTIFY)
+	#if !defined (WITH_LIBNOTIFY)
 		gtk_widget_set_sensitive(tool6, FALSE);
 	#endif
 
@@ -2121,7 +2121,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 	GtkAccelGroup *accels = gtk_accel_group_new();
 	GSList *group = NULL;
 	GList *iterator, *look;
-	gboolean mini, is_user;
+	gboolean mini, isUser;
 	int total, count;
 
 	gtk_window_add_accel_group(GTK_WINDOW(window), accels);
@@ -2216,9 +2216,9 @@ static void create_traditional_menubar(GtkWidget *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			is_user = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
+			isUser = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
 
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, is_user, group);
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, isUser, group);
 			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
 			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
 				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
@@ -2701,7 +2701,6 @@ static void dialog_calendar() {
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
 	GtkWidget *dialog, *infobar, *label, *calendar, *area, *btn, *vbox = BOXV;
-	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 
 	// info bars and calendar
 	infobar = gtk_info_bar_new_with_buttons("gtk-ok", GTK_RESPONSE_OK, NULL);
@@ -2733,8 +2732,10 @@ static void dialog_calendar() {
 		GTK_CALENDAR_SHOW_DAY_NAMES | GTK_CALENDAR_SHOW_WEEK_NUMBERS);
 	add_to(vbox, calendar, FALSE, FALSE, 0, 0);
 
-	// dialog
+	// GtkDialog
+	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
+
 	area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	add_to(area, vbox, TRUE, TRUE, 5, 5);
 	btn = gtk_dialog_add_button(GTK_DIALOG(dialog), "gtk-close", GTK_RESPONSE_OK);

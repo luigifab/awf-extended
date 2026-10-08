@@ -30,10 +30,7 @@ GTK 5.0\
 _GtkWindow will be probably deprecated... lol!_
 
 Qt 4.8\
-[<img alt="Preview with Qt 4 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4.png)
-[<img alt="Preview with Qt 4 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-menu.png)
-[<img alt="Preview with Qt 4 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-rtl-menu.png)
-[<img alt="Preview with Qt 4 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt4-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt4-rtl.png)
+_Todo_
 
 Qt 5.15\
 [<img alt="Preview with Qt 5 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5.png)
@@ -177,7 +174,11 @@ Only for fun.
 
 For a huge memory improvement, run the program like this: `env QT_XCB_GL_INTEGRATION=none awf-qt5`.
 
-On Fedora with Qt 5, the GTK 3 platform theme _(qt5-qtbase-gui)_ works better than on Debian _(qt5-gtk-platformtheme)_, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509).
+On Fedora with Qt 5, the GTK 3 platform theme *(qt5-qtbase-gui)* works better than on Debian *(qt5-gtk-platformtheme)*, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509) ; the same applies to openSUSE. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt5`
+
+#### Qt 6
+
+Before Qt 6.8, fonts can be blurry. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt6`
 
 ## Customize
 
@@ -208,7 +209,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20261004
+- Current version: 4.3.0~nightly20261008
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

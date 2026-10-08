@@ -278,7 +278,7 @@ PKG_CHECK_MODULES(LIBNOTIFY, libnotify >= 0.7.0, have_libnotify=yes, have_libnot
 if test "x$windows" = "xyes"; then
   have_libnotify=ignore
 elif test "x$have_libnotify" = "xyes"; then
-  AC_DEFINE([HAVE_LIBNOTIFY], [1], [libnotify available])
+  AC_DEFINE([WITH_LIBNOTIFY], [1], [libnotify available])
 fi
 
 if test "x$enable_adw" = "xyes"; then

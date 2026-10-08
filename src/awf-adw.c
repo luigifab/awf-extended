@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/04/10/2026
+ * Updated M/06/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -32,7 +32,7 @@
  *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
- *  Debian Testing 64                  (1536 MB) GTK 4.24 + ADWAITA 1.9  + GLIB 2.90 + Pango 1.58
+ *  Debian Testing 64                  (1536 MB) GTK 4.24 + ADWAITA 1.10 + GLIB 2.90 + Pango 1.58
  *  Fedora Rawhide 64                  (1536 MB) GTK 4.24 + ADWAITA 1.10 + GLIB 2.90 + Pango 1.58
  *  Ubuntu 26.04 Resolute Raccoon 64   (4096 MB) GTK 4.22 + ADWAITA 1.9  + GLIB 2.87 + Pango 1.56
  *  Ubuntu 25.10 Questing Quokka 64    (4096 MB) GTK 4.20 + ADWAITA 1.8  + GLIB 2.86 + Pango 1.56
@@ -62,7 +62,7 @@
 	#define WINVER 0x0501
 	#include <windows.h>
 	#include <gdk/win32/gdkwin32.h>
-#elif defined (HAVE_LIBNOTIFY)
+#elif defined (WITH_LIBNOTIFY)
 	#include <libnotify/notify.h>
 #endif
 #if defined (G_OS_UNIX)
@@ -795,7 +795,7 @@ static void display_notification() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m display_notification()\n");
 
-	#if defined (HAVE_LIBNOTIFY)
+	#if defined (WITH_LIBNOTIFY)
 		if (notify_init(GETTEXT_PACKAGE)) {
 			// Ubuntu 11.04 with libnotify-dev 0.5.x, so you must use libnotify-dev 0.7.x from Ubuntu 11.10
 			NotifyNotification *notif = notify_notification_new(GETTEXT_PACKAGE, _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."), "dialog-information");
@@ -1562,7 +1562,7 @@ static void create_toolbar(GtkWidget *root) {
 
 	icon6 = gtk_button_new_from_icon_name("dialog-information");
 	g_signal_connect(icon6, "clicked", G_CALLBACK(display_notification), NULL);
-	#if !defined (HAVE_LIBNOTIFY)
+	#if !defined (WITH_LIBNOTIFY)
 		gtk_widget_set_sensitive(icon6, FALSE);
 	#endif
 
@@ -2793,7 +2793,7 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			if (g_hash_table_lookup(hash_user_theme, iterator->data)) // is_user
+			if (g_hash_table_lookup(hash_user_theme, iterator->data)) // isUser
 				create_menuitem_radio(base, iterator->data, FALSE, "disabled", FALSE); // @todo
 			else
 				create_menuitem_radio(base, iterator->data, FALSE, g_strdup_printf("app.set-theme::%s", (gchar*) iterator->data), TRUE);
@@ -3220,9 +3220,8 @@ static void dialog_calendar() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
-	AdwDialog *dialog;
 	GtkWidget *infobar, *calendar, *btn, *vbox = BOXV;
-	gchar *text;
+	AdwDialog *dialog;
 
 	// info bars and calendar
 	infobar = adw_banner_new(_app("This is an info bar."));
@@ -3253,7 +3252,7 @@ static void dialog_calendar() {
 
 	// AdwDialog
 	dialog = adw_dialog_new();
-	text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	gchar *text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
 	adw_dialog_set_title(dialog, text);
 	g_free(text);
 
@@ -3281,7 +3280,6 @@ static void dialog_scales() {
 
 	AdwDialog *dialog;
 	GtkWidget *notebook, *btn;
-	gchar *text;
 
 	// notebook and scales
 	notebook = gtk_notebook_new();
@@ -3294,7 +3292,7 @@ static void dialog_scales() {
 
 	// AdwDialog
 	dialog = adw_dialog_new();
-	text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
+	gchar *text = g_strdup_printf("%s - GTK %d.%d Adwaita %d.%d", "AdwDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, ADW_MAJOR_VERSION, ADW_MINOR_VERSION);
 	adw_dialog_set_title(dialog, text);
 	g_free(text);
 

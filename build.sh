@@ -39,7 +39,6 @@ cp configure.ac      builder/
 cp Makefile.am       builder/
 cp src/Makefile.am   builder/src/
 cp src/awf-adw*.c    builder/src/
-cp src/awf-hdy*.c    builder/src/
 cp src/awf-gtk*.c    builder/src/
 cp src/awf-qt*.cpp   builder/src/
 cp src/awf.rc        builder/src/
@@ -60,7 +59,7 @@ cd ..
 # final
 if [ $result -eq 0 ]; then
 	cp builder/src/awf-adw* builder/src/awf-hdy* builder/src/awf-gtk* builder/src/awf-qt* .
-	rm -f awf-adw*.c awf-hdy*.c awf-gtk*.c awf-qt*.cpp awf-qt*.moc awf-qt*.o
+	rm -f awf-adw*.c awf-gtk*.c awf-qt*.cpp awf-qt*.moc awf-qt*.o
 	ls -altrh awf-adw* awf-hdy* awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt4* awf-qt5* awf-qt6* awf-qt7*
 fi
 rm -rf builder/
