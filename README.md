@@ -38,7 +38,7 @@ Qt 5.15\
 [<img alt="Preview with Qt 5 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl-menu.png)
 [<img alt="Preview with Qt 5 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl.png)
 
-Qt 6.11\
+Qt 6.9..6.11\
 [<img alt="Preview with Qt 6 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6.png)
 [<img alt="Preview with Qt 6 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-menu.png)
 [<img alt="Preview with Qt 6 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl-menu.png)
@@ -73,9 +73,9 @@ Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, the
 
 For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.24)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
-For Handy, it requires **GTK 3.24+**, *Handy 1.0+*, *GLIB 2.44+*, *libnotify 0.7+*.
-
 For Adwaita, it requires **GTK 4.18+** *(including 4.24)*, *Adwaita 1.7+*, *GLIB 2.68+*, *libnotify 0.7+*.
+
+For Handy, it requires **GTK 3.24+**, *Handy 1.0+*, *GLIB 2.44+*, *libnotify 0.7+*.
 
 For Qt, it requires **Qt 4.8** or **Qt 5.2+** *(including 5.15)* or **Qt 6.0+** *(including 6.12)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
@@ -91,7 +91,7 @@ Replace `apt`/`dnf` with your package manager, or use a graphical interface.
 #### Build from source
 
 * To compile with all available major versions of GTK and Qt run: `build.sh`
-* To compile and create DEB packages for Debian & Ubuntu run: `scripts/debian[-adw|-hdy|-gtkx|-qtx]/deb.sh`
+* To compile and create DEB packages for Debian & Ubuntu run: `scripts/debian[adw|hdy|gtkx|qtx]/deb.sh`
 * To compile and create RPM packages for Fedora run: `scripts/fedora/rpm-[adw|hdy|gtkx|qtx].sh`
 * To compile and create EXE programs for Windows (XP) run: `scripts/windows/zip.sh`
 
@@ -209,7 +209,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20261008
+- Current version: 4.3.0~nightly20261011
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

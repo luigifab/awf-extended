@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/06/10/2026
+ * Updated D/11/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -199,14 +199,15 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position);
 static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static void create_traditional_menubar(GtkWidget *root);
-static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accels);
+static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accelgroup);
 static GtkWidget* create_menuitem_tearoff(GtkWidget *menu);
 static GtkWidget* create_menuitem_check(GtkWidget *menu, gchar *text, gboolean free, gboolean chk, gboolean ist, gboolean dsb);
 static GtkWidget* create_menuitem_radio(GtkWidget *menu, gchar *text, gboolean free, gboolean chk, gboolean ist, gboolean dsb, GSList *group);
-static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gchar *accel, gchar *kmp, GCallback function);
+static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gchar *acl, gchar *kmp, GCallback function);
 static void accels_load();
 static void accels_select(GtkWidget *widget);
 static void accels_deselect(GtkWidget *widget);
+static gboolean accels_keypad(GtkWidget *widget, GdkEventKey *event);
 static gboolean accels_change(GtkWidget *widget, GdkEventKey *event);
 static void accels_save();
 static void dialog_open();
@@ -316,8 +317,12 @@ int main(int argc, gchar **argv) {
 	textdomain(GETTEXT_PACKAGE);
 
 	// init
+	gtk_parse_args(&argc, &argv);
 	static struct option options[] = {
 		{"help",        no_argument, NULL, 'x'},
+		{"help-all",    no_argument, NULL, 'x'},
+		{"help-gtk",    no_argument, NULL, 'x'},
+		{"help-gapplication", no_argument, NULL, 'x'},
 		{"version",     no_argument, NULL, 'v'},
 		{"list",        no_argument, NULL, 'l'},
 		{"theme",       required_argument, NULL, 't'},
@@ -360,16 +365,14 @@ int main(int argc, gchar **argv) {
 			case 'z':
 				current_direction = 2; // GTK_TEXT_DIR_RTL
 				break;
-			// --help (via GtkApplication) -h
-			// --help/x supported by GTK 3.4+ with GLIB 2.42+
+			// --help (via GtkApplication, supported by GTK 3.4+ with GLIB 2.42+, else -h)
 			case 'x':
+				#if GLIB_CHECK_VERSION (2,42,0) && GTK_CHECK_VERSION (3,4,0)
+					break;
+				#endif
+			// -h
 			case 'h':
 			default:
-				if (opt == 'x') {
-					#if GLIB_CHECK_VERSION (2,42,0) && GTK_CHECK_VERSION (3,4,0)
-						break;
-					#endif
-				}
 				#ifdef __STDC_VERSION__
 					if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
 					else if (__STDC_VERSION__ >= 201710L) cVersion = "C17";
@@ -397,7 +400,7 @@ int main(int argc, gchar **argv) {
 							PANGO_VERSION_STRING),
 						t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
 							gtk_major_version, gtk_minor_version, gtk_micro_version,
-							0,0,0,//hdy_major_version, hdy_minor_version, hdy_micro_version,
+							0, 0, 0, // hdy_major_version, hdy_minor_version, hdy_micro_version,
 							glib_major_version, glib_minor_version, glib_micro_version,
 							pango_version_string())
 					);
@@ -996,10 +999,10 @@ static gboolean take_screenshot() { // without window borders
 	gtk_window_get_size(GTK_WINDOW(window), &width, &height);
 
 	#if defined (WITH_HANDY)
-		if (awf_csd) {
+		GtkWidget *content = gtk_widget_get_parent(menubar);
+		GtkStyleContext *context = gtk_widget_get_style_context(content);
+		if (!gtk_style_context_has_class(context, "awf-handy-nocsd")) {
 			// remove extra spaces plus headerbar and theme borders from screenshot (menubar is in content box)
-			GtkWidget *content = gtk_widget_get_parent(menubar);
-			GtkStyleContext *context = gtk_widget_get_style_context(content);
 			GtkBorder border, padding;
 			gtk_style_context_get_border(context, gtk_style_context_get_state(context), &border);
 			gtk_style_context_get_padding(context, gtk_style_context_get_state(context), &padding);
@@ -1103,6 +1106,8 @@ static void create_window(gpointer app) {
 			hdy_header_bar_set_show_close_button(HDY_HEADER_BAR(headerbar), TRUE);
 			gtk_box_pack_start(GTK_BOX(vboxHandy), headerbar, FALSE, FALSE, 0);
 
+			// gtk3-classic+handy with forced CSD  or  gtk3+handy with forced CSD
+			// add .awf-handy-extracsd
 			if (awf_csd) {
 
 				// enable CSD for dialogs
@@ -1124,7 +1129,7 @@ static void create_window(gpointer app) {
 				headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
 				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseLeft), "app-icon");
 				gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-					gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
+				gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
 				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), headbarCloseLeft);
 
 				button = gtk_menu_button_new();
@@ -1153,7 +1158,7 @@ static void create_window(gpointer app) {
 				headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
 				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseRight), "app-icon");
 				gtk_widget_set_visible(headbarCloseRight, closeRight);
-					gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
+				gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
 				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), headbarCloseRight);
 
 				button = gtk_menu_button_new();
@@ -1177,9 +1182,19 @@ static void create_window(gpointer app) {
 
 				button = gtk_toggle_button_new_with_label("Btn4");
 				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), button);
+
+				gtk_style_context_add_class(gtk_widget_get_style_context(vboxWindow), "awf-handy-extracsd");
 			}
-			else if (!gtk_style_context_has_class(context, "csd") && !gtk_style_context_has_class(context, "solid-csd")) {
+			// gtk3+handy with CSD
+			// add .awf-handy-csd
+			else if (gtk_style_context_has_class(context, "csd") || gtk_style_context_has_class(context, "solid-csd")) {
+				gtk_style_context_add_class(gtk_widget_get_style_context(vboxWindow), "awf-handy-csd");
+			}
+			// gtk3-classic+handy without CSD
+			// add .awf-handy-nocsd
+			else {
 				gtk_widget_set_no_show_all(headerbar, TRUE);
+				gtk_style_context_add_class(gtk_widget_get_style_context(vboxWindow), "awf-handy-nocsd");
 			}
 		#elif GTK_CHECK_VERSION (3,12,0)
 			if (awf_csd) {
@@ -1323,19 +1338,36 @@ static void create_window(gpointer app) {
 	#endif
 
 	#if defined (G_OS_UNIX) && GLIB_CHECK_VERSION (2,32,0)
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.gnome.desktop.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+		GSettingsSchema *schema;
+		GSettingsSchemaSource *source = g_settings_schema_source_get_default();
 
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.gnome.desktop.wm.preferences", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.cinnamon.desktop.wm.preferences", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.Marco.general", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-decoration-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+		if (source) {
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.gnome.desktop.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.gnome.desktop.wm.preferences", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.cinnamon.desktop.wm.preferences", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.Marco.general", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-decoration-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+		}
 	#endif
 
 	#if defined (G_OS_WIN32)
@@ -2648,16 +2680,16 @@ static void create_traditional_menubar(GtkWidget *root) {
 		g_printf("\033[36m[trace]\033[00m create_traditional_menubar()\n");
 
 	GtkWidget *menu, *submenu, *menuitem, *base;
-	GtkAccelGroup *accels = gtk_accel_group_new();
+	GtkAccelGroup *accelgroup = gtk_accel_group_new();
 	GSList *group = NULL;
 	GList *iterator, *look;
 	gboolean mini, isUser;
 	int total, count;
 
-	gtk_window_add_accel_group(GTK_WINDOW(window), accels);
+	gtk_window_add_accel_group(GTK_WINDOW(window), accelgroup);
 
 	// options
-	menu = create_menu(root, _app("_Options"), TRUE, accels);
+	menu = create_menu(root, _app("_Options"), TRUE, accelgroup);
 
 		// @todo option command line?
 		const gchar *config = g_getenv("AWF_TEAROFF");
@@ -2674,7 +2706,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 		create_menuitem(menu, "gtk-page-setup", FALSE, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, "gtk-print", FALSE, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
-		submenu = create_menu(menu, _app("More..."), TRUE, accels);
+		submenu = create_menu(menu, _app("More..."), TRUE, accelgroup);
 
 			create_menuitem(submenu, "gtk-cut", FALSE, AWF_ACCEL_MCUT, AWF_MCUT, NULL);
 			create_menuitem(submenu, "gtk-copy", FALSE, AWF_ACCEL_MCOP, AWF_MCOP, NULL);
@@ -2822,7 +2854,7 @@ static void create_traditional_menubar(GtkWidget *root) {
 		g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_text_direction), GINT_TO_POINTER(GTK_TEXT_DIR_RTL));
 
 	// help
-	menu = create_menu(root, _app("_Help"), TRUE, accels);
+	menu = create_menu(root, _app("_Help"), TRUE, accelgroup);
 
 		#if GTK_CHECK_VERSION (3,14,0)
 			create_menuitem(menu, "GtkInspector", FALSE, AWF_ACCEL_INSP, AWF_INSP, dialog_inspector);
@@ -2835,11 +2867,12 @@ static void create_traditional_menubar(GtkWidget *root) {
 
 	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
+	g_signal_connect(window, "key-press-event", G_CALLBACK(accels_keypad), NULL);
 	g_object_set(gtk_settings_get_default(), "gtk-can-change-accels", FALSE, NULL);
-	g_object_unref(accels);
+	g_object_unref(accelgroup);
 }
 
-static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accels) {
+static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accelgroup) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_menu(%s)\n", text);
@@ -2851,11 +2884,10 @@ static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, G
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(root), menuitem);
 
-	if (accels) {
+	if (accelgroup) {
 		// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
-		gtk_menu_set_accel_group(GTK_MENU(menu), accels);
-		gtk_widget_set_events(menu, GDK_KEY_RELEASE_MASK);
-		g_signal_connect(menu, "key-release-event", G_CALLBACK(accels_change), NULL);
+		gtk_menu_set_accel_group(GTK_MENU(menu), accelgroup);
+		g_signal_connect(menu, "key-press-event", G_CALLBACK(accels_change), NULL);
 	}
 
 	return menu;
@@ -2913,7 +2945,7 @@ static GtkWidget* create_menuitem_radio(GtkWidget *menu, gchar *text, gboolean f
 	return menuitem;
 }
 
-static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gchar *accel, gchar *kmp, GCallback function) {
+static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gchar *acl, gchar *kmp, GCallback function) {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_menuitem(%s)\n", text);
@@ -2930,8 +2962,8 @@ static GtkWidget* create_menuitem(GtkWidget *menu, gchar *text, gboolean dsb, gc
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	gtk_widget_set_sensitive(menuitem, !dsb);
 
-	if (accel && kmp) {
-		gtk_accelerator_parse(accel, &key, &mods);
+	if (acl && kmp) {
+		gtk_accelerator_parse(acl, &key, &mods);
 		gtk_accel_map_add_entry(kmp, key, mods);
 	}
 
@@ -2979,57 +3011,66 @@ static void accels_deselect(GtkWidget *widget) {
 		current_menuitem = NULL;
 }
 
-static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
+static gboolean accels_keypad(GtkWidget *widget, GdkEventKey *event) {
 
-	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m accels_change()\n");
+	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// shortcuts use 0-9 to display Ctrl+1 and not Ctrl+KP 1, but keypad sends KP_0..KP_9, so activate them manually
+	if ((event->keyval >= GDK_KEY_KP_0) && (event->keyval <= GDK_KEY_KP_9))
+		return gtk_accel_groups_activate(G_OBJECT(widget),
+			event->keyval - GDK_KEY_KP_0 + GDK_KEY_0,
+			event->state & gtk_accelerator_get_default_mod_mask());
+
+	return FALSE;
+}
+
+static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 
 	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	// @see https://github.com/GNOME/gtk/commit/2d79334bb069224966b3dcd8456967c9800e8fd0
-	if (current_menuitem) {
+	// identify menuitem and keys pressed
+	if (!current_menuitem || event->is_modifier)
+		return FALSE;
 
-		GtkMenuItem *menuitem = GTK_MENU_ITEM(current_menuitem);
-		gchar *key = gdk_keyval_name(event->keyval);
-		const gchar *acl = gtk_menu_item_get_accel_path(menuitem);
+	GtkMenuItem *menuitem = GTK_MENU_ITEM(current_menuitem);
+	const gchar *kmp = gtk_menu_item_get_accel_path(menuitem);
+	if (!kmp)
+		return FALSE;
 
-		if (
-			key &&
-			acl &&
-			(strcmp(key, "Control_L") != 0) && (strcmp(key, "Control_R") != 0) &&
-			(strcmp(key, "Shift_L") != 0) && (strcmp(key, "Shift_R") != 0) &&
-			(strcmp(key, "Super_L") != 0) && (strcmp(key, "Super_R") != 0) &&
-			(strcmp(key, "Meta_L") != 0) && (strcmp(key, "Meta_R") != 0) &&
-			(strcmp(key, "Alt_L") != 0) && (strcmp(key, "Alt_R") != 0)
-		) {
-			gboolean del = (event->keyval == GDK_KEY_Delete) || (event->keyval == GDK_KEY_KP_Delete) || (event->keyval == GDK_KEY_BackSpace);
-			if (
-				del ||
-				// f1..12
-				((event->keyval >= GDK_KEY_F1) && (event->keyval <= GDK_KEY_F12)) ||
-				// ctrl/shift/super/alt + ?
-				(event->state & GDK_CONTROL_MASK) || (event->state & GDK_SHIFT_MASK) ||
-				(event->state & GDK_SUPER_MASK) || (event->state & GDK_META_MASK)
-			) {
-				must_save_accels = TRUE;
-				gtk_accel_map_change_entry(
-					acl,
-					del ? 0 : gdk_keyval_to_lower(event->keyval),
-					del ? 0 : event->state & gtk_accelerator_get_default_mod_mask(),
-					TRUE);
+	GdkModifierType state = event->state & gtk_accelerator_get_default_mod_mask();
+	guint keyval = gdk_keyval_to_lower(event->keyval);
 
-				// @todo new shorcut (CTRL+SHIFT+...) not always displayed (in More and Help menus)
+	// 0-9 only from keypad
+	gboolean digit = (keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9);
+	if ((keyval >= GDK_KEY_KP_0) && (keyval <= GDK_KEY_KP_9))
+		keyval = keyval - GDK_KEY_KP_0 + GDK_KEY_0;
 
-				if (awf_debug) {
-					key = gtk_accelerator_name(gdk_keyval_to_lower(event->keyval), event->state & gtk_accelerator_get_default_mod_mask());
-					g_printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : key);
-					g_free(key);
-				}
+	gchar *acl = gtk_accelerator_name(keyval, state);
+	gboolean del = (keyval == GDK_KEY_Delete) || (keyval == GDK_KEY_KP_Delete) || (keyval == GDK_KEY_BackSpace);
 
-				return TRUE;
-			}
-		}
+	// debug
+	if (awf_trace)
+		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n", gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem)))), kmp, acl);
+
+	// remove existing keyboard shortcut and set new keyboard shortcut
+	// all in one (but without alt because of mnemonics)
+	if (!digit && !(state & GDK_MOD1_MASK) && (
+		del ||
+		// f1..12
+		((keyval >= GDK_KEY_F1) && (keyval <= GDK_KEY_F12)) ||
+		// ctrl/shift/super + 0-9/a..z/return
+		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || ((keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z)) || (keyval == GDK_KEY_Return)))
+	)) {
+		must_save_accels = TRUE;
+		gtk_accel_map_change_entry(kmp, del ? 0 : keyval, del ? 0 : state, TRUE);
+
+		if (awf_debug)
+			g_printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : acl);
+
+		g_free(acl);
+		return TRUE;
 	}
 
+	g_free(acl);
 	return FALSE;
 }
 
@@ -3221,7 +3262,7 @@ static void dialog_about() {
 				PANGO_VERSION_STRING),
 			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"),
 				gtk_get_major_version(), gtk_get_minor_version(), gtk_get_micro_version(),
-				0,0,0,//hdy_major_version, hdy_minor_version, hdy_micro_version,
+				0, 0, 0, // hdy_major_version, hdy_minor_version, hdy_micro_version,
 				glib_major_version, glib_minor_version, glib_micro_version,
 				pango_version_string()),
 			classic

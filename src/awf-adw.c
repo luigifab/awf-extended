@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/06/10/2026
+ * Updated D/11/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -183,7 +183,9 @@ static void create_menuitem_radio(GMenu *menu, gchar *text, gboolean free1, gcha
 static void create_menuitem(GtkApplication *app, GMenu *menu, gchar *text, gboolean dsb, gchar *acl, gchar *kmp, gchar *icon, GCallback function);
 static void activate_action(GSimpleAction *action, GVariant *parameter, gpointer data);
 static void accels_load(GtkApplication *app);
-static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state);
+static gboolean accels_keypad(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer data);
+static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer data);
+static void accels_attach(GtkWidget *widget);
 static void accels_save();
 static void dialog_open();
 static void dialog_save();
@@ -289,6 +291,8 @@ int main(int argc, gchar **argv) {
 	// init
 	static struct option options[] = {
 		{"help",        no_argument, NULL, 'x'},
+		{"help-all",    no_argument, NULL, 'x'},
+		{"help-gapplication", no_argument, NULL, 'x'},
 		{"version",     no_argument, NULL, 'v'},
 		{"list",        no_argument, NULL, 'l'},
 		{"theme",       required_argument, NULL, 't'},
@@ -331,13 +335,12 @@ int main(int argc, gchar **argv) {
 			case 'z':
 				current_direction = 2; // GTK_TEXT_DIR_RTL
 				break;
-			// --help (via GtkApplication) -h
-			// --help/x supported by GTK 4.x
+			// --help (via GtkApplication, supported by GTK 4.x)
 			case 'x':
+				break;
+			// -h
 			case 'h':
 			default:
-				if (opt == 'x')
-					break;
 				#ifdef __STDC_VERSION__
 					if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
 					else if (__STDC_VERSION__ >= 201710L) cVersion = "C17";
@@ -559,7 +562,7 @@ static void update_theme(gchar *newTheme) {
 		g_object_set(gtk_settings_get_default(), "gtk-theme-name", current_theme, NULL);
 		g_object_notify(G_OBJECT(gtk_settings_get_default()), "gtk-theme-name");
 
-		apply_natural_size(); // @todo not working
+		apply_natural_size();
 
 		if (opt_screenshot) {
 			if (take_screenshot()) {
@@ -1066,11 +1069,11 @@ static void create_window(GtkApplication *app) {
 			// prepare a compact copy of the menu (Options + Interface + Help)
 			// but without any visual changes
 			GMenu *sub = g_menu_new();
-			int i, n = g_menu_model_get_n_items(G_MENU_MODEL(gmm));
-			for (i = 0; i < n; i++) {
-				GMenuItem *item = g_menu_item_new_from_model(G_MENU_MODEL(gmm), i);
-				g_menu_append_item(((i == 0) || (i == n - 1)) ? menuwrap : sub, item);
-				g_object_unref(item);
+			int idx, n = g_menu_model_get_n_items(G_MENU_MODEL(gmm));
+			for (idx = 0; idx < n; idx++) {
+				GMenuItem *menuitem = g_menu_item_new_from_model(G_MENU_MODEL(gmm), idx);
+				g_menu_append_item(((idx == 0) || (idx == n - 1)) ? menuwrap : sub, menuitem);
+				g_object_unref(menuitem);
 			}
 			g_menu_insert_submenu(menuwrap, 1, _app("_Interface"), G_MENU_MODEL(sub));
 			g_object_unref(sub);
@@ -1169,36 +1172,58 @@ static void create_window(GtkApplication *app) {
 	#endif
 
 	#if defined (G_OS_UNIX)
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.gnome.desktop.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+		GSettingsSchema *schema;
+		GSettingsSchemaSource *source = g_settings_schema_source_get_default();
 
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.gnome.desktop.wm.preferences", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.cinnamon.desktop.wm.preferences", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.Marco.general", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
-		if (g_settings_schema_source_lookup(g_settings_schema_source_get_default(), value = "org.mate.interface", FALSE))
-			g_signal_connect(g_settings_new(value), "changed::gtk-decoration-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+		if (source) {
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.gnome.desktop.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-theme", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.gnome.desktop.wm.preferences", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.cinnamon.desktop.wm.preferences", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.Marco.general", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::button-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+			if ((schema = g_settings_schema_source_lookup(source, value = "org.mate.interface", FALSE))) {
+				g_signal_connect(g_settings_new(value), "changed::gtk-decoration-layout", G_CALLBACK(notify_updated_gtktheme), NULL);
+				g_settings_schema_unref(schema);
+			}
+		}
 	#endif
 
 	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load(app);
-	//GtkEventController *event = gtk_event_controller_key_new();
-	//g_signal_connect(event, "key-released", G_CALLBACK(accels_change), window);
-	//gtk_widget_add_controller(window, event);
+
+	// keypad 0-9 does not trigger 0-9 shortcuts, so it is done manually
+	GtkEventController *event = gtk_event_controller_key_new();
+	gtk_event_controller_set_propagation_phase(event, GTK_PHASE_CAPTURE);
+	g_signal_connect(event, "key-pressed", G_CALLBACK(accels_keypad), NULL);
+	gtk_widget_add_controller(window, event);
 
 	gtk_window_present(GTK_WINDOW(window));
 	gtk_widget_grab_focus(gtk_widget_get_first_child(toolbar)); // focus on the first toolbar button
+
+	accels_attach(window);
 
 	if (awf_brkps && breakpoints) {
 		// not yet applied
 		apply_natural_size();
 		// enable breakpoints, AFTER the window creation, so after the window takes its natural size
-		for (guint i = 0; i < breakpoints->len; i++)
-			adw_application_window_add_breakpoint(ADW_APPLICATION_WINDOW(window), g_ptr_array_index(breakpoints, i));
+		for (guint idx = 0; idx < breakpoints->len; idx++)
+			adw_application_window_add_breakpoint(ADW_APPLICATION_WINDOW(window), g_ptr_array_index(breakpoints, idx));
 		g_ptr_array_free(breakpoints, TRUE);
 	}
 }
@@ -2905,18 +2930,24 @@ static void create_menuitem(GtkApplication *app, GMenu *menu, gchar *text, gbool
 
 	GMenuItem *menuitem;
 	GSimpleAction *action = NULL;
-	gchar *appkey = "disabled";
+	gchar *full = "disabled";
 
 	if (!dsb) {
-		appkey = g_strdup_printf("app.%s", kmp);
+		full = g_strdup_printf("app.%s", kmp);
 		action = g_simple_action_new(kmp, NULL);
 		g_action_map_add_action(G_ACTION_MAP(app), G_ACTION(action));
 
 		const char *acckey[2] = { acl, NULL };
-		gtk_application_set_accels_for_action(app, appkey, acckey);
+		gtk_application_set_accels_for_action(app, full, acckey);
+
+		// for accels_change
+		GString *label = g_string_new(text);
+		g_string_replace(label, "_", "", 0);
+		g_object_set_data(G_OBJECT(app), label->str, kmp);
+		g_string_free(label, TRUE);
 	}
 
-	menuitem = g_menu_item_new(text, appkey);
+	menuitem = g_menu_item_new(text, full);
 
 	if (action && function)
 		g_signal_connect(action, "activate", function, NULL);
@@ -2928,7 +2959,7 @@ static void create_menuitem(GtkApplication *app, GMenu *menu, gchar *text, gbool
 
 	if (!dsb) {
 		g_object_unref(action);
-		g_free(appkey);
+		g_free(full);
 	}
 }
 
@@ -2978,10 +3009,10 @@ static void accels_load(GtkApplication *app) {
 			GActionMap *map = G_ACTION_MAP(app);
 			gchar **lines = g_strsplit(content, "\n", -1);
 
-			for (int i = 0; lines[i] != NULL; i++) {
+			for (int idx = 0; lines[idx] != NULL; idx++) {
 
 				//; (gtk_accel_path "<AWF>/Test/Print" "<Primary>p")
-				gchar *l = g_strstrip(lines[i]);
+				gchar *l = g_strstrip(lines[idx]);
 				if (l[0] == '\0' || l[0] == ';')
 					continue;
 
@@ -3019,6 +3050,7 @@ static void accels_load(GtkApplication *app) {
 
 						const char *acckey[2] = { acl, NULL };
 						gtk_application_set_accels_for_action(app, full, acckey);
+						g_object_set_data(G_OBJECT(action), "shortcutModified", GINT_TO_POINTER(TRUE));
 						g_free(full);
 					}
 				}
@@ -3035,23 +3067,180 @@ static void accels_load(GtkApplication *app) {
 	g_free(path);
 }
 
-static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state) { // todo
+static gboolean accels_keypad(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer data) {
 
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// shortcuts use 0-9 to display Ctrl+1 and not Ctrl+KP 1, but keypad sends KP_0..KP_9, so activate them manually
+	gboolean found = FALSE;
+	if ((keyval >= GDK_KEY_KP_0) && (keyval <= GDK_KEY_KP_9)) {
+
+		GtkApplication *app = GTK_APPLICATION(g_application_get_default());
+		gchar **names = g_action_group_list_actions(G_ACTION_GROUP(app));
+		gchar *acl = gtk_accelerator_name(keyval - GDK_KEY_KP_0 + GDK_KEY_0, state & gtk_accelerator_get_default_mod_mask());
+
+		for (int idx = 0; !found && (names[idx] != NULL); idx++) {
+			gchar *full = g_strdup_printf("app.%s", names[idx]);
+			gchar **accels = gtk_application_get_accels_for_action(app, full);
+			if (g_strcmp0(accels[0], acl) == 0) {
+				g_action_group_activate_action(G_ACTION_GROUP(app), names[idx], NULL);
+				found = TRUE;
+			}
+			g_strfreev(accels);
+			g_free(full);
+			if (found)
+				break;
+		}
+
+		g_strfreev(names);
+		g_free(acl);
+	}
+
+	return found;
+}
+
+static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, guint keycode, GdkModifierType state, gpointer data) {
+
+	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// identify menuitem and keys pressed
+	GtkApplication *app = GTK_APPLICATION(g_application_get_default());
+	GActionMap *map = G_ACTION_MAP(app);
+
+	// menuitem of the menubar selected, it's a GtkModelButton without action name
+	GtkWidget *menuitem = gtk_root_get_focus(GTK_ROOT(window));
+	if (!menuitem || !gtk_widget_get_ancestor(menuitem, GTK_TYPE_POPOVER_MENU_BAR) || !g_object_class_find_property(G_OBJECT_GET_CLASS(menuitem), "text"))
+		return FALSE;
+	if (gdk_key_event_is_modifier(gtk_event_controller_get_current_event(GTK_EVENT_CONTROLLER(controller))))
+		return FALSE;
+
+	// from text (Open)
+	gchar *label = NULL;
+	g_object_get(menuitem, "text", &label, NULL);
+	if (!label)
+		return FALSE;
+
+	// to kmp (<AWF>/Test/Open)
+	gchar *kmp = g_object_get_data(G_OBJECT(app), label);
+	if (!kmp) {
+		g_free(label);
+		return FALSE;
+	}
+
+	// to action
+	GAction *action = g_action_map_lookup_action(map, kmp);
+	if (!action) {
+		g_free(label);
+		return FALSE;
+	}
+
+	state &= gtk_accelerator_get_default_mod_mask();
+	keyval = gdk_keyval_to_lower(keyval);
+
+	// 0-9 only from keypad
+	gboolean digit = (keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9);
+	if ((keyval >= GDK_KEY_KP_0) && (keyval <= GDK_KEY_KP_9))
+		keyval = keyval - GDK_KEY_KP_0 + GDK_KEY_0;
+
+	gchar *acl = gtk_accelerator_name(keyval, state);
+	gboolean del = (keyval == GDK_KEY_Delete) || (keyval == GDK_KEY_KP_Delete) || (keyval == GDK_KEY_BackSpace);
+
+	// debug
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m accels_change()\n");
+		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n", label, kmp, acl);
 
-	// @todo not triggered when menu is open
+	g_free(label);
+
+	// check and remove existing keyboard shortcut
+	// and set new keyboard shortcut (without alt because of mnemonics)
+	if (!digit && !(state & GDK_ALT_MASK) && (
+		del ||
+		// f1..12
+		((keyval >= GDK_KEY_F1) && (keyval <= GDK_KEY_F12)) ||
+		// ctrl/shift/super + 0-9/a..z/return
+		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || ((keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z)) || (keyval == GDK_KEY_Return)))
+	)) {
+		must_save_accels = TRUE;
+		if (del)
+			g_clear_pointer(&acl, g_free);
+
+		gchar **names = g_action_group_list_actions(G_ACTION_GROUP(app));
+		for (int idx = 0; names[idx] != NULL; idx++) {
+			gchar *full = g_strdup_printf("app.%s", names[idx]);
+			gchar **accels = gtk_application_get_accels_for_action(app, full);
+			GAction *other = g_action_map_lookup_action(map, names[idx]);
+			if ((other == action) || (acl && (g_strcmp0(accels[0], acl) == 0))) {
+				// "" and not NULL, otherwise the old shortcut stays displayed in the menu
+				const char *acckey[2] = { ((other == action) && acl) ? acl : "", NULL };
+				gtk_application_set_accels_for_action(app, full, acckey);
+				g_object_set_data(G_OBJECT(other), "shortcutModified", GINT_TO_POINTER(TRUE));
+			}
+			g_strfreev(accels);
+			g_free(full);
+		}
+
+		if (awf_debug)
+			g_printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : acl);
+
+		g_strfreev(names);
+		g_free(acl);
+		return TRUE;
+	}
+
+	g_free(acl);
 	return FALSE;
 }
 
-static void accels_save() { // todo
+static void accels_attach(GtkWidget *widget) {
+
+	// the menus of the menubar are popovers, so the window does not receive the keyboard events
+	if (GTK_IS_POPOVER_MENU(widget) && gtk_widget_get_ancestor(widget, GTK_TYPE_POPOVER_MENU_BAR)) {
+
+		// GtkLabel is before GtkPopoverMenu
+		if (awf_trace)
+			g_printf("\033[36m[trace]\033[00m accels_attach(%s)\n", gtk_label_get_label(GTK_LABEL(gtk_widget_get_prev_sibling(widget))));
+
+		GtkEventController *event = gtk_event_controller_key_new();
+		gtk_event_controller_set_propagation_phase(event, GTK_PHASE_CAPTURE);
+		g_signal_connect(event, "key-pressed", G_CALLBACK(accels_change), NULL);
+		gtk_widget_add_controller(widget, event);
+	}
+
+	for (GtkWidget *child = gtk_widget_get_first_child(widget); child; child = gtk_widget_get_next_sibling(child))
+		accels_attach(child);
+}
+
+static void accels_save() {
 
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m accels_save()\n");
 
 	// gtk-can-change-accels for GTK 4.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
-		// @todo
+
+		GtkApplication *app = GTK_APPLICATION(g_application_get_default());
+		gchar **names    = g_action_group_list_actions(G_ACTION_GROUP(app));
+		GString *content = g_string_new("; awf-gtk4 GtkAccelMap rc-file         -*- scheme -*-\n; this file is an automated accelerator map dump\n;\n");
+		gboolean modified;
+
+		for (int idx = 0; names[idx] != NULL; idx++) {
+			if (g_str_has_prefix(names[idx], "<AWF>/")) {
+				gchar *full = g_strdup_printf("app.%s", names[idx]);
+				gchar **accels = gtk_application_get_accels_for_action(app, full);
+				GString *acl = g_string_new(accels[0] ? accels[0] : "");
+				g_string_replace(acl, "<Control>", "<Primary>", 0);
+				modified = g_object_get_data(G_OBJECT(g_action_map_lookup_action(G_ACTION_MAP(app), names[idx])), "shortcutModified") != NULL;
+
+				g_string_append_printf(content, "%s(gtk_accel_path \"%s\" \"%s\")\n", modified ? "" : "; ", names[idx], acl->str);
+				g_string_free(acl, TRUE);
+				g_strfreev(accels);
+				g_free(full);
+			}
+		}
+
+		gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
+		g_file_set_contents(path, content->str, -1, NULL);
+		g_string_free(content, TRUE);
+		g_strfreev(names);
+		g_free(path);
 	}
 }
 

@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated M/06/10/2026
+ * Updated D/11/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -116,9 +116,6 @@
 #include <getopt.h>
 #include <libintl.h>
 #include <locale.h>
-#if defined (Q_OS_UNIX)
-	#include <unistd.h>
-#endif
 #pragma GCC diagnostic pop
 
 #define GETTEXT_PACKAGE "awf-qt4"
@@ -287,14 +284,13 @@ static bool awf_trace = envVarIsSet("AWF_TRACE");
 static bool awf_sheet = false;
 static bool awf_gqss  = false;
 constexpr std::nullptr_t null = nullptr;
-static QStringList list_system_theme;
-static QStringList list_user_theme;
+static QStringList list_system_theme, list_user_theme;
 static QMainWindow *window = null;
 static QDialog *inspector = null;
-static QLineEdit *toolbarentry = null;
-static QProgressBar *progress1 = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
+static QLineEdit *toolbarentry  = null;
+static QProgressBar *progress1  = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
 static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
-static AwfTabWidget *notebook1 = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
+static AwfTabWidget *notebook1  = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
 static int current_direction    = 0;
 static QString current_theme    = "auto";
 static QString opt_theme        = "auto";
@@ -302,6 +298,7 @@ static QString opt_screenshot   = "";
 static QString original_sheet   = "";
 static bool allow_update_values = true;
 static bool must_save_accels    = false;
+static volatile std::sig_atomic_t awf_sighup = 0;
 
 // global functions
 static QIcon get_icon(QString name);
@@ -361,8 +358,14 @@ class AwfMainWindow : public QMainWindow {
 public:
 	bool eventFilter(QObject *obj, QEvent *event) override {
 		// disable statusbar update on menubar hover
-		if (event->type() == QEvent::StatusTip)
+		if (event->type() == QEvent::StatusTip) {
 			return true;
+		}
+		// SIGHUP received
+		if ((event->type() == QEvent::Timer) && awf_sighup) {
+			awf_sighup = 0;
+			on_sighup(0);
+		}
 		return QMainWindow::eventFilter(obj, event);
 	}
 
@@ -419,15 +422,15 @@ public:
 	// AwfTreeView { qproperty-columnWidths:"10,20..." }
 	QString getColumnWidths() {
 		QStringList list;
-		for (int i = 0; i < 11; ++i)
-			list << QString::number(columnWidth(i));
+		for (int idx = 0; idx < 11; ++idx)
+			list << QString::number(columnWidth(idx));
 		return list.join(",");
 	}
 
 	void setColumnWidths(QString widths) {
 		QStringList list = widths.split(",", QString::SkipEmptyParts);
-		for (int i = 0; i < list.size() && i < 11; ++i)
-			setColumnWidth(i, list[i].trimmed().toInt());
+		for (int idx = 0; idx < list.size() && idx < 11; ++idx)
+			setColumnWidth(idx, list[idx].trimmed().toInt());
 	}
 };
 
@@ -766,7 +769,7 @@ static void update_theme(QString newTheme) {
 			window->setMinimumHeight(0);
 			window->setMinimumWidth(0);
 			QApplication::processEvents();
-			window->adjustSize();
+			window->resize(window->minimumSizeHint());
 
 			if (!opt_screenshot.isEmpty()) {
 				if (take_screenshot())
@@ -784,7 +787,7 @@ static void update_theme(QString newTheme) {
 		else if (newTheme == "auto") {
 
 			current_theme = QString::fromUtf8(qgetenv("GQSS_THEME"));
-			window->adjustSize();
+			window->resize(window->minimumSizeHint());
 
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m update_theme_after2: %s\n", current_theme.toUtf8().constData());
@@ -812,7 +815,7 @@ static void update_theme(QString newTheme) {
 			window->setMinimumHeight(0);
 			window->setMinimumWidth(0);
 			QApplication::processEvents();
-			window->adjustSize();
+			window->resize(window->minimumSizeHint());
 
 			update_statusbar(_app("Theme %1 loaded.").arg(current_theme));
 
@@ -962,7 +965,7 @@ static void update_widgets() {
 	window->setMinimumHeight(0);
 	window->setMinimumWidth(0);
 	QApplication::processEvents();
-	window->adjustSize();
+	window->resize(window->minimumSizeHint());
 
 	window->setUpdatesEnabled(true);
 }
@@ -1156,8 +1159,9 @@ static void create_window() {
 	update_text_direction(current_direction);
 
 	#if defined (Q_OS_UNIX)
-		if (awf_gqss || awf_sheet)
-			std::signal(SIGHUP, on_sighup);
+		//std::signal(SIGHUP, on_sighup);
+		std::signal(SIGHUP, [](int){ awf_sighup = 1; });
+		window->startTimer(500);
 	#endif
 
 	window->show();
@@ -1976,7 +1980,7 @@ static void create_notebook_tab(AwfTabWidget *notebook, QString text, QWidget *c
 			btn->setAutoRaise(true); // flat
 
 			AwfHBox *hbox = new AwfHBox(layout);
-			hbox->setContentsMargins(0, 0, 0, 0);
+			hbox->setContentsMargins(0,0,0,0);
 			hbox->addWidget(new QLabel(text));
 			hbox->addWidget(btn);
 
@@ -2206,7 +2210,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	QActionGroup *group;
 	QAction *menuitem;
 	QString theme;
-	int i, total, count, look;
+	int idx, total, count, look;
 	bool mini, isUser, noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
@@ -2228,7 +2232,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		create_menuitem(menu, QIcon(), _app("Calendar"), false, AWF_ACCEL_CALE, AWF_CALE, dialog_calendar);
 		create_menuitem(menu, QIcon(), "Sliders", false, AWF_ACCEL_SCAL, AWF_SCAL, dialog_sliders);
 		create_menuitem(menu, get_icon("document-properties"), _app("&Properties"), false, AWF_ACCEL_PROP, AWF_PROP, dialog_message);
-		create_menuitem(menu, get_icon("document-page-setup"),_app("Page Set&up"), noPrint, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
+		create_menuitem(menu, get_icon("document-page-setup"), _app("Page Set&up"), noPrint, AWF_ACCEL_PRSE, AWF_PRSE, dialog_page_setup);
 		create_menuitem(menu, get_icon("document-print"), _qt("QPrintDialog", "&Print"), noPrint, AWF_ACCEL_PRIN, AWF_PRIN, dialog_print);
 
 		submenu = menu->addMenu(_app("More..."));
@@ -2277,14 +2281,14 @@ static void create_traditional_menubar(QMenuBar *root) {
 	menu  = root->addMenu(_app("_System themes"));
 	total = list_system_theme.size();
 	mini  = total > 15;
-	for (i = 0; i < total; ) {
+	for (idx = 0; idx < total; ) {
 
-		// count how many following contiguous elements have list_system_theme[i] as prefix
+		// count how many following contiguous elements have list_system_theme[idx] as prefix
 		// avoids having a fixed list of themes
 		if (mini) {
 			count = 1;
-			look  = i + 1;
-			while ((look < total) && list_system_theme[look].startsWith(list_system_theme[i])) {
+			look  = idx + 1;
+			while ((look < total) && list_system_theme[look].startsWith(list_system_theme[idx])) {
 				count++;
 				look++;
 			}
@@ -2295,7 +2299,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 		// main menu or sub menu
 		if (mini && (count > 2) && (count != total)) {
-			submenu = menu->addMenu(list_system_theme[i]);
+			submenu = menu->addMenu(list_system_theme[idx]);
 			base = submenu;
 		}
 		else {
@@ -2305,7 +2309,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			theme  = list_system_theme[i];
+			theme  = list_system_theme[idx];
 			isUser = list_user_theme.contains(theme);
 
 			menuitem = create_menuitem_radio(base, theme, false, false, isUser, group);
@@ -2316,7 +2320,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 				caller->fn = [theme](){ update_theme(theme); };
 				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
-			i++;
+			idx++;
 		}
 	}
 
@@ -2329,14 +2333,14 @@ static void create_traditional_menubar(QMenuBar *root) {
 	menu  = root->addMenu(_app("_User themes"));
 	total = list_user_theme.size();
 	mini  = total > 15;
-	for (i = 0; i < total; ) {
+	for (idx = 0; idx < total; ) {
 
-		// count how many following contiguous elements have list_user_theme[i] as prefix
+		// count how many following contiguous elements have list_user_theme[idx] as prefix
 		// avoids having a fixed list of themes
 		if (mini) {
 			count = 1;
-			look  = i + 1;
-			while ((look < total) && list_user_theme[look].startsWith(list_user_theme[i])) {
+			look  = idx + 1;
+			while ((look < total) && list_user_theme[look].startsWith(list_user_theme[idx])) {
 				count++;
 				look++;
 			}
@@ -2347,7 +2351,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 		// main menu or sub menu
 		if (mini && (count > 2) && (count != total)) {
-			submenu = menu->addMenu(list_user_theme[i]);
+			submenu = menu->addMenu(list_user_theme[idx]);
 			base = submenu;
 		}
 		else {
@@ -2357,7 +2361,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		// create the menuitems for all themes in the group (or the single theme if count == 1)
 		while (count--) {
 
-			theme = list_user_theme[i];
+			theme = list_user_theme[idx];
 
 			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
 			if (current_theme == theme)
@@ -2367,7 +2371,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 				caller->fn = [theme](){ update_theme(theme); };
 				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
 
-			i++;
+			idx++;
 		}
 	}
 
@@ -2503,6 +2507,7 @@ static void accels_load() {
 			if (mod.contains("Shift"))   m |= static_cast<Qt::KeyboardModifier>(Qt::SHIFT);
 			if (mod.contains("Alt"))     m |= static_cast<Qt::KeyboardModifier>(Qt::ALT);
 			if (mod.contains("Meta"))    m |= static_cast<Qt::KeyboardModifier>(Qt::META);
+			if (mod.contains("Super"))   m |= static_cast<Qt::KeyboardModifier>(Qt::META);
 			return m;
 		};
 
@@ -2633,41 +2638,53 @@ static void accels_load() {
 static bool accels_change(QObject *obj, QEvent *event) {
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+	// identify menuitem and keys pressed
 	if (event->type() != QEvent::KeyPress)
 		return false;
 
-	QMenu *menu = qobject_cast<QMenu*>(obj);
-	if (!menu || !menu->activeAction())
+	QMenu *root = qobject_cast<QMenu*>(obj);
+	if (!root || !root->activeAction())
 		return false;
 
-	QAction *menuitem = menu->activeAction();
+	QAction *menuitem = root->activeAction();
 	if (menuitem->objectName().isEmpty())
 		return false;
 
 	QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
 	int key = keyEvent->key();
-	if ((key == Qt::Key_Control) || (key == Qt::Key_Shift) || (key == Qt::Key_Meta) || (key == Qt::Key_Alt))
+	if ((key == Qt::Key_Control) || (key == Qt::Key_Shift) || (key == Qt::Key_Alt) || (key == Qt::Key_Meta))
 		return false;
 
-	if (awf_trace)
-		printf("\033[36m[trace]\033[00m accels_change()\n");
-
 	Qt::KeyboardModifiers mods = keyEvent->modifiers();
-	mods &= (Qt::ControlModifier | Qt::ShiftModifier | Qt::MetaModifier);
+	mods &= (Qt::ControlModifier | Qt::ShiftModifier | Qt::AltModifier | Qt::MetaModifier);
+	QKeySequence acl = QKeySequence(mods | key);
+
+	// 0-9 only from keypad
+	bool digit = (key >= Qt::Key_0) && (key <= Qt::Key_9) && !(keyEvent->modifiers() & Qt::KeypadModifier);
 	bool del = (key == Qt::Key_Delete) || (key == Qt::Key_Backspace);
 
-	if (
+	// debug
+	if (awf_trace)
+		printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n",
+			menuitem->text().remove('&').toUtf8().constData(),
+			menuitem->objectName().toUtf8().constData(),
+			acl.toString(QKeySequence::PortableText).toUtf8().constData());
+
+	// check and remove existing keyboard shortcut
+	// and set new keyboard shortcut (without alt because of mnemonics)
+	if (!digit && !(mods & Qt::AltModifier) && (
 		del ||
 		// f1..12
 		((key >= Qt::Key_F1) && (key <= Qt::Key_F12)) ||
-		// ctrl/shift/super/alt + 0-9/a..z/return
+		// ctrl/shift/super + 0-9/a..z/return
 		(mods && (((key >= Qt::Key_0) && (key <= Qt::Key_9)) || ((key >= Qt::Key_A) && (key <= Qt::Key_Z)) || (key == Qt::Key_Return)))
-	) {
+	)) {
 		must_save_accels = true;
-		QKeySequence seq = del ? QKeySequence() : QKeySequence(mods | key);
 
-		// check and remove existing keyboard shortcut
-		if (!del) {
+		if (del) {
+			acl = QKeySequence();
+		}
+		else {
 			for (QAction *menuAction : window->menuBar()->actions()) {
 
 				QMenu *menu = menuAction->menu();
@@ -2682,22 +2699,21 @@ static bool accels_change(QObject *obj, QEvent *event) {
 					else
 						items << action;
 
-					for (QAction *item : items) {
-						if ((item != menuitem) && (item->shortcut() == seq)) {
-							item->setProperty("shortcutModified", true);
-							item->setShortcut(QKeySequence());
+					for (QAction *other : items) {
+						if ((other != menuitem) && (other->shortcut() == acl)) {
+							other->setProperty("shortcutModified", true);
+							other->setShortcut(QKeySequence());
 						}
 					}
 				}
 			}
 		}
 
-		// set new keyboard shortcut
 		menuitem->setProperty("shortcutModified", true);
-		menuitem->setShortcut(seq);
+		menuitem->setShortcut(acl);
 
 		if (awf_debug)
-			printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : seq.toString(QKeySequence::PortableText).toUtf8().constData());
+			printf("\033[33m[debug]\033[00m new_shortcut: %s\n", del ? "none" : acl.toString(QKeySequence::PortableText).toUtf8().constData());
 
 		return true;
 	}
@@ -2719,20 +2735,19 @@ static void accels_save() {
 
 			QMap<QString, QAction*> actions;
 			QString kmp, acl;
-			QAction *act;
 
-			auto parseModifiers = [](Qt::KeyboardModifiers m) {
+			auto nameModifiers = [](Qt::KeyboardModifiers m) {
 				QString s;
 				if (m & Qt::CTRL)  s += QString("<Primary>");
 				if (m & Qt::SHIFT) s += QString("<Shift>");
 				if (m & Qt::ALT)   s += QString("<Alt>");
-				if (m & Qt::META)  s += QString("<Meta>");
+				if (m & Qt::META)  s += QString("<Super>");
 				return s;
 			};
 
-			auto parseKey = [](Qt::Key k) {
+			auto nameKey = [](Qt::Key k) {
 				// 0-9
-				if ((k >= Qt::Key_0) && (k <= Qt::Key_9)) return QStringLiteral("KP_") + QChar(int(k));
+				if ((k >= Qt::Key_0) && (k <= Qt::Key_9)) return QString(QChar(int(k)));
 				// a-z
 				if ((k >= Qt::Key_A) && (k <= Qt::Key_Z)) return QString(QChar(k).toLower());
 				// simple
@@ -2787,16 +2802,16 @@ static void accels_save() {
 			for (QString tmp : actions.keys()) {
 
 				kmp = tmp;
-				act = actions.value(kmp);
-				acl = act->shortcut().toString();
+				QAction *action = actions.value(kmp);
+				acl = action->shortcut().toString();
 
 				if (!acl.isEmpty()) {
-					Qt::Key key = static_cast<Qt::Key>(act->shortcut()[0] & ~Qt::KeyboardModifierMask);
-					Qt::KeyboardModifiers mods = static_cast<Qt::KeyboardModifiers>(act->shortcut()[0] & Qt::KeyboardModifierMask);
-					acl = parseModifiers(mods) + parseKey(key);
+					Qt::Key key = static_cast<Qt::Key>(action->shortcut()[0] & ~Qt::KeyboardModifierMask);
+					Qt::KeyboardModifiers mods = static_cast<Qt::KeyboardModifiers>(action->shortcut()[0] & Qt::KeyboardModifierMask);
+					acl = nameModifiers(mods) + nameKey(key);
 				}
 
-				out << (act->property("shortcutModified").toBool() ? "" : "; ") << "(gtk_accel_path \"" << kmp << "\" \"" << acl << "\")\n";
+				out << (action->property("shortcutModified").toBool() ? "" : "; ") << "(gtk_accel_path \"" << kmp << "\" \"" << acl << "\")\n";
 			}
 
 			out << "\n";
@@ -2966,8 +2981,6 @@ static void dialog_inspector() {
 			caller->fn = [=](){ counter->start(1000); };
 			QObject::connect(textEdit, SIGNAL(textChanged()), caller, SLOT(run()));
 
-		QObject::connect(btnClose, SIGNAL(clicked()), inspector, SLOT(close()));
-
 		//QObject::connect(btnCopy, &QPushButton::clicked, inspector, [=](){
 			caller = new AwfCall(btnCopy);
 			caller->fn = [=](){
@@ -3004,21 +3017,15 @@ static void dialog_inspector() {
 			};
 			QObject::connect(inspector, SIGNAL(destroyed()), caller, SLOT(run()));
 
+		QObject::connect(btnClose, SIGNAL(clicked()), inspector, SLOT(close()));
 		QObject::connect(window, SIGNAL(destroyed()), inspector, SLOT(close()));
 
 		//QObject::connect(counter, &QTimer::timeout, inspector, [=](){
 			caller = new AwfCall(inspector);
 			caller->fn = [=](){
-				#if defined (Q_OS_UNIX)
-					int savedFd = dup(fileno(stderr));
-					FILE* ignored = freopen("/dev/null", "w", stderr);
-					window->setStyleSheet(textEdit->toPlainText());
-					fflush(stderr);
-					dup2(savedFd, fileno(stderr));
-					close(savedFd);
-				#else
-					window->setStyleSheet(textEdit->toPlainText());
-				#endif
+				QtMsgHandler old = qInstallMsgHandler([](QtMsgType, const char*){});
+				window->setStyleSheet(textEdit->toPlainText());
+				qInstallMsgHandler(old);
 			};
 			QObject::connect(counter, SIGNAL(timeout()), caller, SLOT(run()));
 

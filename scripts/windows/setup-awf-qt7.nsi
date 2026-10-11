@@ -194,6 +194,8 @@ Section "AWF - ${VERSION} - ${ARCH} ${ARCHNAME}" SecProgram
 
 	SetOutPath "$INSTDIR\share\locale\fr\LC_MESSAGES\"
 	File /r "${ENGINE}\share\locale\fr\LC_MESSAGES\awf*.mo"
+	SetOutPath "$INSTDIR\share\locale\ka\LC_MESSAGES\"
+	File /r "${ENGINE}\share\locale\ka\LC_MESSAGES\awf*.mo"
 
 	WriteUninstaller "$INSTDIR\uninstall.exe"
 

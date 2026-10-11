@@ -6,8 +6,8 @@
 # supported options for build.sh/configure.ac
 #  none
 # OR
-#  --disable-adw  --disable-hdy --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
-#                               --disable-gtk                                                             --disable-qt
+#  --disable-adw --disable-hdy --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
+#                              --disable-gtk                                                             --disable-qt
 # OR
 #  --enable-only-adw
 # OR

@@ -17,9 +17,9 @@ BuildRequires: rsvg-convert
 BuildRequires: gcc
 BuildRequires: gettext
 BuildRequires: gtk3-devel >= 3.24.1
-BuildRequires: libhandy-devel
+BuildRequires: libhandy-devel >= 1.0.0
 Requires:      gtk3 >= 3.24.1
-Requires:      libhandy-1-0
+Requires:      libhandy-1-0 >= 1.0.0
 Requires:      hicolor-icon-theme
 Requires:      libnotify >= 0.7.0
 

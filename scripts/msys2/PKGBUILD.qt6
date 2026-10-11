@@ -12,6 +12,7 @@ url='https://github.com/luigifab/awf-extended'
 license=('spdx:GPL-3.0-or-later')
 arch=('any')
 depends=("${MINGW_PACKAGE_PREFIX}-qt6-base" "${MINGW_PACKAGE_PREFIX}-hicolor-icon-theme")
+optdepends=("${MINGW_PACKAGE_PREFIX}-qt6-svg: for svg images")
 makedepends=("${MINGW_PACKAGE_PREFIX}-autotools" "${MINGW_PACKAGE_PREFIX}-cc" "${MINGW_PACKAGE_PREFIX}-gettext-tools" "${MINGW_PACKAGE_PREFIX}-imagemagick")
 #makedepends=('autoconf' 'automake' 'desktop-file-utils' 'gcc' 'gettext' 'qt6-base')
 source=("https://github.com/luigifab/awf-extended/archive/v${pkgver}/awf-extended-${pkgver}.tar.gz")

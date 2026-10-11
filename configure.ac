@@ -335,7 +335,7 @@ else
 fi
 
 # HDY
-PKG_CHECK_MODULES(HANDY, libhandy-1, HDY_SUFFIX=1, HDY_SUFFIX=-1)
+PKG_CHECK_MODULES(HANDY, libhandy-1 >= 1.0.0, HDY_SUFFIX=1, HDY_SUFFIX=-1)
 if test "x$enable_hdy" = "xyes"; then
   if test "x$only_hdy" = "xyes" && test "x$HDY_SUFFIX" != "x1"; then
     AC_MSG_ERROR([HANDY not found (FATAL)])
@@ -357,7 +357,7 @@ else
 fi
 
 # GTK 3
-PKG_CHECK_MODULES(GTK3, gtk+-3.0, GTK3_SUFFIX=3, GTK3_SUFFIX=-3)
+PKG_CHECK_MODULES(GTK3, gtk+-3.0 >= 3.0.0, GTK3_SUFFIX=3, GTK3_SUFFIX=-3)
 if test "x$enable_gtk3" = "xyes"; then
   if test "x$only_gtk" = "xyes" && test "x$GTK3_SUFFIX" != "x3"; then
     AC_MSG_ERROR([GTK3 not found (FATAL)])
@@ -368,7 +368,7 @@ else
 fi
 
 # GTK 4
-PKG_CHECK_MODULES(GTK4, gtk4, GTK4_SUFFIX=4, GTK4_SUFFIX=-4)
+PKG_CHECK_MODULES(GTK4, gtk4 >= 4.0.0, GTK4_SUFFIX=4, GTK4_SUFFIX=-4)
 if test "x$enable_gtk4" = "xyes"; then
   if test "x$only_gtk" = "xyes" && test "x$GTK4_SUFFIX" != "x4"; then
     AC_MSG_ERROR([GTK4 not found (FATAL)])
@@ -379,7 +379,7 @@ else
 fi
 
 # GTK 5
-PKG_CHECK_MODULES(GTK5, gtk5, GTK5_SUFFIX=5, GTK5_SUFFIX=-5)
+PKG_CHECK_MODULES(GTK5, gtk5 >= 5.0.0, GTK5_SUFFIX=5, GTK5_SUFFIX=-5)
 if test "x$enable_gtk5" = "xyes"; then
   if test "x$only_gtk" = "xyes" && test "x$GTK5_SUFFIX" != "x5"; then
     AC_MSG_ERROR([GTK5 not found (FATAL)])
@@ -406,9 +406,9 @@ fi
 AC_SUBST(QT4_MOC)
 
 # QT 5
-qt5_modules="Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport"
+qt5_modules="Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport >= 5.2.0"
 if test "x$windows" = "xyes"; then
-    qt5_modules="Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5WinExtras"
+    qt5_modules="Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5WinExtras >= 5.2.0"
 fi
 PKG_CHECK_MODULES(QT5, [$qt5_modules], QT5_SUFFIX=5, QT5_SUFFIX=-5)
 if test "x$enable_qt5" = "xyes"; then
@@ -431,7 +431,7 @@ AC_SUBST(QT5_MOC)
 # QT 6
 # Ubuntu 22.04 Jammy & pkgconf 6.2.4, pc files are missing (https://bugs.launchpad.net/ubuntu/+source/qt6-base/+bug/2067202), so it's not working
 # and pkg-config may return an incorrect path, fallback to qtpaths6
-PKG_CHECK_MODULES(QT6, [Qt6Core Qt6Gui Qt6Widgets Qt6PrintSupport], QT6_SUFFIX=6, QT6_SUFFIX=-6)
+PKG_CHECK_MODULES(QT6, [Qt6Core Qt6Gui Qt6Widgets Qt6PrintSupport >= 6.0.0], QT6_SUFFIX=6, QT6_SUFFIX=-6)
 if test "x$enable_qt6" = "xyes"; then
   if test "x$only_qt" = "xyes" && test "x$QT6_SUFFIX" != "x6"; then
     AC_MSG_ERROR([QT6 not found (FATAL)])
@@ -450,7 +450,7 @@ fi
 AC_SUBST(QT6_MOC)
 
 # QT 7
-PKG_CHECK_MODULES(QT7, [Qt7Core Qt7Gui Qt7Widgets Qt7PrintSupport], QT7_SUFFIX=7, QT7_SUFFIX=-7)
+PKG_CHECK_MODULES(QT7, [Qt7Core Qt7Gui Qt7Widgets Qt7PrintSupport >= 7.0.0], QT7_SUFFIX=7, QT7_SUFFIX=-7)
 if test "x$enable_qt7" = "xyes"; then
   if test "x$only_qt" = "xyes" && test "x$QT7_SUFFIX" != "x7"; then
     AC_MSG_ERROR([QT7 not found (FATAL)])
