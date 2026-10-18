@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/11/10/2026
+ * Updated D/18/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -303,7 +303,7 @@ int main(int argc, gchar **argv) {
 	};
 
 	gchar *cVersion, *t1, *t2, *t3, *t4;
-	while ((opt = getopt_long(argc, argv, "hvlt:s:xyz", options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hvlt:s:", options, NULL)) != -1) {
 		switch (opt) {
 			// --version -v
 			case 'v':
@@ -410,11 +410,11 @@ int main(int argc, gchar **argv) {
 	g_free(text);
 
 	// --ltr
-	g_application_add_main_option(G_APPLICATION(app), "ltr", 'y', G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
+	g_application_add_main_option(G_APPLICATION(app), "ltr", 0, G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
 		_app("Run with text from left to right (Left-To-Right)."), NULL);
 
 	// --rtl
-	g_application_add_main_option(G_APPLICATION(app), "rtl", 'z', G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
+	g_application_add_main_option(G_APPLICATION(app), "rtl", 0, G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
 		_app("Run with text from right to left (Right-To-Left)."), NULL);
 
 	g_application_register(G_APPLICATION(app), NULL, NULL);
@@ -694,11 +694,11 @@ static void update_widgets() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
 
-	// function called when user click on [+] toolbar button
-	// when toggle = true, the [+] toolbar button is NOT checked
+	// function called when user click on [+] or [-] toolbar buttons
+	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
-	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
+	// show progressbar and entry in toolbar and progressbar in statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		gtk_widget_set_visible(progress8, FALSE);
 		gtk_widget_set_visible(progress9, FALSE);
@@ -1452,7 +1452,7 @@ static GPtrArray* create_widgets(GtkWidget *root) {
 
 		g_ptr_array_add(breakpoints, bp2);
 
-		// BP 3 / compact menu + 1 column
+		// BP3 / compact menu + 1 column
 		cond = g_strdup_printf("max-width: %dpx", width / 2);
 		AdwBreakpoint *bp3 = adw_breakpoint_new(adw_breakpoint_condition_parse(cond));
 		g_free(cond);
@@ -3087,8 +3087,6 @@ static gboolean accels_keypad(GtkEventControllerKey *controller, guint keyval, g
 			}
 			g_strfreev(accels);
 			g_free(full);
-			if (found)
-				break;
 		}
 
 		g_strfreev(names);
@@ -3149,14 +3147,16 @@ static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, g
 
 	g_free(label);
 
-	// check and remove existing keyboard shortcut
-	// and set new keyboard shortcut (without alt because of mnemonics)
+	// remove existing keyboard shortcut and set new keyboard shortcut, the menu stays opened
+	// a shortcut already used by another item is removed from it
 	if (!digit && !(state & GDK_ALT_MASK) && (
 		del ||
 		// f1..12
 		((keyval >= GDK_KEY_F1) && (keyval <= GDK_KEY_F12)) ||
-		// ctrl/shift/super + 0-9/a..z/return
-		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || ((keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z)) || (keyval == GDK_KEY_Return)))
+		// ctrl/shift/super + 0-9/return
+		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || (keyval == GDK_KEY_Return))) ||
+		// ctrl/super + a..z (not shift, otherwise the shortcut is activated instead of typing the letter in a text field)
+		((state & (GDK_CONTROL_MASK | GDK_SUPER_MASK)) && (keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z))
 	)) {
 		must_save_accels = TRUE;
 		if (del)
@@ -3186,7 +3186,9 @@ static gboolean accels_change(GtkEventControllerKey *controller, guint keyval, g
 	}
 
 	g_free(acl);
-	return FALSE;
+
+	// refused combination is consumed (return true), nothing happens and the menu stays opened
+	return (state & (GDK_CONTROL_MASK | GDK_ALT_MASK | GDK_SUPER_MASK)) != 0;
 }
 
 static void accels_attach(GtkWidget *widget) {
@@ -3218,17 +3220,23 @@ static void accels_save() {
 
 		GtkApplication *app = GTK_APPLICATION(g_application_get_default());
 		gchar **names    = g_action_group_list_actions(G_ACTION_GROUP(app));
-		GString *content = g_string_new("; awf-gtk4 GtkAccelMap rc-file         -*- scheme -*-\n; this file is an automated accelerator map dump\n;\n");
+		GString *content = g_string_new("; ");
 		gboolean modified;
+
+		g_string_append(content, g_get_prgname());
+		g_string_append(content, " GtkAccelMap rc-file         -*- scheme -*-\n");
+		g_string_append(content, "; this file is an automated accelerator map dump\n");
+		g_string_append(content, ";\n");
 
 		for (int idx = 0; names[idx] != NULL; idx++) {
 			if (g_str_has_prefix(names[idx], "<AWF>/")) {
-				gchar *full = g_strdup_printf("app.%s", names[idx]);
-				gchar **accels = gtk_application_get_accels_for_action(app, full);
-				GString *acl = g_string_new(accels[0] ? accels[0] : "");
-				g_string_replace(acl, "<Control>", "<Primary>", 0);
-				modified = g_object_get_data(G_OBJECT(g_action_map_lookup_action(G_ACTION_MAP(app), names[idx])), "shortcutModified") != NULL;
 
+				gchar *full    = g_strdup_printf("app.%s", names[idx]);
+				gchar **accels = gtk_application_get_accels_for_action(app, full);
+				GString *acl   = g_string_new(accels[0] ? accels[0] : "");
+				g_string_replace(acl, "<Control>", "<Primary>", 0);
+
+				modified = g_object_get_data(G_OBJECT(g_action_map_lookup_action(G_ACTION_MAP(app), names[idx])), "shortcutModified") != NULL;
 				g_string_append_printf(content, "%s(gtk_accel_path \"%s\" \"%s\")\n", modified ? "" : "; ", names[idx], acl->str);
 				g_string_free(acl, TRUE);
 				g_strfreev(accels);

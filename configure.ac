@@ -1,8 +1,10 @@
 # supported options
 #  none
 # OR
-#  --disable-adw --disable-hdy --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
-#                              --disable-gtk                                                             --disable-qt
+#  --disable-adw
+#  --disable-hdy
+#  --disable-gtk --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5
+#  --disable-qt  --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
 # OR
 #  --enable-only-adw
 # OR
@@ -33,11 +35,11 @@ PKG_PROG_PKG_CONFIG
 
 # --disable-adw --disable-hdy --disable-gtkx --disable-qtx
 AC_ARG_ENABLE([adw],
-  AS_HELP_STRING([--disable-adw], [disable adw (default: enabled if available)]),
+  AS_HELP_STRING([--disable-adw], [disable adwaita/adw (default: enabled if available)]),
   [enable_adw=no],
   [enable_adw=yes])
 AC_ARG_ENABLE([hdy],
-  AS_HELP_STRING([--disable-hdy], [disable hdy (default: enabled if available)]),
+  AS_HELP_STRING([--disable-hdy], [disable handy/hdy (default: enabled if available)]),
   [enable_hdy=no],
   [enable_hdy=yes])
 AC_ARG_ENABLE([gtk2],
@@ -75,28 +77,28 @@ AC_ARG_ENABLE([qt7],
 
 # --enable-only-adw --enable-only-hdy --enable-only-gtkx --enable-only-qtx
 AC_ARG_ENABLE([only-adw],
-  AS_HELP_STRING([--enable-only-adw], [only enable adw]),
+  AS_HELP_STRING([--enable-only-adw], [only enable adwaita/adw]),
   [only_adw=yes
+   enable_adw=yes
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=yes
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
    enable_qt7=no],
   [])
 AC_ARG_ENABLE([only-hdy],
-  AS_HELP_STRING([--enable-only-hdy], [only enable hdy]),
+  AS_HELP_STRING([--enable-only-hdy], [only enable handy/hdy]),
   [only_hdy=yes
+   enable_adw=no
+   enable_hdy=yes
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=yes
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -105,12 +107,12 @@ AC_ARG_ENABLE([only-hdy],
 AC_ARG_ENABLE([only-gtk2],
   AS_HELP_STRING([--enable-only-gtk2], [only enable gtk2]),
   [only_gtk=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=yes
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -119,12 +121,12 @@ AC_ARG_ENABLE([only-gtk2],
 AC_ARG_ENABLE([only-gtk3],
   AS_HELP_STRING([--enable-only-gtk3], [only enable gtk3]),
   [only_gtk=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=yes
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -133,12 +135,12 @@ AC_ARG_ENABLE([only-gtk3],
 AC_ARG_ENABLE([only-gtk4],
   AS_HELP_STRING([--enable-only-gtk4], [only enable gtk4]),
   [only_gtk=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=yes
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -147,12 +149,12 @@ AC_ARG_ENABLE([only-gtk4],
 AC_ARG_ENABLE([only-gtk5],
   AS_HELP_STRING([--enable-only-gtk5], [only enable gtk5]),
   [only_gtk=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=yes
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no
@@ -161,12 +163,12 @@ AC_ARG_ENABLE([only-gtk5],
 AC_ARG_ENABLE([only-qt4],
   AS_HELP_STRING([--enable-only-qt4], [only enable qt4]),
   [only_qt=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=yes
    enable_qt5=no
    enable_qt6=no
@@ -175,12 +177,12 @@ AC_ARG_ENABLE([only-qt4],
 AC_ARG_ENABLE([only-qt5],
   AS_HELP_STRING([--enable-only-qt5], [only enable qt5]),
   [only_qt=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=yes
    enable_qt6=no
@@ -189,12 +191,12 @@ AC_ARG_ENABLE([only-qt5],
 AC_ARG_ENABLE([only-qt6],
   AS_HELP_STRING([--enable-only-qt6], [only enable qt6]),
   [only_qt=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=yes
@@ -203,12 +205,12 @@ AC_ARG_ENABLE([only-qt6],
 AC_ARG_ENABLE([only-qt7],
   AS_HELP_STRING([--enable-only-qt7], [only enable qt7]),
   [only_qt=yes
+   enable_adw=no
+   enable_hdy=no
    enable_gtk2=no
    enable_gtk3=no
    enable_gtk4=no
    enable_gtk5=no
-   enable_adw=no
-   enable_hdy=no
    enable_qt4=no
    enable_qt5=no
    enable_qt6=no

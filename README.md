@@ -1,10 +1,10 @@
 -- NIGHTLY --
 
-# AWF - A widget factory (extended)
+# AWF - A widget factory
 
 A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme.
 
-It's modern, but not too much.
+It works with or without compositor, with or without CSD windows, and with or without gtk3/4-classic. It's modern, but not too much.
 
 ## Screenshots
 
@@ -38,13 +38,13 @@ Qt 5.15\
 [<img alt="Preview with Qt 5 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl-menu.png)
 [<img alt="Preview with Qt 5 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt5-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt5-rtl.png)
 
-Qt 6.9..6.11\
+Qt 6.9..6.12\
 [<img alt="Preview with Qt 6 - Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6.png)
 [<img alt="Preview with Qt 6 - Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-menu.png)
 [<img alt="Preview with Qt 6 - RTL Main window with menu" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl-menu.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl-menu.png)
 [<img alt="Preview with Qt 6 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/qt6-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/qt6-rtl.png)
 
-The theme used for the screenshots is available [here](https://github.com/luigifab/human-theme).
+The theme used for the screenshots (96 DPI) is available [here](https://github.com/luigifab/human-theme).
 
 ## Tricks
 
@@ -56,7 +56,7 @@ The theme used for the screenshots is available [here](https://github.com/luigif
 * The _Plus/Minus_ toolbar buttons allow you to show/hide notebook arrows, marks on progress bars and scales...
 * The _Refresh_ toolbar button and menu item allow you to reload the current theme (like the `SIGHUP` signal)
 * Notebook tabs are scrollable _(GTK 3.x 4.x, gtk-scroll-tabs, like with GTK 2.24 + Qt 4.8 5.x 6.x)_
-* Menu keyboard shortcuts can be updated on hover _(GTK 2.24 3.x + Qt 4.8 5.x 6.x, gtk-can-change-accels)_
+* Menu keyboard shortcuts can be updated on hover _(GTK 2.24 3.x 4.x + Qt 4.8 5.x 6.x, gtk-can-change-accels)_
 * Use `AWF_DEBUG=1` and `AWF_TRACE=1` to enable some debug messages
 * Use `AWF_TEAROFF=1` to add a tear-off item to the Options menu _(GTK 2.24 3.x + Qt 4.8 5.x 6.x)_
 * Use `AWF_BREAKPOINTS=0` to disable breakpoints with Adwaita
@@ -67,15 +67,15 @@ The theme used for the screenshots is available [here](https://github.com/luigif
 
 ## Broadway
 
-Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, then go to http://localhost:8080/ (*libgtk-3-bin*).
+Start the server with `broadwayd &` and run `GDK_BACKEND=broadway awf-gtk3`, then go to http://localhost:8080/ _(libgtk-3-bin)_.
 
 ## Installation
 
 For GTK, it requires **GTK 2.24** or **GTK 3.0+** *(including 3.24)* or **GTK 4.0+** *(including 4.24)*, *GLIB 2.28+*, *libnotify 0.7+*.
 
-For Adwaita, it requires **GTK 4.18+** *(including 4.24)*, *Adwaita 1.7+*, *GLIB 2.68+*, *libnotify 0.7+*.
+For GTK4+Adwaita, it requires **GTK 4.18+** *(including 4.24)*, *Adwaita 1.7+*, *GLIB 2.68+*, *libnotify 0.7+*.
 
-For Handy, it requires **GTK 3.24+**, *Handy 1.0+*, *GLIB 2.44+*, *libnotify 0.7+*.
+For GTK3+Handy, it requires **GTK 3.24+**, *Handy 1.0+*, *GLIB 2.44+*, *libnotify 0.7+*.
 
 For Qt, it requires **Qt 4.8** or **Qt 5.2+** *(including 5.15)* or **Qt 6.0+** *(including 6.12)*, *[GlobalQSS](https://github.com/luigifab/globalqss)* for theme support.
 
@@ -170,21 +170,27 @@ I think it would be nice to create a patch to fix this GTK regression.
 
 Only for fun.
 
+For themes, run the program like this: `awf-qt4 -stylesheet /usr/share/themes/Human/qt4/qt.qss -style gtk`
+
 #### Qt 5
 
 For a huge memory improvement, run the program like this: `env QT_XCB_GL_INTEGRATION=none awf-qt5`.
 
 On Fedora with Qt 5, the GTK 3 platform theme *(qt5-qtbase-gui)* works better than on Debian *(qt5-gtk-platformtheme)*, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509) ; the same applies to openSUSE. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt5`
 
+For themes support, without [GlobalQSS](https://github.com/luigifab/globalqss), you can run the program like this: `awf-qt5 -stylesheet /usr/share/themes/Human/qt5/qt.qss`
+
 #### Qt 6
 
 Before Qt 6.8, fonts can be blurry. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt6`
+
+For themes support, without [GlobalQSS](https://github.com/luigifab/globalqss), you can run the program like this: `awf-qt6 -stylesheet /usr/share/themes/Human/qt6/qt.qss`
 
 ## Customize
 
 For GTK, use `~/.config/gtk-3.0/gtk.css` and `~/.config/gtk-4.0/gtk.css` files.
 
-For Qt, with [GlobalQSS](https://github.com/luigifab/globalqss), use `~/.config/qt5/qt.qss` and `~/.config/qt6/qt.qss` files.
+For Qt, with [GlobalQSS](https://github.com/luigifab/globalqss) and when a theme is applied, use `~/.config/qt5/qt.qss` and `~/.config/qt6/qt.qss` files.
 
 ```css
 #AwfMainWindow { }
@@ -195,8 +201,6 @@ AwfTreeView { qproperty-columnWidths:"1,2,3,4,5,6,7,8,9,10,11"; /* qt */ }
 .awf-cheatcode-filebtn { background:red; /* qt + gtk 4 */ }
 .awf-cheatcode-folderbtn { background:red; /* qt + gtk 4 */ }
 ```
-
-Without GlobalQSS, you can also run the program like this: `awf-qt5 -stylesheet ~/.config/qt5/qt.qss`
 
 ## Dev
 
@@ -209,7 +213,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20261011
+- Current version: 4.3.0~nightly20261018
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

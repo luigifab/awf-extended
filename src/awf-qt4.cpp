@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/11/10/2026
+ * Updated D/18/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -310,7 +310,6 @@ static void update_values(QAbstractSlider *range);
 static void update_widgets();
 static void update_notebooks();
 static void display_notification();
-static bool find_and_check_menu(QList<QAction*> actions, QString search);
 static void on_sighup(int signum);
 static bool take_screenshot();
 static void create_window();
@@ -367,18 +366,6 @@ public:
 			on_sighup(0);
 		}
 		return QMainWindow::eventFilter(obj, event);
-	}
-
-protected:
-	void changeEvent(QEvent *e) override {
-		// check current theme in menus on desktop theme change from globalqss style plugin
-		if (envVarIsSet("GQSS_SIGNAL") && (e->type() == QEvent::StyleChange)) {
-			QString newTheme = QString::fromUtf8(qgetenv("GQSS_THEME"));
-			if (awf_debug)
-				printf("\033[33m[debug]\033[00m SIGNAL_theme_update: %s\n", newTheme.toUtf8().constData());
-			find_and_check_menu(menuBar()->actions().mid(1), newTheme);
-		}
-		QMainWindow::changeEvent(e);
 	}
 };
 
@@ -613,7 +600,7 @@ int main(int argc, char **argv) {
 	};
 
 	QString cppVersion;
-	while ((opt = getopt_long(argc, argv, "hvlt:s:xyz", options, null)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hvlt:s:", options, null)) != -1) {
 		switch (opt) {
 			// --version -v
 			case 'v':
@@ -757,13 +744,8 @@ static void update_theme(QString newTheme) {
 
 		if (newTheme == "refresh") {
 
-			if (awf_gqss) {
-				qputenv("GQSS_RELOAD", "yes");
-				QApplication::style()->polish(qApp);
-			}
-			else if (current_theme == "-stylesheet") {
+			if (current_theme == "-stylesheet")
 				qApp->setStyleSheet(original_sheet);
-			}
 
 			update_notebooks();
 			window->setMinimumHeight(0);
@@ -784,30 +766,12 @@ static void update_theme(QString newTheme) {
 			if (awf_debug)
 				printf("\033[33m[debug]\033[00m update_theme_after1: %s\n", current_theme.toUtf8().constData());
 		}
-		else if (newTheme == "auto") {
-
-			current_theme = QString::fromUtf8(qgetenv("GQSS_THEME"));
-			window->resize(window->minimumSizeHint());
-
-			if (awf_debug)
-				printf("\033[33m[debug]\033[00m update_theme_after2: %s\n", current_theme.toUtf8().constData());
-		}
 		else if (current_theme != newTheme) {
 
 			current_theme = newTheme;
 
-			if (awf_gqss) {
-				qputenv("GQSS_RELOAD", "yes");
-				qputenv("GQSS_THEME", newTheme.toUtf8());
-				if (!envVarIsSet("GQSS_SIGNAL")) { // useless for changeEvent (notify_updated_gtktheme)
-					QApplication::style()->polish(qApp);
-					QApplication::processEvents();
-				}
-			}
-			else {
-				// apply None theme or restore -stylesheet theme
-				qApp->setStyleSheet((current_theme == "None") ? "" : original_sheet);
-			}
+			// apply None theme or restore -stylesheet theme
+			qApp->setStyleSheet((current_theme == "None") ? "" : original_sheet);
 
 			if (notebook1)
 				update_notebooks();
@@ -890,11 +854,11 @@ static void update_widgets() {
 
 	window->setUpdatesEnabled(false);
 
-	// function called when user click on [+] toolbar button
-	// when toggle = true, the [+] toolbar button is NOT checked
+	// function called when user click on [+] or [-] toolbar buttons
+	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	bool toggle = notebook1->tabBar()->usesScrollButtons();
 
-	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
+	// show progressbar and entry in toolbar and progressbar in statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		qobject_cast<QAction*>(progress8->property("action").value<QObject*>())->setVisible(false);
 		progress9->setVisible(false);
@@ -997,7 +961,7 @@ static void update_notebooks() {
 	notebook3->updateGeometry();
 	notebook4->updateGeometry();
 
-	QSplitter *hpane, *vpane;
+	QSplitter *hpane = null, *vpane = null;
 	QWidget *widget = notebook1->parentWidget();
 	while (widget) {
 		hpane = qobject_cast<QSplitter *>(widget);
@@ -1034,27 +998,6 @@ static void display_notification() {
 			<< GETTEXT_PACKAGE
 			<< _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 	#endif
-}
-
-static bool find_and_check_menu(QList<QAction*> actions, QString search) {
-
-	if (awf_trace)
-		printf("\033[36m[trace]\033[00m find_and_check_menu()\n");
-
-	for (QAction *action : actions) {
-		if (action->menu()) {
-			// process submenu
-			if (find_and_check_menu(action->menu()->actions(), search))
-				return true;
-		}
-		else if (action->isEnabled() && (action->text() == search)) {
-			// check menuitem
-			action->trigger(); // set state checked and activate action
-			return true;
-		}
-	}
-
-	return false;
 }
 
 static void on_sighup(int signum) {
@@ -2154,7 +2097,7 @@ static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QS
 	slider->setInvertedAppearance(inverted);
 	if (inverted)
 		slider->setProperty("isInverted", true);
-	// draw does not exists
+	// draw does not exist
 	slider->setTickPosition(position);
 	slider->setFixedWidth(186); // The 186
 	slider->setTracking(true);
@@ -2181,7 +2124,7 @@ static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSli
 	slider->setInvertedAppearance(inverted);
 	if (inverted)
 		slider->setProperty("isInverted", true);
-	// draw does not exists
+	// draw does not exist
 	slider->setTickPosition(position);
 	slider->setFixedHeight(100); // The 100
 	slider->setTracking(true);
@@ -2488,8 +2431,16 @@ static void accels_load() {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m accels_load()\n");
 
-	QString path = QDir::home().filePath(".awf-accels");
-	QString oldPath = QDir::home().filePath(".awf-gtk-accels");
+	#if defined (Q_OS_WIN) || defined (_WIN32)
+		// QDir::home() is C:\MinGW\msys\1.0\home\<user> instead of C:\Documents and Settings\<user>
+		QString root = QProcessEnvironment::systemEnvironment().value("USERPROFILE");
+		QString path = QDir(root).filePath(".awf-accels");
+		QString oldPath = QDir(root).filePath(".awf-gtk-accels");
+	#else
+		QString path = QDir::home().filePath(".awf-accels");
+		QString oldPath = QDir::home().filePath(".awf-gtk-accels");
+	#endif
+
 	if (QFileInfo(oldPath).isFile())
 		QFile::rename(oldPath, path);
 
@@ -2512,10 +2463,10 @@ static void accels_load() {
 		};
 
 		auto parseKey = [](QString keyStr) {
-			// 0-9
+			// KP_0..KP_9
 			if (keyStr.startsWith("KP_", Qt::CaseInsensitive) && keyStr.at(3).isDigit())
 				return static_cast<Qt::Key>(Qt::Key_0 + keyStr.at(3).digitValue());
-			// a-z
+			// a-z, 0-9
 			if (keyStr.length() == 1)
 				return static_cast<Qt::Key>(keyStr.toUpper().at(0).unicode());
 			// delete
@@ -2670,14 +2621,16 @@ static bool accels_change(QObject *obj, QEvent *event) {
 			menuitem->objectName().toUtf8().constData(),
 			acl.toString(QKeySequence::PortableText).toUtf8().constData());
 
-	// check and remove existing keyboard shortcut
-	// and set new keyboard shortcut (without alt because of mnemonics)
+	// remove existing keyboard shortcut and set new keyboard shortcut, the menu stays opened
+	// a shortcut already used by another item is removed from it
 	if (!digit && !(mods & Qt::AltModifier) && (
 		del ||
 		// f1..12
 		((key >= Qt::Key_F1) && (key <= Qt::Key_F12)) ||
-		// ctrl/shift/super + 0-9/a..z/return
-		(mods && (((key >= Qt::Key_0) && (key <= Qt::Key_9)) || ((key >= Qt::Key_A) && (key <= Qt::Key_Z)) || (key == Qt::Key_Return)))
+		// ctrl/shift/super + 0-9/return
+		(mods && (((key >= Qt::Key_0) && (key <= Qt::Key_9)) || (key == Qt::Key_Return))) ||
+		// ctrl/super + a..z (not shift, otherwise the shortcut is activated instead of typing the letter in a text field)
+		((mods & (Qt::ControlModifier | Qt::MetaModifier)) && (key >= Qt::Key_A) && (key <= Qt::Key_Z))
 	)) {
 		must_save_accels = true;
 
@@ -2718,7 +2671,8 @@ static bool accels_change(QObject *obj, QEvent *event) {
 		return true;
 	}
 
-	return false;
+	// refused combination is consumed (return true), nothing happens and the menu stays opened
+	return (mods & (Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier)) != 0;
 }
 
 static void accels_save() {
@@ -2727,10 +2681,16 @@ static void accels_save() {
 		printf("\033[36m[trace]\033[00m accels_save()\n");
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
-	// gtk_accel_map_save
 	if (must_save_accels) {
 
-		QFile f(QDir::home().filePath(".awf-accels"));
+		#if defined (Q_OS_WIN) || defined (_WIN32)
+			// QDir::home() is C:\MinGW\msys\1.0\home\<user> instead of C:\Documents and Settings\<user>
+			QString root = QProcessEnvironment::systemEnvironment().value("USERPROFILE");
+			QFile f(QDir(root).filePath(".awf-accels"));
+		#else
+			QFile f(QDir::home().filePath(".awf-accels"));
+		#endif
+
 		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
 			QMap<QString, QAction*> actions;
@@ -2795,7 +2755,7 @@ static void accels_save() {
 
 			// save file
 			QTextStream out(&f);
-			out << "; awf-qt" << QT_VERSION_MAJOR << " GtkAccelMap rc-file         -*- scheme -*-\n";
+			out << "; " << QFileInfo(QCoreApplication::applicationFilePath()).fileName() << " GtkAccelMap rc-file         -*- scheme -*-\n";
 			out << "; this file is an automated accelerator map dump\n";
 			out << ";\n";
 
@@ -3045,7 +3005,7 @@ static void dialog_calendar() {
 	dialog->setObjectName("AwfDialogWindow");
 	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 
-	// QCalendar
+	// QCalendarWidget
 	QCalendarWidget *calendar = new QCalendarWidget;
 	calendar->setGridVisible(true);
 

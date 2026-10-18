@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/11/10/2026
+ * Updated D/18/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -59,7 +59,7 @@
  *  Ubuntu 11.04 Natty Narwhal 32      (1024 MB) GTK 2.24/3.0  + GLIB 2.28 + Pango 1.28
  *  Windows XP SP3 MinGW/msys          (2048 MB) GTK 2.24 + GLIB 2.28 + Pango 1.29  &  GTK 3.6 + GLIB 2.34 + Pango 1.30
  *
- * This source file is working with GTK 3.0+ and GLIB 2.28+ / with GTK 3.24+ and Handy 1.0+ and GLIB 2.44+ (like GTK 3.24)
+ * This source file is working with GTK 3.0+ and GLIB 2.28+ / with GTK 3.24.1+ and Handy 1.0+ and GLIB 2.49+ (like GTK 3.24)
  */
 
 #pragma GCC diagnostic push
@@ -333,7 +333,7 @@ int main(int argc, gchar **argv) {
 	};
 
 	gchar *cVersion, *t1, *t2, *t3, *t4;
-	while ((opt = getopt_long(argc, argv, "hvlt:s:xyz", options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hvlt:s:", options, NULL)) != -1) {
 		switch (opt) {
 			// --version -v
 			case 'v':
@@ -480,11 +480,11 @@ int main(int argc, gchar **argv) {
 			g_free(text);
 
 			// --ltr
-			g_application_add_main_option(G_APPLICATION(app), "ltr", 'y', G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
+			g_application_add_main_option(G_APPLICATION(app), "ltr", 0, G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
 				_app("Run with text from left to right (Left-To-Right)."), NULL);
 
 			// --rtl
-			g_application_add_main_option(G_APPLICATION(app), "rtl", 'z', G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
+			g_application_add_main_option(G_APPLICATION(app), "rtl", 0, G_OPTION_FLAG_IN_MAIN, G_OPTION_ARG_NONE,
 				_app("Run with text from right to left (Right-To-Left)."), NULL);
 		#endif
 
@@ -796,11 +796,11 @@ static void update_widgets() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
 
-	// function called when user click on [+] toolbar button
-	// when toggle = true, the [+] toolbar button is NOT checked
+	// function called when user click on [+] or [-] toolbar buttons
+	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
-	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
+	// show progressbar and entry in toolbar and progressbar in statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		gtk_widget_set_visible(progress8, FALSE);
 		gtk_widget_set_visible(progress9, FALSE);
@@ -3031,6 +3031,12 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 	if (!current_menuitem || event->is_modifier)
 		return FALSE;
 
+	// unhandled keys are received twice (by the menu, then by its window)
+	static guint32 last = 0;
+	if (event->time && (event->time == last))
+		return FALSE;
+	last = event->time;
+
 	GtkMenuItem *menuitem = GTK_MENU_ITEM(current_menuitem);
 	const gchar *kmp = gtk_menu_item_get_accel_path(menuitem);
 	if (!kmp)
@@ -3049,16 +3055,19 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 
 	// debug
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n", gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem)))), kmp, acl);
+		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n",
+			gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem)))), kmp, acl);
 
-	// remove existing keyboard shortcut and set new keyboard shortcut
-	// all in one (but without alt because of mnemonics)
+	// remove existing keyboard shortcut and set new keyboard shortcut, the menu stays opened
+	// a shortcut already used by another item is removed from it
 	if (!digit && !(state & GDK_MOD1_MASK) && (
 		del ||
 		// f1..12
 		((keyval >= GDK_KEY_F1) && (keyval <= GDK_KEY_F12)) ||
-		// ctrl/shift/super + 0-9/a..z/return
-		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || ((keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z)) || (keyval == GDK_KEY_Return)))
+		// ctrl/shift/super + 0-9/return
+		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || (keyval == GDK_KEY_Return))) ||
+		// ctrl/super + a..z (not shift, otherwise the shortcut is activated instead of typing the letter in a text field)
+		((state & (GDK_CONTROL_MASK | GDK_SUPER_MASK)) && (keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z))
 	)) {
 		must_save_accels = TRUE;
 		gtk_accel_map_change_entry(kmp, del ? 0 : keyval, del ? 0 : state, TRUE);
@@ -3071,7 +3080,9 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 	}
 
 	g_free(acl);
-	return FALSE;
+
+	// refused combination is consumed (return true), nothing happens and the menu stays opened
+	return (state & (GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK)) != 0;
 }
 
 static void accels_save() {
@@ -3110,7 +3121,11 @@ static void dialog_open() {
 			gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(dialog))), FALSE);
 	#endif
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkFileChooserDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Open", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
@@ -3139,7 +3154,11 @@ static void dialog_recent() {
 			gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(dialog))), FALSE);
 	#endif
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkRecentChooserDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkRecentChooserDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkRecentChooserDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
@@ -3167,7 +3186,11 @@ static void dialog_save() {
 			gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(gtk_dialog_get_header_bar(GTK_DIALOG(dialog))), FALSE);
 	#endif
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkFileChooserDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkFileChooserDialog:Save", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
@@ -3190,7 +3213,11 @@ static void dialog_message() {
 
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
@@ -3385,7 +3412,11 @@ static void dialog_calendar() {
 		}
 	#endif
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 
@@ -3438,7 +3469,11 @@ static void dialog_scales() {
 		}
 	#endif
 
-	gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#if defined (WITH_HANDY)
+		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
+	#else
+		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
+	#endif
 	gtk_window_set_title(GTK_WINDOW(dialog), text);
 	g_free(text);
 

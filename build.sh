@@ -6,8 +6,10 @@
 # supported options for build.sh/configure.ac
 #  none
 # OR
-#  --disable-adw --disable-hdy --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5 --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
-#                              --disable-gtk                                                             --disable-qt
+#  --disable-adw
+#  --disable-hdy
+#  --disable-gtk --disable-gtk2 --disable-gtk3 --disable-gtk4 --disable-gtk5
+#  --disable-qt  --disable-qt4 --disable-qt5 --disable-qt6 --disable-qt7
 # OR
 #  --enable-only-adw
 # OR
@@ -38,9 +40,7 @@ cp /usr/share/common-licenses/GPL*3 builder/LICENSE
 cp configure.ac      builder/
 cp Makefile.am       builder/
 cp src/Makefile.am   builder/src/
-cp src/awf-adw*.c    builder/src/
-cp src/awf-gtk*.c    builder/src/
-cp src/awf-qt*.cpp   builder/src/
+cp src/awf-*.c*      builder/src/
 cp src/awf.rc        builder/src/
 # for icons
 cp data/awf.*        builder/data/
@@ -59,7 +59,7 @@ cd ..
 # final
 if [ $result -eq 0 ]; then
 	cp builder/src/awf-adw* builder/src/awf-hdy* builder/src/awf-gtk* builder/src/awf-qt* .
-	rm -f awf-adw*.c awf-gtk*.c awf-qt*.cpp awf-qt*.moc awf-qt*.o
+	rm -f awf-*.c* awf-*.moc awf-*.o
 	ls -altrh awf-adw* awf-hdy* awf-gtk2* awf-gtk3* awf-gtk4* awf-gtk5* awf-qt4* awf-qt5* awf-qt6* awf-qt7*
 fi
 rm -rf builder/

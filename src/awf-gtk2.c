@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/11/10/2026
+ * Updated D/18/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -326,7 +326,7 @@ int main(int argc, gchar **argv) {
 	};
 
 	gchar *cVersion, *t1, *t2, *t3, *t4;
-	while ((opt = getopt_long(argc, argv, "hvlt:s:xyz", options, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "hvlt:s:", options, NULL)) != -1) {
 		switch (opt) {
 			// --version -v
 			case 'v':
@@ -661,11 +661,11 @@ static void update_widgets() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
 
-	// function called when user click on [+] toolbar button
-	// when toggle = true, the [+] toolbar button is NOT checked
+	// function called when user click on [+] or [-] toolbar buttons
+	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
-	// show progressbar in toolbar and statusbar when [+] toolbar button is NOT checked
+	// show progressbar and entry in toolbar and progressbar in statusbar when [+] toolbar button is NOT checked
 	if (toggle) {
 		gtk_widget_set_visible(progress8, FALSE);
 		gtk_widget_set_visible(progress9, FALSE);
@@ -2497,16 +2497,19 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 
 	// debug
 	if (awf_trace)
-		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n", gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem)))), kmp, acl);
+		g_printf("\033[36m[trace]\033[00m accels_change(%s, %s, %s)*\n",
+			gtk_label_get_text(GTK_LABEL(gtk_bin_get_child(GTK_BIN(menuitem)))), kmp, acl);
 
-	// remove existing keyboard shortcut and set new keyboard shortcut
-	// all in one (but without alt because of mnemonics)
+	// remove existing keyboard shortcut and set new keyboard shortcut, the menu stays opened
+	// a shortcut already used by another item is removed from it
 	if (!digit && !(state & GDK_MOD1_MASK) && (
 		del ||
 		// f1..12
 		((keyval >= GDK_KEY_F1) && (keyval <= GDK_KEY_F12)) ||
-		// ctrl/shift/super + 0-9/a..z/return
-		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || ((keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z)) || (keyval == GDK_KEY_Return)))
+		// ctrl/shift/super + 0-9/return
+		(state && (((keyval >= GDK_KEY_0) && (keyval <= GDK_KEY_9)) || (keyval == GDK_KEY_Return))) ||
+		// ctrl/super + a..z (not shift, otherwise the shortcut is activated instead of typing the letter in a text field)
+		((state & (GDK_CONTROL_MASK | GDK_SUPER_MASK)) && (keyval >= GDK_KEY_a) && (keyval <= GDK_KEY_z))
 	)) {
 		must_save_accels = TRUE;
 		gtk_accel_map_change_entry(kmp, del ? 0 : keyval, del ? 0 : state, TRUE);
@@ -2519,7 +2522,9 @@ static gboolean accels_change(GtkWidget *widget, GdkEventKey *event) {
 	}
 
 	g_free(acl);
-	return FALSE;
+
+	// refused combination is consumed (return true), nothing happens and the menu stays opened
+	return (state & (GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK)) != 0;
 }
 
 static void accels_save() {
