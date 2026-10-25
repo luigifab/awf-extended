@@ -1,4 +1,4 @@
-# Made in ChatGPT and Copilot
+# Made in ChatGPT and Copilot and fixed by Claude
 # Licensed under the MIT License
 _awf_adw_complete() {
 	local cur prev opts all_opts single_opts
@@ -36,8 +36,10 @@ _awf_adw_complete() {
 			return 0
 			;;
 		-t|--theme)
-			local themes=$(awf-adw -l 2>/dev/null | awk '{$1=$1};1') # trim + handle list
-			COMPREPLY=( $(compgen -W "$themes" -- "$cur") )
+			local theme
+			while IFS= read -r theme; do
+				[[ "$theme" == "$cur"* ]] && COMPREPLY+=("$(printf '%q' "$theme")")
+			done < <(awf-adw -l 2>/dev/null)
 			return 0
 			;;
 	esac

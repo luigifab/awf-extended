@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/18/10/2026
+ * Updated S/24/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -29,7 +29,7 @@
  *  https://github.com/qt/qt/blob/v4.8.7/translations/qt_fr.ts
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-*.c*
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
- *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
+ *  msgfmt src/po/fr.po -o /usr/share/locale/fr/LC_MESSAGES/awf-qt4.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
  *  Ubuntu 17.04 Zesty Zapus 32        (1536 MB) Qt 4.8
@@ -107,6 +107,7 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QTranslator>
+#include <QScrollBar>
 #include <QTreeView>
 #include <QVBoxLayout>
 #include <QVariantAnimation>
@@ -286,8 +287,9 @@ static bool awf_gqss  = false;
 constexpr std::nullptr_t null = nullptr;
 static QStringList list_system_theme, list_user_theme;
 static QMainWindow *window = null;
-static QDialog *inspector = null;
+static QDialog *inspector  = null;
 static QLineEdit *toolbarentry  = null;
+static QTreeView *treescroll    = null;
 static QProgressBar *progress1  = null, *progress2 = null, *progress3 = null, *progress4 = null, *progress8 = null, *progress9 = null;
 static QSlider *slider1 = null, *slider2 = null, *slider3 = null, *slider4 = null, *slider5 = null, *slider6 = null, *slider7 = null;
 static AwfTabWidget *notebook1  = null, *notebook2 = null, *notebook3 = null, *notebook4 = null;
@@ -608,10 +610,13 @@ int main(int argc, char **argv) {
 				return status;
 			// --list -l
 			case 'l':
-				for (QString theme : list_system_theme)
+				for (QString theme : list_system_theme) {
+					if (!list_user_theme.contains(theme))
+						printf("%s\n", theme.toUtf8().constData());
+				}
+				for (QString theme : list_user_theme) {
 					printf("%s\n", theme.toUtf8().constData());
-				for (QString theme : list_user_theme)
-					printf("%s\n", theme.toUtf8().constData());
+				}
 				return status;
 			// --theme <theme> -t <theme>
 			case 't':
@@ -730,6 +735,12 @@ static void update_text_direction(int direction) {
 		notebook4->setTabPosition(QTabWidget::West);
 		qApp->setLayoutDirection(Qt::RightToLeft);
 		update_theme("refresh");
+	}
+
+	// reset treeview scroll
+	if (treescroll) {
+		treescroll->scrollToTop();
+		treescroll->horizontalScrollBar()->setValue(0);
 	}
 }
 
@@ -995,6 +1006,7 @@ static void display_notification() {
 			<< "-i" << "dialog-information"
 			<< "-t" << "50000"
 			<< "--action" << _qt("QShortcut", "Close")
+			<< "--action" << ("close=" + _qt("QShortcut", "Close"))
 			<< GETTEXT_PACKAGE
 			<< _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
 	#endif
@@ -1256,6 +1268,7 @@ static void create_widgets(AwfVBox *root) { // todo
 			hpane1->addWidget(wboxFrame2);
 
 			create_frames(hboxFrame1, hboxFrame2);
+			hpane1->setSizes({wboxFrame1->sizeHint().width(), 10000});
 
 		vpane->addWidget(hpane2);
 
@@ -1606,7 +1619,7 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	button5->setProperty("class", "awf-cheatcode-colorbtn");
 	//QObject::connect(button5, &QPushButton::clicked, [=](){
 		caller = new AwfCall(button5);
-		caller->fn = [=](){ QColorDialog::getColor(QColor("#7796ba"), window, "QColorDialog"); };
+		caller->fn = [=](){ QColorDialog::getColor(QColor("#" AWF_COLOR), window, "QColorDialog"); };
 		QObject::connect(button5, SIGNAL(clicked()), caller, SLOT(run()));
 
 	button6 = new QPushButton(_app("Choose a font"));
@@ -1648,6 +1661,16 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	button10->setSuffix(" mm");
 	button10->setPrefix("± ");
 
+	// QToolButton
+	QToolButton *button11 = new QToolButton;
+	button11->setIcon(get_icon("open-menu-symbolic"));
+	button11->setPopupMode(QToolButton::InstantPopup);
+	QMenu *menu = new QMenu(button11);
+	menu->addAction("Menu item 1");
+	menu->addAction("Menu item 2");
+	menu->addAction("Menu item 3");
+	button11->setMenu(menu);
+
 	// layout
 	root1->addWidget(button1);
 	root1->addWidget(button2);
@@ -1660,6 +1683,7 @@ static void create_otherbuttons(AwfVBox *root1, AwfHBox *root2, AwfHBox *root3, 
 	root2->addWidget(button9);
 	root3->addWidget(button10);
 	root4->addStretch();
+	root5->addWidget(button11);
 	root5->addStretch();
 }
 
@@ -1851,7 +1875,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 	// QTabWidget
 	notebook1 = new AwfTabWidget;
 	notebook1->setTabPosition(QTabWidget::North);
-	notebook1->setTabsClosable(false);
+	notebook1->setTabsClosable(true);
 	notebook1->setUsesScrollButtons(false);
 	notebook1->tabBar()->setExpanding(false);
 	notebook1->tabBar()->setMovable(true);
@@ -1862,7 +1886,7 @@ static void create_notebooks(AwfHBox *root1, AwfHBox *root2) {
 
 	notebook2 = new AwfTabWidget;
 	notebook2->setTabPosition(QTabWidget::South);
-	notebook2->setTabsClosable(false);
+	notebook2->setTabsClosable(true);
 	notebook2->setUsesScrollButtons(false);
 	notebook2->tabBar()->setExpanding(false);
 	notebook2->tabBar()->setMovable(true);
@@ -1912,7 +1936,7 @@ static void create_notebook_tab(AwfTabWidget *notebook, QString text, QWidget *c
 	content->setAutoFillBackground(true);
 
 	if ((notebook->tabPosition() == QTabWidget::West) || (notebook->tabPosition() == QTabWidget::East)) {
-		// @todo force horizontal tab for vertical tabs bar
+		// @todo force horizontal tab for vertical tabs bar with custom close button
 		if (close) {
 			QWidget *layout = new QWidget;
 			layout->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -1934,15 +1958,13 @@ static void create_notebook_tab(AwfTabWidget *notebook, QString text, QWidget *c
 			notebook->tabBar()->setTabButton(notebook->addTab(content, ""), QTabBar::LeftSide, new QLabel(text));
 		}
 	}
-	else if (close) {
-		QToolButton *btn = new QToolButton;
-		btn->setIcon(get_icon("window-close"));
-		btn->setIconSize(QSize(16, 16));
-		btn->setAutoRaise(true); // flat
-		notebook->tabBar()->setTabButton(notebook->addTab(content, text), QTabBar::RightSide, btn);
-	}
 	else {
-		notebook->addTab(content, text);
+		int index = notebook->addTab(content, text);
+		if (!close) {
+			// disable native close button
+			notebook->tabBar()->setTabButton(index, QTabBar::RightSide, null);
+			notebook->tabBar()->setTabButton(index, QTabBar::LeftSide, null);
+		}
 	}
 }
 
@@ -2007,6 +2029,7 @@ static void create_treeview(AwfVBox *root) { // todo
 	view->header()->setResizeMode(QHeaderView::Interactive);
 
 	root->addWidget(view);
+	treescroll = view;
 }
 
 static void create_sliders(AwfTabWidget *notebook, QString text, QSlider::TickPosition position) {
@@ -2691,7 +2714,7 @@ static void accels_save() {
 			QFile f(QDir::home().filePath(".awf-accels"));
 		#endif
 
-		if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		if (!QFileInfo(f).isSymLink() && f.open(QIODevice::WriteOnly | QIODevice::Text)) {
 
 			QMap<QString, QAction*> actions;
 			QString kmp, acl;
@@ -2809,7 +2832,7 @@ static void dialog_message() {
 		printf("\033[36m[trace]\033[00m dialog_message()\n");
 
 	QMessageBox msgBox(window);
-	msgBox.setIcon(QMessageBox::Information);
+	msgBox.setIcon(QMessageBox::Question);
 	msgBox.setWindowTitle(QString("%1 - Qt %2.%3").arg("QMessageBox").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 	msgBox.setText("QMessageBox");
 	msgBox.setInformativeText(_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));

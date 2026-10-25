@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/18/10/2026
+ * Updated S/24/10/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -29,7 +29,7 @@
  *  https://github.com/GNOME/gtk/blob/3.24.52/po/fr.po
  *  xgettext --keyword=_app -d awf -o src/awf.pot -k_ -s src/awf-*.c*
  *  msgmerge src/po/fr.po src/awf.pot -o src/po/fr.po
- *  msgfmt src/po/fr.po -o src/fr/LC_MESSAGES/awf.mo
+ *  msgfmt src/po/fr.po -o /usr/share/locale/fr/LC_MESSAGES/awf-gtk3.mo
  *
  * Tested with build.sh (via VirtualBox 7) with:
  *  Debian Testing 64                  (1536 MB) GTK 2.24/3.24/4.24 + GLIB 2.90 + Pango 1.58 / HANDY 1.8
@@ -147,7 +147,7 @@ static GHashTable *hash_user_theme = NULL;
 static GList *list_system_theme = NULL;
 static GList *list_user_theme = NULL;
 static GtkWidget *window = NULL, *menubar = NULL, *toolbar = NULL, *toolbarentry = NULL, *statusbar = NULL;
-static GtkWidget *headbarCloseLeft = NULL, *headbarCloseRight = NULL, *button15 = NULL, *button16 = NULL;
+static GtkWidget *headbarIconLeft = NULL, *headbarIconRight = NULL, *button15 = NULL, *button16 = NULL, *treescroll = NULL;
 static GtkWidget *progress1 = NULL, *progress2 = NULL, *progress3 = NULL, *progress4 = NULL, *progress8 = NULL, *progress9 = NULL;
 static GtkWidget *scale1 = NULL, *scale2 = NULL, *scale3 = NULL, *scale4 = NULL, *scale5 = NULL, *scale6 = NULL;
 static GtkWidget *levelbar1 = NULL, *levelbar2 = NULL, *levelbar3 = NULL, *levelbar4 = NULL;
@@ -288,6 +288,7 @@ int main(int argc, gchar **argv) {
 		g_free(directory);
 	}
 
+	g_hash_table_replace(hash_system_theme, g_strdup("Adwaita"), g_strdup("Adwaita")); // bolos
 	g_hash_table_remove(hash_system_theme, "Default");
 	g_hash_table_remove(hash_system_theme, "Emacs");
 	list_system_theme = g_list_sort(g_hash_table_get_keys(hash_system_theme), (GCompareFunc) awf_sort);
@@ -341,10 +342,13 @@ int main(int argc, gchar **argv) {
 				return status;
 			// --list -l
 			case 'l':
-				for (iterator = list_system_theme; iterator; iterator = iterator->next)
+				for (iterator = list_system_theme; iterator; iterator = iterator->next) {
+					if (!g_hash_table_lookup(hash_user_theme, iterator->data))
+						g_printf("%s\n", (gchar*) iterator->data);
+				}
+				for (iterator = list_user_theme; iterator; iterator = iterator->next) {
 					g_printf("%s\n", (gchar*) iterator->data);
-				for (iterator = list_user_theme; iterator; iterator = iterator->next)
-					g_printf("%s\n", (gchar*) iterator->data);
+				}
 				return status;
 			// --theme <theme> -t <theme>
 			case 't':
@@ -564,23 +568,23 @@ static void notify_updated_gtktheme(GSettings *settings, gchar *key) {
 		find_and_check_menuradio(menubar, newTheme);
 		g_free(newTheme);
 	}
-	else if (headbarCloseLeft && headbarCloseRight) {
+	else if (headbarIconLeft && headbarIconRight) {
 
-		gboolean closeLeft = FALSE, closeRight = FALSE; // minimize, maximize, close, icon, menu
+		gboolean iconLeft = FALSE, iconRight = FALSE; // minimize, maximize, close, icon, menu
 		gchar *tokens = g_settings_get_string(settings, key);
 
 		if (tokens) {
 			if (g_str_has_prefix(tokens, "icon") || g_str_has_prefix(tokens, "menu"))
-				closeLeft = TRUE;
+				iconLeft = TRUE;
 			else if (g_str_has_suffix(tokens, "icon") || g_str_has_suffix(tokens, "menu"))
-				closeRight = TRUE;
+				iconRight = TRUE;
 			if (awf_debug)
-				g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s %d %d\n", tokens, closeLeft, closeRight);
+				g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s left:%d right:%d\n", tokens, iconLeft, iconRight);
 			g_free(tokens);
 		}
 
-		gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-		gtk_widget_set_visible(headbarCloseRight, closeRight);
+		gtk_widget_set_visible(headbarIconLeft, iconLeft);
+		gtk_widget_set_visible(headbarIconRight, iconRight);
 	}
 }
 
@@ -628,6 +632,12 @@ static void update_text_direction(int direction) {
 
 		current_direction = 2;
 		gtk_widget_set_default_direction(current_direction);
+	}
+
+	// reset treeview scroll
+	if (treescroll) {
+		gtk_adjustment_set_value(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(treescroll)), (current_direction == 2) ? 2345 : 0);
+		gtk_adjustment_set_value(gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(treescroll)), 0);
 	}
 }
 
@@ -1056,7 +1066,7 @@ static void create_window(gpointer app) {
 	}
 
 	GtkWidget *vboxWindow, *widgets;
-	gboolean closeLeft = FALSE, closeRight = FALSE;
+	gboolean iconLeft = FALSE, iconRight = FALSE;
 	gchar *text, *value;
 
 	// window
@@ -1118,19 +1128,19 @@ static void create_window(gpointer app) {
 				gchar *tokens; // minimize, maximize, close, icon, menu
 				g_object_get(gtk_widget_get_settings(headerbar), "gtk-decoration-layout", &tokens, NULL);
 				if (g_str_has_prefix(tokens, "icon") || g_str_has_prefix(tokens, "menu"))
-					closeLeft = TRUE;
+					iconLeft = TRUE;
 				else if (g_str_has_suffix(tokens, "icon") || g_str_has_suffix(tokens, "menu"))
-					closeRight = TRUE;
+					iconRight = TRUE;
 				if (awf_debug)
-					g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s %d %d\n", tokens, closeLeft, closeRight);
+					g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s left:%d right:%d\n", tokens, iconLeft, iconRight);
 				g_free(tokens);
 
 				// left
-				headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
-				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseLeft), "app-icon");
-				gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-				gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
-				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), headbarCloseLeft);
+				headbarIconLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarIconLeft), "app-icon");
+				gtk_widget_set_visible(headbarIconLeft, iconLeft);
+				gtk_widget_set_no_show_all(headbarIconLeft, TRUE);
+				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), headbarIconLeft);
 
 				button = gtk_menu_button_new();
 				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
@@ -1155,11 +1165,11 @@ static void create_window(gpointer app) {
 				hdy_header_bar_pack_start(HDY_HEADER_BAR(headerbar), button);
 
 				// right
-				headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
-				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseRight), "app-icon");
-				gtk_widget_set_visible(headbarCloseRight, closeRight);
-				gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
-				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), headbarCloseRight);
+				headbarIconRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarIconRight), "app-icon");
+				gtk_widget_set_visible(headbarIconRight, iconRight);
+				gtk_widget_set_no_show_all(headbarIconRight, TRUE);
+				hdy_header_bar_pack_end(HDY_HEADER_BAR(headerbar), headbarIconRight);
 
 				button = gtk_menu_button_new();
 				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
@@ -1211,19 +1221,19 @@ static void create_window(gpointer app) {
 				gchar *tokens; // minimize, maximize, close, icon, menu
 				g_object_get(gtk_widget_get_settings(headerbar), "gtk-decoration-layout", &tokens, NULL);
 				if (g_str_has_prefix(tokens, "icon") || g_str_has_prefix(tokens, "menu"))
-					closeLeft = TRUE;
+					iconLeft = TRUE;
 				else if (g_str_has_suffix(tokens, "icon") || g_str_has_suffix(tokens, "menu"))
-					closeRight = TRUE;
+					iconRight = TRUE;
 				if (awf_debug)
-					g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s %d %d\n", tokens, closeLeft, closeRight);
+					g_printf("\033[33m[debug]\033[00m headerbar_tokens: %s left:%d right:%d\n", tokens, iconLeft, iconRight);
 				g_free(tokens);
 
 				// left
-				headbarCloseLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
-				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseLeft), "app-icon");
-				gtk_widget_set_visible(headbarCloseLeft, closeLeft);
-				gtk_widget_set_no_show_all(headbarCloseLeft, TRUE);
-				gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), headbarCloseLeft);
+				headbarIconLeft = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarIconLeft), "app-icon");
+				gtk_widget_set_visible(headbarIconLeft, iconLeft);
+				gtk_widget_set_no_show_all(headbarIconLeft, TRUE);
+				gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), headbarIconLeft);
 
 				button = gtk_menu_button_new();
 				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
@@ -1248,11 +1258,11 @@ static void create_window(gpointer app) {
 				gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
 
 				// right
-				headbarCloseRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
-				gtk_style_context_add_class(gtk_widget_get_style_context(headbarCloseRight), "app-icon");
-				gtk_widget_set_visible(headbarCloseRight, closeRight);
-				gtk_widget_set_no_show_all(headbarCloseRight, TRUE);
-				gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), headbarCloseRight);
+				headbarIconRight = gtk_image_new_from_icon_name(GETTEXT_PACKAGE, GTK_ICON_SIZE_BUTTON);
+				gtk_style_context_add_class(gtk_widget_get_style_context(headbarIconRight), "app-icon");
+				gtk_widget_set_visible(headbarIconRight, iconRight);
+				gtk_widget_set_no_show_all(headbarIconRight, TRUE);
+				gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), headbarIconRight);
 
 				button = gtk_menu_button_new();
 				gtk_button_set_image(GTK_BUTTON(button), gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON));
@@ -1787,7 +1797,7 @@ static void create_otherbuttons(GtkWidget *root1, GtkWidget *root2, GtkWidget *r
 
 	// GTK_COLOR_BUTTON
 	GdkRGBA color;
-	gdk_rgba_parse(&color, "#7796ba");
+	gdk_rgba_parse(&color, "#" AWF_COLOR);
 	button5 = gtk_color_button_new_with_rgba(&color);
 	gtk_widget_set_tooltip_text(button5, _app("Choose a color"));
 
@@ -2224,7 +2234,7 @@ static void create_treeview(GtkWidget *root) {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_treeview()\n");
 
-	GtkWidget *scrolledWindow, *view;
+	GtkWidget *view;
 	GtkCellRenderer *renderer;
 	GtkTreeStore *store;
 	GtkTreeIter iter;
@@ -2496,20 +2506,20 @@ static void create_treeview(GtkWidget *root) {
 	#endif
 
 	// scrolled window
-	scrolledWindow = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_SHADOW_IN);
+	treescroll = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(treescroll), GTK_SHADOW_IN);
 	#if GTK_CHECK_VERSION (3,16,0)
 		const gchar *config = g_getenv("GTK_OVERLAY_SCROLLING");
 		if (config && (strcmp(config, "0") == 0))
-			gtk_scrolled_window_set_overlay_scrolling(GTK_SCROLLED_WINDOW(scrolledWindow), FALSE);
+			gtk_scrolled_window_set_overlay_scrolling(GTK_SCROLLED_WINDOW(treescroll), FALSE);
 	#endif
 
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledWindow), GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
-	gtk_widget_set_size_request(scrolledWindow, 200, 200); // The 200
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(treescroll), GTK_POLICY_ALWAYS, GTK_POLICY_ALWAYS);
+	gtk_widget_set_size_request(treescroll, 200, 200); // The 200
 	gtk_widget_set_size_request(view, 200, 200); // The 200
 
-	gtk_container_add(GTK_CONTAINER(scrolledWindow), view);
-	add_to(root, scrolledWindow, FALSE, FALSE, 0, 0);
+	gtk_container_add(GTK_CONTAINER(treescroll), view);
+	add_to(root, treescroll, FALSE, FALSE, 0, 0);
 }
 
 static void create_scales(GtkWidget *notebook, gchar *text, int position) {
@@ -3093,7 +3103,8 @@ static void accels_save() {
 	// gtk-can-change-accels for GTK 3.x | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	if (must_save_accels) {
 		gchar *path = g_build_filename(g_get_home_dir(), ".awf-accels", NULL);
-		gtk_accel_map_save(path);
+		if (!g_file_test(path, G_FILE_TEST_IS_SYMLINK))
+			gtk_accel_map_save(path);
 		g_free(path);
 	}
 }
@@ -3207,11 +3218,13 @@ static void dialog_message() {
 	GtkWidget *dialog = gtk_message_dialog_new(
 		GTK_WINDOW(window),
 		GTK_DIALOG_DESTROY_WITH_PARENT,
-		GTK_MESSAGE_INFO,
+		GTK_MESSAGE_QUESTION,
 		GTK_BUTTONS_YES_NO,
 		"GtkMessageDialog");
 
 	gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dialog), "%s", _app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."));
+	gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(dialog), gtk_image_new_from_icon_name("dialog-question", GTK_ICON_SIZE_DIALOG));
+	gtk_widget_show(gtk_message_dialog_get_image(GTK_MESSAGE_DIALOG(dialog)));
 
 	#if defined (WITH_HANDY)
 		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkMessageDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
