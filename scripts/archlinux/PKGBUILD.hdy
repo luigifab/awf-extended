@@ -3,7 +3,7 @@ pkgver=4.3.0
 pkgrel=1
 pkgdesc='Theme preview application for Handy'
 url='https://github.com/luigifab/awf-extended'
-license=('GPL3')
+license=('GPL3' 'MIT')
 arch=('x86_64')
 depends=('gtk3>=3.24.1' 'libhandy>=1.0.0' 'libnotify>=0.7.0' 'hicolor-icon-theme')
 makedepends=('librsvg' 'ttf-dejavu')

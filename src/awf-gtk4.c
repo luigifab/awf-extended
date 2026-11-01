@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated S/24/10/2026
+ * Updated D/01/11/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -188,6 +188,7 @@ static void create_frames(GtkWidget *root1, GtkWidget *root2);
 static void create_notebooks(GtkWidget *root1, GtkWidget *root2);
 static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *content, gboolean close);
 static void create_treeview(GtkWidget *root);
+static void create_treeview_row(GtkTreeStore *store, int a, gboolean b, gchar *c, gdouble d, gchar *e, gchar *f);
 static void create_scales(GtkWidget *notebook, gchar *text, int position);
 static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position);
@@ -337,8 +338,12 @@ int main(int argc, gchar **argv) {
 			// --theme <theme> -t <theme>
 			case 't':
 				if (g_hash_table_lookup(hash_system_theme, optarg) || g_hash_table_lookup(hash_user_theme, optarg)) {
+					g_unsetenv("GTK_THEME");
 					g_free(opt_theme);
 					opt_theme = g_strdup(optarg);
+				}
+				else {
+					g_printf("\033[1;31m[warn]\033[00m unknown theme: %s\n", optarg);
 				}
 				break;
 			// --screenshot <filename> -s <filename>
@@ -594,9 +599,17 @@ static void update_theme(gchar *newTheme) {
 	}
 	else if (strcmp(newTheme, "auto") == 0) {
 
-		g_free(current_theme);
-		g_object_get(gtk_settings_get_default(), "gtk-theme-name", &current_theme, NULL);
-		gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+		if (g_getenv("GTK_THEME")) {
+			g_free(current_theme);
+			current_theme = g_strdup(g_getenv("GTK_THEME"));
+			gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+			g_unsetenv("GTK_THEME");
+		}
+		else {
+			g_free(current_theme);
+			g_object_get(gtk_settings_get_default(), "gtk-theme-name", &current_theme, NULL);
+			gtk_window_set_default_size(GTK_WINDOW(window), 50, 50);
+		}
 
 		if (awf_debug)
 			g_printf("\033[33m[debug]\033[00m update_theme_after2: %s\n", current_theme);
@@ -951,7 +964,7 @@ static void create_window(GtkApplication *app) {
 
 	GtkWidget *vboxWindow, *widgets;
 	gboolean iconLeft = FALSE, iconRight = FALSE;
-	gchar *text, *value;
+	gchar *text;
 
 	// window
 	window = gtk_application_window_new(app);
@@ -1107,6 +1120,7 @@ static void create_window(GtkApplication *app) {
 	#if defined (G_OS_UNIX)
 		GSettingsSchema *schema;
 		GSettingsSchemaSource *source = g_settings_schema_source_get_default();
+		gchar *value;
 
 		if (source) {
 			if ((schema = g_settings_schema_source_lookup(source, value = "org.gnome.desktop.interface", FALSE))) {
@@ -1984,179 +1998,23 @@ static void create_treeview(GtkWidget *root) {
 
 	GtkWidget *view;
 	GtkCellRenderer *renderer;
-	GtkTreeStore *store;
-	GtkTreeIter iter;
 	int idx = 0;
 
 	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
+	GtkTreeStore *store = gtk_tree_store_new(11, G_TYPE_INT, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_DOUBLE, G_TYPE_DOUBLE, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN, G_TYPE_BOOLEAN);
 
 	// data
-	store = gtk_tree_store_new(11,
-		G_TYPE_INT,
-		G_TYPE_BOOLEAN,
-		G_TYPE_BOOLEAN,
-		G_TYPE_STRING,
-		G_TYPE_DOUBLE,
-		G_TYPE_DOUBLE,
-		G_TYPE_STRING,
-		G_TYPE_STRING,
-		G_TYPE_STRING,
-		G_TYPE_BOOLEAN,
-		G_TYPE_BOOLEAN);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 1,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 1.1",
-		4, 0.0,
-		5, 0.0,
-		6, "Text 1.2",
-		7, "document-open",
-		8, "document-open",
-		9, FALSE,
-		10, FALSE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 2,
-		1, TRUE,
-		2, TRUE,
-		3, "Text 2.1",
-		4, 10.0,
-		5, 10.0,
-		6, "Text 2.2",
-		7, "document-save",
-		8, "document-save",
-		9, TRUE,
-		10, TRUE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 3,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 3.1",
-		4, 20.0,
-		5, 20.0,
-		6, "Text 3.2",
-		7, "document-save-as",
-		8, "document-save-as",
-		9, FALSE,
-		10, FALSE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 4,
-		1, TRUE,
-		2, TRUE,
-		3, "Text 4.1",
-		4, 30.0,
-		5, 30.0,
-		6, "Text 4.2",
-		7, "view-refresh",
-		8, "view-refresh",
-		9, TRUE,
-		10, TRUE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 5,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 5.1",
-		4, 40.0,
-		5, 40.0,
-		6, "Text 5.2",
-		7, "edit-cut",
-		8, "edit-cut",
-		9, FALSE,
-		10, FALSE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 6,
-		1, TRUE,
-		2, TRUE,
-		3, "Text 6.1",
-		4, 50.0,
-		5, 50.0,
-		6, "Text 6.2",
-		7, "help-contents",
-		8, "help-contents",
-		9, TRUE,
-		10, TRUE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 7,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 7.1",
-		4, 60.0,
-		5, 60.0,
-		6, "Text 7.2",
-		7, "document-open",
-		8, "document-open",
-		9, FALSE,
-		10, FALSE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 8,
-		1, TRUE,
-		2, TRUE,
-		3, "Text 8.1",
-		4, 70.0,
-		5, 70.0,
-		6, "Text 8.2",
-		7, "document-save",
-		8, "document-save",
-		9, TRUE,
-		10, TRUE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 9,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 9.1",
-		4, 80.0,
-		5, 80.0,
-		6, "Text 9.2",
-		7, "document-save-as",
-		8, "document-save-as",
-		9, FALSE,
-		10, FALSE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 10,
-		1, TRUE,
-		2, TRUE,
-		3, "Text 10.1",
-		4, 90.0,
-		5, 90.0,
-		6, "Text 10.2",
-		7, "view-refresh",
-		8, "view-refresh",
-		9, TRUE,
-		10, TRUE,
-		-1);
-	gtk_tree_store_append(store, &iter, NULL);
-	gtk_tree_store_set(store, &iter,
-		0, 11,
-		1, FALSE,
-		2, FALSE,
-		3, "Text 11.1",
-		4, 100.0,
-		5, 100.0,
-		6, "Text 11.2",
-		7, "edit-cut",
-		8, "edit-cut",
-		9, FALSE,
-		10, FALSE,
-		-1);
+	create_treeview_row(store, 1,  FALSE, "Text 1.1",  0,   "Text 1.2",  "document-open");
+	create_treeview_row(store, 2,  TRUE,  "Text 2.1",  10,  "Text 2.2",  "document-save");
+	create_treeview_row(store, 3,  FALSE, "Text 3.1",  20,  "Text 3.2",  "document-save-as");
+	create_treeview_row(store, 4,  TRUE,  "Text 4.1",  30,  "Text 4.2",  "view-refresh");
+	create_treeview_row(store, 5,  FALSE, "Text 5.1",  40,  "Text 5.2",  "edit-cut");
+	create_treeview_row(store, 6,  TRUE,  "Text 6.1",  50,  "Text 6.2",  "help-contents");
+	create_treeview_row(store, 7,  FALSE, "Text 7.1",  60,  "Text 7.2",  "document-open");
+	create_treeview_row(store, 8,  TRUE,  "Text 8.1",  70,  "Text 8.2",  "document-save");
+	create_treeview_row(store, 9,  FALSE, "Text 9.1",  80,  "Text 9.2",  "document-save-as");
+	create_treeview_row(store, 10, TRUE,  "Text 10.1", 90,  "Text 10.2", "view-refresh");
+	create_treeview_row(store, 11, FALSE, "Text 11.1", 100, "Text 11.2", "edit-cut");
 
 	// columns
 	view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
@@ -2166,7 +2024,6 @@ static void create_treeview(GtkWidget *root) {
 	gtk_tree_sortable_set_sort_column_id(GTK_TREE_SORTABLE(store), 0, GTK_SORT_ASCENDING);
 	g_object_unref(G_OBJECT(store));
 
-	idx = 0;
 	renderer = gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(view), idx, "i", renderer, "text", idx, NULL);
 	gtk_tree_view_column_set_sort_column_id(gtk_tree_view_get_column(GTK_TREE_VIEW(view), idx), idx);
@@ -2266,6 +2123,17 @@ static void create_treeview(GtkWidget *root) {
 
 	gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(treescroll), view);
 	add_to(root, treescroll, FALSE, FALSE, 0, 0);
+}
+
+static void create_treeview_row(GtkTreeStore *store, int a, gboolean b, gchar *c, gdouble d, gchar *e, gchar *f) {
+
+	G_GNUC_BEGIN_IGNORE_DEPRECATIONS // GTK 4.10+
+
+	GtkTreeIter iter;
+	gtk_tree_store_append(store, &iter, NULL);
+	gtk_tree_store_set(store, &iter, 0, a, 1, b, 2, b, 3, c, 4, d, 5, d, 6, e, 7, f, 8, f, 9, b, 10, b, -1);
+
+	G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 static void create_scales(GtkWidget *notebook, gchar *text, int position) {
@@ -2540,7 +2408,7 @@ static void create_traditional_menubar(GtkApplication *app, GMenu *root) {
 		g_menu_append_section(menu, NULL, G_MENU_MODEL(section));
 
 			create_menuitem(app, section, _gtk("_Close"), TRUE, AWF_ACCEL_CLOS, AWF_CLOS, "gtk-close", NULL);
-			create_menuitem(app, section, _gtk("_Quit"), FALSE, AWF_ACCEL_QUIT, AWF_QUIT, "gtk-quit", quit);
+			create_menuitem(app, section, _app("_Quit"), FALSE, AWF_ACCEL_QUIT, AWF_QUIT, "gtk-quit", quit);
 
 		g_object_unref(section);
 

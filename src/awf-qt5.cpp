@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated S/24/10/2026
+ * Updated D/01/11/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -664,6 +664,8 @@ int main(int argc, char **argv) {
 			case 't':
 				if (list_system_theme.contains(optarg) || list_user_theme.contains(optarg))
 					opt_theme = optarg;
+				else
+					printf("\033[1;31m[warn]\033[00m unknown theme: %s\n", optarg);
 				break;
 			// --screenshot <filename> -s <filename>
 			case 's':
@@ -2048,34 +2050,36 @@ static void create_treeview(AwfVBox *root) { // todo
 	model->setColumnCount(11);
 	model->setHorizontalHeaderLabels({ "i", "c", "r", "Text", "Progress", "Progress", "Text", "Icon", "Icon", "c", "r" });
 
-	auto addRow = [&](int a, bool b, bool c, QString d, int e, int f, QString g, QString h, QString i, bool j, bool k) {
+	auto addRow = [&](int a, bool b, QString c, int d, QString e, QString f) {
 		QList<QStandardItem*> items;
 		auto it0  = new QStandardItem; it0->setData(a, Qt::DisplayRole);
 		auto it1  = new QStandardItem; it1->setData(b ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole); it1->setEditable(false);
-		auto it2  = new QStandardItem; it2->setData(c ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole); it2->setEditable(false);
-		auto it3  = new QStandardItem; it3->setData(d, Qt::DisplayRole);
-		auto it4  = new QStandardItem; it4->setData(e, Qt::DisplayRole); it4->setEditable(false);
-		auto it5  = new QStandardItem; it5->setData(f, Qt::DisplayRole); it5->setEditable(false); it5->setEnabled(false);
-		auto it6  = new QStandardItem; it6->setData(g, Qt::DisplayRole); it6->setEditable(false); it6->setEnabled(false);
-		auto it7  = new QStandardItem; it7->setIcon(get_icon(h)); it7->setEditable(false);
-		auto it8  = new QStandardItem; it8->setIcon(get_icon(i)); it8->setEditable(false); it8->setEnabled(false);
-		auto it9  = new QStandardItem;  it9->setData(j ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);  it9->setEditable(false);  it9->setEnabled(false);
-		auto it10 = new QStandardItem; it10->setData(k ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole); it10->setEditable(false); it10->setEnabled(false);
+		auto it2  = new QStandardItem; it2->setData(b ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole); it2->setEditable(false);
+		auto it3  = new QStandardItem; it3->setData(c, Qt::DisplayRole);
+		auto it4  = new QStandardItem; it4->setData(d, Qt::DisplayRole); it4->setEditable(false);
+		auto it5  = new QStandardItem; it5->setData(d, Qt::DisplayRole); it5->setEditable(false); it5->setEnabled(false);
+		auto it6  = new QStandardItem; it6->setData(e, Qt::DisplayRole); it6->setEditable(false); it6->setEnabled(false);
+		auto it7  = new QStandardItem; it7->setIcon(get_icon(f)); it7->setEditable(false);
+		auto it8  = new QStandardItem; it8->setIcon(get_icon(f)); it8->setEditable(false); it8->setEnabled(false);
+		auto it9  = new QStandardItem; it9->setData(b ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+			it9->setEditable(false);  it9->setEnabled(false);
+		auto it10 = new QStandardItem; it10->setData(b ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+			it10->setEditable(false); it10->setEnabled(false);
 		items << it0 << it1 << it2 << it3 << it4 << it5 << it6 << it7 << it8 << it9 << it10;
 		model->appendRow(items);
 	};
 
-	addRow(1,  false, false, "Text 1.1",  0,   0,   "Text 1.2",  "document-open",    "document-open",    false, false);
-	addRow(2,  true,  true,  "Text 2.1",  10,  10,  "Text 2.2",  "document-save",    "document-save",    true,  true);
-	addRow(3,  false, false, "Text 3.1",  20,  20,  "Text 3.2",  "document-save-as", "document-save-as", false, false);
-	addRow(4,  true,  true,  "Text 4.1",  30,  30,  "Text 4.2",  "view-refresh",     "view-refresh",     true,  true);
-	addRow(5,  false, false, "Text 5.1",  40,  40,  "Text 5.2",  "edit-cut",         "edit-cut",         false, false);
-	addRow(6,  true,  true,  "Text 6.1",  50,  50,  "Text 6.2",  "help-browser",     "help-browser",     true,  true);
-	addRow(7,  false, false, "Text 7.1",  60,  60,  "Text 7.2",  "document-open",    "document-open",    false, false);
-	addRow(8,  true,  true,  "Text 8.1",  70,  70,  "Text 8.2",  "document-save",    "document-save",    true,  true);
-	addRow(9,  false, false, "Text 9.1",  80,  80,  "Text 9.2",  "document-save-as", "document-save-as", false, false);
-	addRow(10, true,  true,  "Text 10.1", 90,  90,  "Text 10.2", "view-refresh",     "view-refresh",     true,  true);
-	addRow(11, false, false, "Text 11.1", 100, 100, "Text 11.2", "edit-cut",         "edit-cut",         false, false);
+	addRow(1,  false, "Text 1.1",  0,   "Text 1.2",  "document-open");
+	addRow(2,  true,  "Text 2.1",  10,  "Text 2.2",  "document-save");
+	addRow(3,  false, "Text 3.1",  20,  "Text 3.2",  "document-save-as");
+	addRow(4,  true,  "Text 4.1",  30,  "Text 4.2",  "view-refresh");
+	addRow(5,  false, "Text 5.1",  40,  "Text 5.2",  "edit-cut");
+	addRow(6,  true,  "Text 6.1",  50,  "Text 6.2",  "help-browser");
+	addRow(7,  false, "Text 7.1",  60,  "Text 7.2",  "document-open");
+	addRow(8,  true,  "Text 8.1",  70,  "Text 8.2",  "document-save");
+	addRow(9,  false, "Text 9.1",  80,  "Text 9.2",  "document-save-as");
+	addRow(10, true,  "Text 10.1", 90,  "Text 10.2", "view-refresh");
+	addRow(11, false, "Text 11.1", 100, "Text 11.2", "edit-cut");
 
 	// QTreeView
 	AwfTreeView *view = new AwfTreeView; // same as QTreeView *view = new QTreeView; but with QSS columns width support
@@ -2310,7 +2314,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 		menu->addSeparator();
 
 			create_menuitem(menu, get_icon("window-close"), _qt("QMdiSubWindow", "&Close"), true, AWF_ACCEL_CLOS, AWF_CLOS, null);
-			create_menuitem(menu, get_icon("application-exit"), _qt("QCocoaMenuItem", "Quit"), false, AWF_ACCEL_QUIT, AWF_QUIT, qApp->quit);
+			create_menuitem(menu, get_icon("application-exit"), _app("_Quit"), false, AWF_ACCEL_QUIT, AWF_QUIT, qApp->quit);
 
 	// system themes
 	group = new QActionGroup(window); group->setExclusive(true);
@@ -2648,7 +2652,7 @@ static void accels_load() {
 				Qt::Key key = parseKey(acl);
 
 				if (key == Qt::Key_unknown) {
-					printf("\033[95m[warn]\033[00m accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), accels.value(kmp).toUtf8().constData());
+					printf("\033[1;31m[warn]\033[00m accels_foundInMenu: %s %s » unknown key\n", kmp.toUtf8().constData(), accels.value(kmp).toUtf8().constData());
 				}
 				else {
 					actions.value(kmp)->setProperty("shortcutModified", true);
@@ -2786,18 +2790,7 @@ static void accels_save() {
 				// simple
 				if (k == Qt::Key_Delete) return QString("Delete");
 				if (k == Qt::Key_Return) return QString("Return");
-				if (k == Qt::Key_F1)  return QString("F1");
-				if (k == Qt::Key_F2)  return QString("F2");
-				if (k == Qt::Key_F3)  return QString("F3");
-				if (k == Qt::Key_F4)  return QString("F4");
-				if (k == Qt::Key_F5)  return QString("F5");
-				if (k == Qt::Key_F6)  return QString("F6");
-				if (k == Qt::Key_F7)  return QString("F7");
-				if (k == Qt::Key_F8)  return QString("F8");
-				if (k == Qt::Key_F9)  return QString("F9");
-				if (k == Qt::Key_F10) return QString("F10");
-				if (k == Qt::Key_F11) return QString("F11");
-				if (k == Qt::Key_F12) return QString("F12");
+				if ((k >= Qt::Key_F1) && (k <= Qt::Key_F12)) return QString("F%1").arg(k - Qt::Key_F1 + 1);
 				return QString();
 			};
 

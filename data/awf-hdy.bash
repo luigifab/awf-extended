@@ -1,4 +1,4 @@
-# Made in ChatGPT and Copilot and fixed by Claude
+# Made in ChatGPT and Copilot and fixed by Claude Opus 5.5
 # Licensed under the MIT License
 _awf_hdy_complete() {
 	local cur prev opts all_opts single_opts
@@ -28,17 +28,23 @@ _awf_hdy_complete() {
 			return 1 # stop
 			;;
 		-s|--screenshot)
-			compopt -o nospace
-			COMPREPLY=( $(compgen -d -- "$cur") )
-			for i in "${!COMPREPLY[@]}"; do
-				COMPREPLY[$i]="${COMPREPLY[$i]}/"
-			done
+			compopt -o filenames
+			local dir
+			while IFS= read -r dir; do
+				COMPREPLY+=("$dir")
+			done < <(compgen -d -- "${2//\\/}")
 			return 0
 			;;
 		-t|--theme)
 			local theme
 			while IFS= read -r theme; do
-				[[ "$theme" == "$cur"* ]] && COMPREPLY+=("$(printf '%q' "$theme")")
+				if [[ "$theme" == "${2//\\/}"* ]]; then
+					if [[ "$cur" == [\"\']* ]]; then
+						COMPREPLY+=("$theme")
+					else
+						COMPREPLY+=("$(printf '%q' "$theme")")
+					fi
+				fi
 			done < <(awf-hdy -l 2>/dev/null)
 			return 0
 			;;
@@ -78,6 +84,6 @@ _awf_hdy_complete() {
 	done
 
 	opts=${remaining_opts[*]}
-	COMPREPLY=( $(compgen -W "$opts" -- "$cur") )
+	COMPREPLY=($(compgen -W "$opts" -- "$cur"))
 }
 complete -F _awf_hdy_complete awf-hdy

@@ -1,131 +1,131 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-24 12:59+0200\n"
+"POT-Creation-Date: 2026-11-01 14:42+0100\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: gtk-awf/src/awf-adw.c:371 gtk-awf/src/awf-adw.c:3384
+#: gtk-awf/src/awf-adw.c:376 gtk-awf/src/awf-adw.c:3254
 #, c-format
 msgid " started with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"
 msgstr ""
 "გაეშვა ბიბლიოთეკებით: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"
 
-#: gtk-awf/src/awf-gtk2.c:391 gtk-awf/src/awf-gtk2.c:2707
-#: gtk-awf/src/awf-gtk3.c:425 gtk-awf/src/awf-gtk3.c:3318
-#: gtk-awf/src/awf-gtk4.c:385 gtk-awf/src/awf-gtk4.c:3211
+#: gtk-awf/src/awf-gtk2.c:395 gtk-awf/src/awf-gtk2.c:2562
+#: gtk-awf/src/awf-gtk3.c:430 gtk-awf/src/awf-gtk3.c:3186
+#: gtk-awf/src/awf-gtk4.c:390 gtk-awf/src/awf-gtk4.c:3079
 #, c-format
 msgid " started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"
 msgstr "გაეშვა ბიბლიოთეკებით: gtk %d.%d.%d, glib %d.%d.%d, pango %s"
 
-#: gtk-awf/src/awf-gtk3.c:405 gtk-awf/src/awf-gtk3.c:3303
+#: gtk-awf/src/awf-gtk3.c:410 gtk-awf/src/awf-gtk3.c:3171
 #, c-format
 msgid " started with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"
 msgstr ""
 "გაეშვა ბიბლიოთეკებით: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"
 
-#: gtk-awf/src/awf-qt4.cpp:660 gtk-awf/src/awf-qt4.cpp:2887
-#: gtk-awf/src/awf-qt5.cpp:702 gtk-awf/src/awf-qt5.cpp:2937
-#: gtk-awf/src/awf-qt6.cpp:678 gtk-awf/src/awf-qt6.cpp:2910
+#: gtk-awf/src/awf-qt4.cpp:662 gtk-awf/src/awf-qt4.cpp:2880
+#: gtk-awf/src/awf-qt5.cpp:704 gtk-awf/src/awf-qt5.cpp:2930
+#: gtk-awf/src/awf-qt6.cpp:680 gtk-awf/src/awf-qt6.cpp:2903
 msgid " started with: qt %1"
 msgstr "გაეშვა ბიბლიოთეკით: qt %1"
 
-#: gtk-awf/src/awf-qt4.cpp:2200 gtk-awf/src/awf-qt5.cpp:2270
-#: gtk-awf/src/awf-qt6.cpp:2242
+#: gtk-awf/src/awf-qt4.cpp:2204 gtk-awf/src/awf-qt5.cpp:2274
+#: gtk-awf/src/awf-qt6.cpp:2246
 msgid "&Properties"
 msgstr "თვისებები"
 
-#: gtk-awf/src/awf-adw.c:2728 gtk-awf/src/awf-adw.c:2744
-#: gtk-awf/src/awf-adw.c:2759 gtk-awf/src/awf-adw.c:2769
-#: gtk-awf/src/awf-gtk2.c:2186 gtk-awf/src/awf-gtk2.c:2190
-#: gtk-awf/src/awf-gtk2.c:2198 gtk-awf/src/awf-gtk2.c:2203
-#: gtk-awf/src/awf-gtk3.c:2732 gtk-awf/src/awf-gtk3.c:2736
-#: gtk-awf/src/awf-gtk3.c:2744 gtk-awf/src/awf-gtk3.c:2749
-#: gtk-awf/src/awf-gtk4.c:2493 gtk-awf/src/awf-gtk4.c:2509
-#: gtk-awf/src/awf-gtk4.c:2524 gtk-awf/src/awf-gtk4.c:2534
-#: gtk-awf/src/awf-qt4.cpp:2217 gtk-awf/src/awf-qt4.cpp:2221
-#: gtk-awf/src/awf-qt4.cpp:2230 gtk-awf/src/awf-qt4.cpp:2237
-#: gtk-awf/src/awf-qt5.cpp:2287 gtk-awf/src/awf-qt5.cpp:2291
-#: gtk-awf/src/awf-qt5.cpp:2300 gtk-awf/src/awf-qt5.cpp:2307
-#: gtk-awf/src/awf-qt6.cpp:2259 gtk-awf/src/awf-qt6.cpp:2263
-#: gtk-awf/src/awf-qt6.cpp:2272 gtk-awf/src/awf-qt6.cpp:2279
+#: gtk-awf/src/awf-adw.c:2596 gtk-awf/src/awf-adw.c:2612
+#: gtk-awf/src/awf-adw.c:2627 gtk-awf/src/awf-adw.c:2637
+#: gtk-awf/src/awf-gtk2.c:2041 gtk-awf/src/awf-gtk2.c:2045
+#: gtk-awf/src/awf-gtk2.c:2053 gtk-awf/src/awf-gtk2.c:2058
+#: gtk-awf/src/awf-gtk3.c:2600 gtk-awf/src/awf-gtk3.c:2604
+#: gtk-awf/src/awf-gtk3.c:2612 gtk-awf/src/awf-gtk3.c:2617
+#: gtk-awf/src/awf-gtk4.c:2361 gtk-awf/src/awf-gtk4.c:2377
+#: gtk-awf/src/awf-gtk4.c:2392 gtk-awf/src/awf-gtk4.c:2402
+#: gtk-awf/src/awf-qt4.cpp:2221 gtk-awf/src/awf-qt4.cpp:2225
+#: gtk-awf/src/awf-qt4.cpp:2234 gtk-awf/src/awf-qt4.cpp:2241
+#: gtk-awf/src/awf-qt5.cpp:2291 gtk-awf/src/awf-qt5.cpp:2295
+#: gtk-awf/src/awf-qt5.cpp:2304 gtk-awf/src/awf-qt5.cpp:2311
+#: gtk-awf/src/awf-qt6.cpp:2263 gtk-awf/src/awf-qt6.cpp:2267
+#: gtk-awf/src/awf-qt6.cpp:2276 gtk-awf/src/awf-qt6.cpp:2283
 msgid "(checked)"
 msgstr "(შემოწმებულია)"
 
-#: gtk-awf/src/awf-adw.c:2730 gtk-awf/src/awf-adw.c:2746
-#: gtk-awf/src/awf-adw.c:2760 gtk-awf/src/awf-adw.c:2770
-#: gtk-awf/src/awf-gtk2.c:2187 gtk-awf/src/awf-gtk2.c:2191
-#: gtk-awf/src/awf-gtk2.c:2199 gtk-awf/src/awf-gtk2.c:2204
-#: gtk-awf/src/awf-gtk3.c:2733 gtk-awf/src/awf-gtk3.c:2737
-#: gtk-awf/src/awf-gtk3.c:2745 gtk-awf/src/awf-gtk3.c:2750
-#: gtk-awf/src/awf-gtk4.c:2495 gtk-awf/src/awf-gtk4.c:2511
-#: gtk-awf/src/awf-gtk4.c:2525 gtk-awf/src/awf-gtk4.c:2535
-#: gtk-awf/src/awf-qt4.cpp:2218 gtk-awf/src/awf-qt4.cpp:2222
-#: gtk-awf/src/awf-qt4.cpp:2231 gtk-awf/src/awf-qt4.cpp:2238
-#: gtk-awf/src/awf-qt5.cpp:2288 gtk-awf/src/awf-qt5.cpp:2292
-#: gtk-awf/src/awf-qt5.cpp:2301 gtk-awf/src/awf-qt5.cpp:2308
-#: gtk-awf/src/awf-qt6.cpp:2260 gtk-awf/src/awf-qt6.cpp:2264
-#: gtk-awf/src/awf-qt6.cpp:2273 gtk-awf/src/awf-qt6.cpp:2280
+#: gtk-awf/src/awf-adw.c:2598 gtk-awf/src/awf-adw.c:2614
+#: gtk-awf/src/awf-adw.c:2628 gtk-awf/src/awf-adw.c:2638
+#: gtk-awf/src/awf-gtk2.c:2042 gtk-awf/src/awf-gtk2.c:2046
+#: gtk-awf/src/awf-gtk2.c:2054 gtk-awf/src/awf-gtk2.c:2059
+#: gtk-awf/src/awf-gtk3.c:2601 gtk-awf/src/awf-gtk3.c:2605
+#: gtk-awf/src/awf-gtk3.c:2613 gtk-awf/src/awf-gtk3.c:2618
+#: gtk-awf/src/awf-gtk4.c:2363 gtk-awf/src/awf-gtk4.c:2379
+#: gtk-awf/src/awf-gtk4.c:2393 gtk-awf/src/awf-gtk4.c:2403
+#: gtk-awf/src/awf-qt4.cpp:2222 gtk-awf/src/awf-qt4.cpp:2226
+#: gtk-awf/src/awf-qt4.cpp:2235 gtk-awf/src/awf-qt4.cpp:2242
+#: gtk-awf/src/awf-qt5.cpp:2292 gtk-awf/src/awf-qt5.cpp:2296
+#: gtk-awf/src/awf-qt5.cpp:2305 gtk-awf/src/awf-qt5.cpp:2312
+#: gtk-awf/src/awf-qt6.cpp:2264 gtk-awf/src/awf-qt6.cpp:2268
+#: gtk-awf/src/awf-qt6.cpp:2277 gtk-awf/src/awf-qt6.cpp:2284
 msgid "(inconsistent)"
 msgstr "(არამდგრადია)"
 
-#: gtk-awf/src/awf-adw.c:2722 gtk-awf/src/awf-adw.c:2737
-#: gtk-awf/src/awf-adw.c:2758 gtk-awf/src/awf-adw.c:2768
-#: gtk-awf/src/awf-gtk2.c:2185 gtk-awf/src/awf-gtk2.c:2189
-#: gtk-awf/src/awf-gtk2.c:2196 gtk-awf/src/awf-gtk2.c:2201
-#: gtk-awf/src/awf-gtk3.c:2731 gtk-awf/src/awf-gtk3.c:2735
-#: gtk-awf/src/awf-gtk3.c:2742 gtk-awf/src/awf-gtk3.c:2747
-#: gtk-awf/src/awf-gtk4.c:2487 gtk-awf/src/awf-gtk4.c:2502
-#: gtk-awf/src/awf-gtk4.c:2523 gtk-awf/src/awf-gtk4.c:2533
-#: gtk-awf/src/awf-qt4.cpp:2216 gtk-awf/src/awf-qt4.cpp:2220
-#: gtk-awf/src/awf-qt4.cpp:2229 gtk-awf/src/awf-qt4.cpp:2236
-#: gtk-awf/src/awf-qt5.cpp:2286 gtk-awf/src/awf-qt5.cpp:2290
-#: gtk-awf/src/awf-qt5.cpp:2299 gtk-awf/src/awf-qt5.cpp:2306
-#: gtk-awf/src/awf-qt6.cpp:2258 gtk-awf/src/awf-qt6.cpp:2262
-#: gtk-awf/src/awf-qt6.cpp:2271 gtk-awf/src/awf-qt6.cpp:2278
+#: gtk-awf/src/awf-adw.c:2590 gtk-awf/src/awf-adw.c:2605
+#: gtk-awf/src/awf-adw.c:2626 gtk-awf/src/awf-adw.c:2636
+#: gtk-awf/src/awf-gtk2.c:2040 gtk-awf/src/awf-gtk2.c:2044
+#: gtk-awf/src/awf-gtk2.c:2051 gtk-awf/src/awf-gtk2.c:2056
+#: gtk-awf/src/awf-gtk3.c:2599 gtk-awf/src/awf-gtk3.c:2603
+#: gtk-awf/src/awf-gtk3.c:2610 gtk-awf/src/awf-gtk3.c:2615
+#: gtk-awf/src/awf-gtk4.c:2355 gtk-awf/src/awf-gtk4.c:2370
+#: gtk-awf/src/awf-gtk4.c:2391 gtk-awf/src/awf-gtk4.c:2401
+#: gtk-awf/src/awf-qt4.cpp:2220 gtk-awf/src/awf-qt4.cpp:2224
+#: gtk-awf/src/awf-qt4.cpp:2233 gtk-awf/src/awf-qt4.cpp:2240
+#: gtk-awf/src/awf-qt5.cpp:2290 gtk-awf/src/awf-qt5.cpp:2294
+#: gtk-awf/src/awf-qt5.cpp:2303 gtk-awf/src/awf-qt5.cpp:2310
+#: gtk-awf/src/awf-qt6.cpp:2262 gtk-awf/src/awf-qt6.cpp:2266
+#: gtk-awf/src/awf-qt6.cpp:2275 gtk-awf/src/awf-qt6.cpp:2282
 msgid "(unchecked)"
 msgstr "(შეუმოწმებელია)"
 
-#: gtk-awf/src/awf-gtk2.c:379 gtk-awf/src/awf-gtk2.c:897
-#: gtk-awf/src/awf-gtk3.c:413 gtk-awf/src/awf-gtk3.c:1079
-#: gtk-awf/src/awf-gtk3.c:1082 gtk-awf/src/awf-gtk4.c:373
-#: gtk-awf/src/awf-gtk4.c:961
+#: gtk-awf/src/awf-gtk2.c:383 gtk-awf/src/awf-gtk2.c:901
+#: gtk-awf/src/awf-gtk3.c:418 gtk-awf/src/awf-gtk3.c:1092
+#: gtk-awf/src/awf-gtk3.c:1095 gtk-awf/src/awf-gtk4.c:378
+#: gtk-awf/src/awf-gtk4.c:974
 #, c-format
 msgid "A widget factory - GTK %d.%d"
 msgstr "A widget factory - GTK %d.%d"
 
-#: gtk-awf/src/awf-adw.c:358 gtk-awf/src/awf-adw.c:978
+#: gtk-awf/src/awf-adw.c:363 gtk-awf/src/awf-adw.c:991
 #, c-format
 msgid "A widget factory - GTK %d.%d Adwaita %d.%d"
 msgstr "A widget factory - GTK %d.%d Adwaita %d.%d"
 
-#: gtk-awf/src/awf-gtk3.c:392 gtk-awf/src/awf-gtk3.c:1076
+#: gtk-awf/src/awf-gtk3.c:397 gtk-awf/src/awf-gtk3.c:1089
 #, c-format
 msgid "A widget factory - GTK %d.%d Handy %d.%d"
 msgstr "A widget factory - GTK %d.%d Handy %d.%d"
 
-#: gtk-awf/src/awf-qt4.cpp:652 gtk-awf/src/awf-qt4.cpp:1043
-#: gtk-awf/src/awf-qt5.cpp:694 gtk-awf/src/awf-qt5.cpp:719
-#: gtk-awf/src/awf-qt5.cpp:1154 gtk-awf/src/awf-qt6.cpp:670
-#: gtk-awf/src/awf-qt6.cpp:694 gtk-awf/src/awf-qt6.cpp:1122
+#: gtk-awf/src/awf-qt4.cpp:654 gtk-awf/src/awf-qt4.cpp:1045
+#: gtk-awf/src/awf-qt5.cpp:696 gtk-awf/src/awf-qt5.cpp:721
+#: gtk-awf/src/awf-qt5.cpp:1156 gtk-awf/src/awf-qt6.cpp:672
+#: gtk-awf/src/awf-qt6.cpp:696 gtk-awf/src/awf-qt6.cpp:1124
 msgid "A widget factory - Qt %1.%2"
 msgstr "A widget factory - Qt %1.%2"
 
-#: gtk-awf/src/awf-adw.c:813 gtk-awf/src/awf-adw.c:2099
-#: gtk-awf/src/awf-adw.c:3313 gtk-awf/src/awf-adw.c:3375
-#: gtk-awf/src/awf-gtk2.c:769 gtk-awf/src/awf-gtk2.c:1584
-#: gtk-awf/src/awf-gtk2.c:2639 gtk-awf/src/awf-gtk2.c:2699
-#: gtk-awf/src/awf-gtk3.c:901 gtk-awf/src/awf-gtk3.c:2092
-#: gtk-awf/src/awf-gtk3.c:3225 gtk-awf/src/awf-gtk3.c:3294
-#: gtk-awf/src/awf-gtk3.c:3310 gtk-awf/src/awf-gtk4.c:794
-#: gtk-awf/src/awf-gtk4.c:1864 gtk-awf/src/awf-gtk4.c:3137
-#: gtk-awf/src/awf-gtk4.c:3203 gtk-awf/src/awf-qt4.cpp:1011
-#: gtk-awf/src/awf-qt4.cpp:1834 gtk-awf/src/awf-qt4.cpp:2838
-#: gtk-awf/src/awf-qt4.cpp:2883 gtk-awf/src/awf-qt5.cpp:1095
-#: gtk-awf/src/awf-qt5.cpp:1905 gtk-awf/src/awf-qt5.cpp:2888
-#: gtk-awf/src/awf-qt5.cpp:2933 gtk-awf/src/awf-qt6.cpp:1069
-#: gtk-awf/src/awf-qt6.cpp:1877 gtk-awf/src/awf-qt6.cpp:2861
-#: gtk-awf/src/awf-qt6.cpp:2906
+#: gtk-awf/src/awf-adw.c:826 gtk-awf/src/awf-adw.c:2113
+#: gtk-awf/src/awf-adw.c:3183 gtk-awf/src/awf-adw.c:3245
+#: gtk-awf/src/awf-gtk2.c:773 gtk-awf/src/awf-gtk2.c:1589
+#: gtk-awf/src/awf-gtk2.c:2494 gtk-awf/src/awf-gtk2.c:2554
+#: gtk-awf/src/awf-gtk3.c:914 gtk-awf/src/awf-gtk3.c:2106
+#: gtk-awf/src/awf-gtk3.c:3093 gtk-awf/src/awf-gtk3.c:3162
+#: gtk-awf/src/awf-gtk3.c:3178 gtk-awf/src/awf-gtk4.c:807
+#: gtk-awf/src/awf-gtk4.c:1878 gtk-awf/src/awf-gtk4.c:3005
+#: gtk-awf/src/awf-gtk4.c:3071 gtk-awf/src/awf-qt4.cpp:1013
+#: gtk-awf/src/awf-qt4.cpp:1836 gtk-awf/src/awf-qt4.cpp:2831
+#: gtk-awf/src/awf-qt4.cpp:2876 gtk-awf/src/awf-qt5.cpp:1097
+#: gtk-awf/src/awf-qt5.cpp:1907 gtk-awf/src/awf-qt5.cpp:2881
+#: gtk-awf/src/awf-qt5.cpp:2926 gtk-awf/src/awf-qt6.cpp:1071
+#: gtk-awf/src/awf-qt6.cpp:1879 gtk-awf/src/awf-qt6.cpp:2854
+#: gtk-awf/src/awf-qt6.cpp:2899
 msgid ""
 "A widget factory is a theme preview application for GTK and Qt. It displays "
 "the various widget types in a single window allowing to see the visual "
@@ -135,10 +135,10 @@ msgstr ""
 "ის აჩვენებს სხვადასხვა ვიჯეტის ტიპებს ერთ ფანჯარაში, რითიც საშუალებას "
 "გაძლევთ, დაინახოთ გამოყენებული თემის ვიზუალური ეფექტი.  "
 
-#: gtk-awf/src/awf-adw.c:3394 gtk-awf/src/awf-gtk2.c:2717
-#: gtk-awf/src/awf-gtk3.c:3330 gtk-awf/src/awf-gtk4.c:3222
-#: gtk-awf/src/awf-qt4.cpp:2897 gtk-awf/src/awf-qt5.cpp:2947
-#: gtk-awf/src/awf-qt6.cpp:2920
+#: gtk-awf/src/awf-adw.c:3264 gtk-awf/src/awf-gtk2.c:2572
+#: gtk-awf/src/awf-gtk3.c:3198 gtk-awf/src/awf-gtk4.c:3090
+#: gtk-awf/src/awf-qt4.cpp:2890 gtk-awf/src/awf-qt5.cpp:2940
+#: gtk-awf/src/awf-qt6.cpp:2913
 msgid ""
 "A widget factory is free software: you can redistribute it and/or modify it "
 "under the terms of the GNU General Public License as published by the free "
@@ -150,309 +150,319 @@ msgstr ""
 "ლიცენზიის (GNU General Public License) ვერსია 3-ის, ან(თქვენი სურვილის "
 "შემთხვევაში) ნებისმიერი უფრო ახალი ვერსიის, პირობების შესაბამისად.   "
 
-#: gtk-awf/src/awf-adw.c:2691 gtk-awf/src/awf-gtk2.c:2167
-#: gtk-awf/src/awf-gtk3.c:2713 gtk-awf/src/awf-gtk4.c:2456
-#: gtk-awf/src/awf-qt4.cpp:2198 gtk-awf/src/awf-qt5.cpp:2268
-#: gtk-awf/src/awf-qt6.cpp:2240
+#: gtk-awf/src/awf-adw.c:2559 gtk-awf/src/awf-gtk2.c:2022
+#: gtk-awf/src/awf-gtk3.c:2581 gtk-awf/src/awf-gtk4.c:2324
+#: gtk-awf/src/awf-qt4.cpp:2202 gtk-awf/src/awf-qt5.cpp:2272
+#: gtk-awf/src/awf-qt6.cpp:2244
 msgid "Calendar"
 msgstr "კალენდარი"
 
-#: gtk-awf/src/awf-adw.c:1833 gtk-awf/src/awf-gtk2.c:1375
-#: gtk-awf/src/awf-gtk3.c:1802 gtk-awf/src/awf-gtk4.c:1585
-#: gtk-awf/src/awf-gtk4.c:1590 gtk-awf/src/awf-qt4.cpp:1617
-#: gtk-awf/src/awf-qt5.cpp:1714 gtk-awf/src/awf-qt6.cpp:1686
+#: gtk-awf/src/awf-adw.c:1847 gtk-awf/src/awf-gtk2.c:1380
+#: gtk-awf/src/awf-gtk3.c:1816 gtk-awf/src/awf-gtk4.c:1599
+#: gtk-awf/src/awf-gtk4.c:1604 gtk-awf/src/awf-qt4.cpp:1619
+#: gtk-awf/src/awf-qt5.cpp:1716 gtk-awf/src/awf-qt6.cpp:1688
 msgid "Choose a color"
 msgstr "აირჩიეთ ფერი"
 
-#: gtk-awf/src/awf-adw.c:1842 gtk-awf/src/awf-gtk2.c:1387
-#: gtk-awf/src/awf-gtk3.c:1814 gtk-awf/src/awf-gtk4.c:1607
-#: gtk-awf/src/awf-qt4.cpp:1633 gtk-awf/src/awf-qt5.cpp:1729
-#: gtk-awf/src/awf-qt6.cpp:1701
+#: gtk-awf/src/awf-adw.c:1856 gtk-awf/src/awf-gtk2.c:1392
+#: gtk-awf/src/awf-gtk3.c:1828 gtk-awf/src/awf-gtk4.c:1621
+#: gtk-awf/src/awf-qt4.cpp:1635 gtk-awf/src/awf-qt5.cpp:1731
+#: gtk-awf/src/awf-qt6.cpp:1703
 msgid "Choose a file"
 msgstr "ფაილის არჩევა"
 
-#: gtk-awf/src/awf-adw.c:1846 gtk-awf/src/awf-gtk2.c:1392
-#: gtk-awf/src/awf-gtk3.c:1819 gtk-awf/src/awf-gtk4.c:1611
-#: gtk-awf/src/awf-qt4.cpp:1641 gtk-awf/src/awf-qt5.cpp:1736
-#: gtk-awf/src/awf-qt6.cpp:1708
+#: gtk-awf/src/awf-adw.c:1860 gtk-awf/src/awf-gtk2.c:1397
+#: gtk-awf/src/awf-gtk3.c:1833 gtk-awf/src/awf-gtk4.c:1625
+#: gtk-awf/src/awf-qt4.cpp:1643 gtk-awf/src/awf-qt5.cpp:1738
+#: gtk-awf/src/awf-qt6.cpp:1710
 msgid "Choose a folder"
 msgstr "აირჩიეთ საქაღალდე"
 
-#: gtk-awf/src/awf-adw.c:1839 gtk-awf/src/awf-gtk2.c:1381
-#: gtk-awf/src/awf-gtk3.c:1808 gtk-awf/src/awf-gtk4.c:1598
-#: gtk-awf/src/awf-gtk4.c:1603 gtk-awf/src/awf-qt4.cpp:1625
-#: gtk-awf/src/awf-qt5.cpp:1721 gtk-awf/src/awf-qt6.cpp:1693
+#: gtk-awf/src/awf-adw.c:1853 gtk-awf/src/awf-gtk2.c:1386
+#: gtk-awf/src/awf-gtk3.c:1822 gtk-awf/src/awf-gtk4.c:1612
+#: gtk-awf/src/awf-gtk4.c:1617 gtk-awf/src/awf-qt4.cpp:1627
+#: gtk-awf/src/awf-qt5.cpp:1723 gtk-awf/src/awf-qt6.cpp:1695
 msgid "Choose a font"
 msgstr "ფონტის არჩევა"
 
-#: gtk-awf/src/awf-qt4.cpp:2294 gtk-awf/src/awf-qt4.cpp:2355
-#: gtk-awf/src/awf-qt5.cpp:2361 gtk-awf/src/awf-qt5.cpp:2416
-#: gtk-awf/src/awf-qt6.cpp:2333 gtk-awf/src/awf-qt6.cpp:2388
+#: gtk-awf/src/awf-gtk2.c:774 gtk-awf/src/awf-gtk2.c:775
+msgid "Close"
+msgstr "დახურვა"
+
+#: gtk-awf/src/awf-qt4.cpp:2298 gtk-awf/src/awf-qt4.cpp:2359
+#: gtk-awf/src/awf-qt5.cpp:2365 gtk-awf/src/awf-qt5.cpp:2420
+#: gtk-awf/src/awf-qt6.cpp:2337 gtk-awf/src/awf-qt6.cpp:2392
 msgid "GlobalQSS not available"
 msgstr "GlobalQSS ხელმისაწვდომი არაა"
 
-#: gtk-awf/src/awf-adw.c:2901 gtk-awf/src/awf-gtk2.c:2309
-#: gtk-awf/src/awf-gtk3.c:2855 gtk-awf/src/awf-gtk4.c:2666
-#: gtk-awf/src/awf-qt4.cpp:2365 gtk-awf/src/awf-qt5.cpp:2426
-#: gtk-awf/src/awf-qt6.cpp:2398
+#: gtk-awf/src/awf-adw.c:2769 gtk-awf/src/awf-gtk2.c:2164
+#: gtk-awf/src/awf-gtk3.c:2723 gtk-awf/src/awf-gtk4.c:2534
+#: gtk-awf/src/awf-qt4.cpp:2369 gtk-awf/src/awf-qt5.cpp:2430
+#: gtk-awf/src/awf-qt6.cpp:2402
 msgid "Left to Right (LTR)"
 msgstr "მარცხნიდან-მარჯვნივ (LTR)"
 
-#: gtk-awf/src/awf-adw.c:2708 gtk-awf/src/awf-gtk2.c:2179
-#: gtk-awf/src/awf-gtk3.c:2725 gtk-awf/src/awf-gtk4.c:2473
-#: gtk-awf/src/awf-qt4.cpp:2211 gtk-awf/src/awf-qt5.cpp:2281
-#: gtk-awf/src/awf-qt6.cpp:2253
+#: gtk-awf/src/awf-adw.c:2576 gtk-awf/src/awf-gtk2.c:2034
+#: gtk-awf/src/awf-gtk3.c:2593 gtk-awf/src/awf-gtk4.c:2341
+#: gtk-awf/src/awf-qt4.cpp:2215 gtk-awf/src/awf-qt5.cpp:2285
+#: gtk-awf/src/awf-qt6.cpp:2257
 msgid "Less..."
 msgstr "ნაკლები..."
 
-#: gtk-awf/src/awf-adw.c:360 gtk-awf/src/awf-adw.c:403
-#: gtk-awf/src/awf-gtk2.c:381 gtk-awf/src/awf-gtk3.c:394
-#: gtk-awf/src/awf-gtk3.c:415 gtk-awf/src/awf-gtk3.c:474
-#: gtk-awf/src/awf-gtk4.c:375 gtk-awf/src/awf-gtk4.c:408
-#: gtk-awf/src/awf-qt4.cpp:654 gtk-awf/src/awf-qt5.cpp:696
-#: gtk-awf/src/awf-qt5.cpp:722 gtk-awf/src/awf-qt6.cpp:672
-#: gtk-awf/src/awf-qt6.cpp:697
+#: gtk-awf/src/awf-adw.c:365 gtk-awf/src/awf-adw.c:408
+#: gtk-awf/src/awf-gtk2.c:385 gtk-awf/src/awf-gtk3.c:399
+#: gtk-awf/src/awf-gtk3.c:420 gtk-awf/src/awf-gtk3.c:479
+#: gtk-awf/src/awf-gtk4.c:380 gtk-awf/src/awf-gtk4.c:413
+#: gtk-awf/src/awf-qt4.cpp:656 gtk-awf/src/awf-qt5.cpp:698
+#: gtk-awf/src/awf-qt5.cpp:724 gtk-awf/src/awf-qt6.cpp:674
+#: gtk-awf/src/awf-qt6.cpp:699
 msgid "List available themes."
 msgstr "ხელმისაწვდომი თემების სია."
 
-#: gtk-awf/src/awf-adw.c:2081 gtk-awf/src/awf-adw.c:2698
-#: gtk-awf/src/awf-gtk2.c:1573 gtk-awf/src/awf-gtk2.c:2173
-#: gtk-awf/src/awf-gtk3.c:2068 gtk-awf/src/awf-gtk3.c:2719
-#: gtk-awf/src/awf-gtk4.c:1846 gtk-awf/src/awf-gtk4.c:2463
-#: gtk-awf/src/awf-qt4.cpp:1825 gtk-awf/src/awf-qt4.cpp:2204
-#: gtk-awf/src/awf-qt5.cpp:1896 gtk-awf/src/awf-qt5.cpp:2274
-#: gtk-awf/src/awf-qt6.cpp:1868 gtk-awf/src/awf-qt6.cpp:2246
+#: gtk-awf/src/awf-adw.c:2095 gtk-awf/src/awf-adw.c:2566
+#: gtk-awf/src/awf-gtk2.c:1578 gtk-awf/src/awf-gtk2.c:2028
+#: gtk-awf/src/awf-gtk3.c:2082 gtk-awf/src/awf-gtk3.c:2587
+#: gtk-awf/src/awf-gtk4.c:1860 gtk-awf/src/awf-gtk4.c:2331
+#: gtk-awf/src/awf-qt4.cpp:1827 gtk-awf/src/awf-qt4.cpp:2208
+#: gtk-awf/src/awf-qt5.cpp:1898 gtk-awf/src/awf-qt5.cpp:2278
+#: gtk-awf/src/awf-qt6.cpp:1870 gtk-awf/src/awf-qt6.cpp:2250
 msgid "More..."
 msgstr "მეტი..."
 
-#: gtk-awf/src/awf-adw.c:2840 gtk-awf/src/awf-adw.c:2889
-#: gtk-awf/src/awf-gtk2.c:2258 gtk-awf/src/awf-gtk2.c:2303
-#: gtk-awf/src/awf-gtk3.c:2804 gtk-awf/src/awf-gtk3.c:2849
-#: gtk-awf/src/awf-gtk4.c:2605 gtk-awf/src/awf-gtk4.c:2654
-#: gtk-awf/src/awf-qt4.cpp:2296 gtk-awf/src/awf-qt4.cpp:2357
-#: gtk-awf/src/awf-qt5.cpp:2363 gtk-awf/src/awf-qt5.cpp:2418
-#: gtk-awf/src/awf-qt6.cpp:2335 gtk-awf/src/awf-qt6.cpp:2390
+#: gtk-awf/src/awf-adw.c:2708 gtk-awf/src/awf-adw.c:2757
+#: gtk-awf/src/awf-gtk2.c:2113 gtk-awf/src/awf-gtk2.c:2158
+#: gtk-awf/src/awf-gtk3.c:2672 gtk-awf/src/awf-gtk3.c:2717
+#: gtk-awf/src/awf-gtk4.c:2473 gtk-awf/src/awf-gtk4.c:2522
+#: gtk-awf/src/awf-qt4.cpp:2300 gtk-awf/src/awf-qt4.cpp:2361
+#: gtk-awf/src/awf-qt5.cpp:2367 gtk-awf/src/awf-qt5.cpp:2422
+#: gtk-awf/src/awf-qt6.cpp:2339 gtk-awf/src/awf-qt6.cpp:2394
 msgid "No themes found"
 msgstr "თემები აღმოჩენილი არაა"
 
-#: gtk-awf/src/awf-adw.c:3440 gtk-awf/src/awf-gtk2.c:2757
-#: gtk-awf/src/awf-gtk3.c:3378 gtk-awf/src/awf-gtk4.c:3270
+#: gtk-awf/src/awf-adw.c:3310 gtk-awf/src/awf-gtk2.c:2612
+#: gtk-awf/src/awf-gtk3.c:3246 gtk-awf/src/awf-gtk4.c:3138
 msgid "Ok"
 msgstr "დიახ"
 
-#: gtk-awf/src/awf-adw.c:2688 gtk-awf/src/awf-gtk2.c:2164
-#: gtk-awf/src/awf-gtk3.c:2710 gtk-awf/src/awf-gtk4.c:2453
-#: gtk-awf/src/awf-qt4.cpp:2195 gtk-awf/src/awf-qt5.cpp:2265
-#: gtk-awf/src/awf-qt6.cpp:2237
+#: gtk-awf/src/awf-adw.c:2556 gtk-awf/src/awf-gtk2.c:2019
+#: gtk-awf/src/awf-gtk3.c:2578 gtk-awf/src/awf-gtk4.c:2321
+#: gtk-awf/src/awf-qt4.cpp:2199 gtk-awf/src/awf-qt5.cpp:2269
+#: gtk-awf/src/awf-qt6.cpp:2241
 msgid "Open recent file"
 msgstr "უახლესი ფაილის გახსნა"
 
-#: gtk-awf/src/awf-qt4.cpp:2201 gtk-awf/src/awf-qt5.cpp:2271
-#: gtk-awf/src/awf-qt6.cpp:2243
+#: gtk-awf/src/awf-qt4.cpp:2205 gtk-awf/src/awf-qt5.cpp:2275
+#: gtk-awf/src/awf-qt6.cpp:2247
 msgid "Page Set&up"
 msgstr "გვერდის &მორგება"
 
-#: gtk-awf/src/awf-qt4.cpp:2884 gtk-awf/src/awf-qt5.cpp:2934
-#: gtk-awf/src/awf-qt6.cpp:2907
+#: gtk-awf/src/awf-qt4.cpp:2877 gtk-awf/src/awf-qt5.cpp:2927
+#: gtk-awf/src/awf-qt6.cpp:2900
 msgid "Remove %1 file"
 msgstr "%1 ფაილის წაშლა"
 
-#: gtk-awf/src/awf-adw.c:3376 gtk-awf/src/awf-gtk2.c:2700
-#: gtk-awf/src/awf-gtk3.c:3295 gtk-awf/src/awf-gtk3.c:3311
-#: gtk-awf/src/awf-gtk4.c:3204
+#: gtk-awf/src/awf-adw.c:3246 gtk-awf/src/awf-gtk2.c:2555
+#: gtk-awf/src/awf-gtk3.c:3163 gtk-awf/src/awf-gtk3.c:3179
+#: gtk-awf/src/awf-gtk4.c:3072
 #, c-format
 msgid "Remove %s file"
 msgstr "%s ფაილის წაშლა"
 
-#: gtk-awf/src/awf-adw.c:2902 gtk-awf/src/awf-gtk2.c:2315
-#: gtk-awf/src/awf-gtk3.c:2861 gtk-awf/src/awf-gtk4.c:2667
-#: gtk-awf/src/awf-qt4.cpp:2373 gtk-awf/src/awf-qt5.cpp:2431
-#: gtk-awf/src/awf-qt6.cpp:2403
+#: gtk-awf/src/awf-adw.c:2770 gtk-awf/src/awf-gtk2.c:2170
+#: gtk-awf/src/awf-gtk3.c:2729 gtk-awf/src/awf-gtk4.c:2535
+#: gtk-awf/src/awf-qt4.cpp:2377 gtk-awf/src/awf-qt5.cpp:2435
+#: gtk-awf/src/awf-qt6.cpp:2407
 msgid "Right to Left (RTL)"
 msgstr "მარჯვნიდან-მარცხნივ (RTL)"
 
-#: gtk-awf/src/awf-qt4.cpp:656 gtk-awf/src/awf-qt5.cpp:698
-#: gtk-awf/src/awf-qt5.cpp:724 gtk-awf/src/awf-qt6.cpp:674
-#: gtk-awf/src/awf-qt6.cpp:699
+#: gtk-awf/src/awf-qt4.cpp:658 gtk-awf/src/awf-qt5.cpp:700
+#: gtk-awf/src/awf-qt5.cpp:726 gtk-awf/src/awf-qt6.cpp:676
+#: gtk-awf/src/awf-qt6.cpp:701
 msgid "Run and save a screenshot on %1 (PNG)."
 msgstr "გაშვება და ეკრანის ანაბეჭდის შენახვა %1-ზე (PNG)."
 
-#: gtk-awf/src/awf-adw.c:362 gtk-awf/src/awf-adw.c:410
-#: gtk-awf/src/awf-gtk2.c:383 gtk-awf/src/awf-gtk3.c:396
-#: gtk-awf/src/awf-gtk3.c:417 gtk-awf/src/awf-gtk3.c:481
-#: gtk-awf/src/awf-gtk4.c:377 gtk-awf/src/awf-gtk4.c:415
+#: gtk-awf/src/awf-adw.c:367 gtk-awf/src/awf-adw.c:415
+#: gtk-awf/src/awf-gtk2.c:387 gtk-awf/src/awf-gtk3.c:401
+#: gtk-awf/src/awf-gtk3.c:422 gtk-awf/src/awf-gtk3.c:486
+#: gtk-awf/src/awf-gtk4.c:382 gtk-awf/src/awf-gtk4.c:420
 #, c-format
 msgid "Run and save a screenshot on %s (PNG)."
 msgstr "გაშვება და ეკრანის ანაბეჭდის შენახვა %s-ზე (PNG)."
 
-#: gtk-awf/src/awf-adw.c:363 gtk-awf/src/awf-adw.c:417
-#: gtk-awf/src/awf-gtk2.c:384 gtk-awf/src/awf-gtk3.c:397
-#: gtk-awf/src/awf-gtk3.c:418 gtk-awf/src/awf-gtk3.c:488
-#: gtk-awf/src/awf-gtk4.c:378 gtk-awf/src/awf-gtk4.c:422
-#: gtk-awf/src/awf-qt4.cpp:657 gtk-awf/src/awf-qt5.cpp:699
-#: gtk-awf/src/awf-qt5.cpp:725 gtk-awf/src/awf-qt6.cpp:675
-#: gtk-awf/src/awf-qt6.cpp:700
+#: gtk-awf/src/awf-adw.c:368 gtk-awf/src/awf-adw.c:422
+#: gtk-awf/src/awf-gtk2.c:388 gtk-awf/src/awf-gtk3.c:402
+#: gtk-awf/src/awf-gtk3.c:423 gtk-awf/src/awf-gtk3.c:493
+#: gtk-awf/src/awf-gtk4.c:383 gtk-awf/src/awf-gtk4.c:427
+#: gtk-awf/src/awf-qt4.cpp:659 gtk-awf/src/awf-qt5.cpp:701
+#: gtk-awf/src/awf-qt5.cpp:727 gtk-awf/src/awf-qt6.cpp:677
+#: gtk-awf/src/awf-qt6.cpp:702
 msgid "Run with text from left to right (Left-To-Right)."
 msgstr "გაშვება მარცხნიდან-მარჯვნივ ტექსტით (Left-To-Right)."
 
-#: gtk-awf/src/awf-adw.c:364 gtk-awf/src/awf-adw.c:421
-#: gtk-awf/src/awf-gtk2.c:385 gtk-awf/src/awf-gtk3.c:398
-#: gtk-awf/src/awf-gtk3.c:419 gtk-awf/src/awf-gtk3.c:492
-#: gtk-awf/src/awf-gtk4.c:379 gtk-awf/src/awf-gtk4.c:426
-#: gtk-awf/src/awf-qt4.cpp:658 gtk-awf/src/awf-qt5.cpp:700
-#: gtk-awf/src/awf-qt5.cpp:726 gtk-awf/src/awf-qt6.cpp:676
-#: gtk-awf/src/awf-qt6.cpp:701
+#: gtk-awf/src/awf-adw.c:369 gtk-awf/src/awf-adw.c:426
+#: gtk-awf/src/awf-gtk2.c:389 gtk-awf/src/awf-gtk3.c:403
+#: gtk-awf/src/awf-gtk3.c:424 gtk-awf/src/awf-gtk3.c:497
+#: gtk-awf/src/awf-gtk4.c:384 gtk-awf/src/awf-gtk4.c:431
+#: gtk-awf/src/awf-qt4.cpp:660 gtk-awf/src/awf-qt5.cpp:702
+#: gtk-awf/src/awf-qt5.cpp:728 gtk-awf/src/awf-qt6.cpp:678
+#: gtk-awf/src/awf-qt6.cpp:703
 msgid "Run with text from right to left (Right-To-Left)."
 msgstr "გაშვება მარჯვნიდან-მარცხნივ ტექსტით (Right-To-Left)."
 
-#: gtk-awf/src/awf-adw.c:361 gtk-awf/src/awf-adw.c:407
-#: gtk-awf/src/awf-gtk2.c:382 gtk-awf/src/awf-gtk3.c:395
-#: gtk-awf/src/awf-gtk3.c:416 gtk-awf/src/awf-gtk3.c:478
-#: gtk-awf/src/awf-gtk4.c:376 gtk-awf/src/awf-gtk4.c:412
-#: gtk-awf/src/awf-qt4.cpp:655 gtk-awf/src/awf-qt5.cpp:697
-#: gtk-awf/src/awf-qt5.cpp:723 gtk-awf/src/awf-qt6.cpp:673
-#: gtk-awf/src/awf-qt6.cpp:698
+#: gtk-awf/src/awf-adw.c:366 gtk-awf/src/awf-adw.c:412
+#: gtk-awf/src/awf-gtk2.c:386 gtk-awf/src/awf-gtk3.c:400
+#: gtk-awf/src/awf-gtk3.c:421 gtk-awf/src/awf-gtk3.c:483
+#: gtk-awf/src/awf-gtk4.c:381 gtk-awf/src/awf-gtk4.c:417
+#: gtk-awf/src/awf-qt4.cpp:657 gtk-awf/src/awf-qt5.cpp:699
+#: gtk-awf/src/awf-qt5.cpp:725 gtk-awf/src/awf-qt6.cpp:675
+#: gtk-awf/src/awf-qt6.cpp:700
 msgid "Run with the specified theme."
 msgstr "გაშვება მითითებული თემით."
 
-#: gtk-awf/src/awf-adw.c:359 gtk-awf/src/awf-adw.c:399
-#: gtk-awf/src/awf-gtk2.c:380 gtk-awf/src/awf-gtk3.c:393
-#: gtk-awf/src/awf-gtk3.c:414 gtk-awf/src/awf-gtk3.c:470
-#: gtk-awf/src/awf-gtk4.c:374 gtk-awf/src/awf-gtk4.c:404
-#: gtk-awf/src/awf-qt4.cpp:653 gtk-awf/src/awf-qt5.cpp:695
-#: gtk-awf/src/awf-qt6.cpp:671
+#: gtk-awf/src/awf-adw.c:364 gtk-awf/src/awf-adw.c:404
+#: gtk-awf/src/awf-gtk2.c:384 gtk-awf/src/awf-gtk3.c:398
+#: gtk-awf/src/awf-gtk3.c:419 gtk-awf/src/awf-gtk3.c:475
+#: gtk-awf/src/awf-gtk4.c:379 gtk-awf/src/awf-gtk4.c:409
+#: gtk-awf/src/awf-qt4.cpp:655 gtk-awf/src/awf-qt5.cpp:697
+#: gtk-awf/src/awf-qt6.cpp:673
 msgid "Show version number."
 msgstr "ვერსიის ნომრის ჩვენება."
 
-#: gtk-awf/src/awf-qt4.cpp:795 gtk-awf/src/awf-qt4.cpp:1101
-#: gtk-awf/src/awf-qt5.cpp:872 gtk-awf/src/awf-qt5.cpp:1212
-#: gtk-awf/src/awf-qt6.cpp:846 gtk-awf/src/awf-qt6.cpp:1180
+#: gtk-awf/src/awf-qt4.cpp:797 gtk-awf/src/awf-qt4.cpp:1103
+#: gtk-awf/src/awf-qt5.cpp:874 gtk-awf/src/awf-qt5.cpp:1214
+#: gtk-awf/src/awf-qt6.cpp:848 gtk-awf/src/awf-qt6.cpp:1182
 msgid "Theme %1 loaded."
 msgstr "თემა %1 ჩაიტვირთა."
 
-#: gtk-awf/src/awf-qt4.cpp:771 gtk-awf/src/awf-qt5.cpp:830
-#: gtk-awf/src/awf-qt6.cpp:804
+#: gtk-awf/src/awf-qt4.cpp:773 gtk-awf/src/awf-qt5.cpp:832
+#: gtk-awf/src/awf-qt6.cpp:806
 msgid "Theme %1 reloaded (error saving screenshot)."
 msgstr "თემა %1 თავიდან ჩაიტვირთა (ეკრანის ანაბეჭდის შენახვის შეცდომა)."
 
-#: gtk-awf/src/awf-qt4.cpp:769 gtk-awf/src/awf-qt5.cpp:828
-#: gtk-awf/src/awf-qt6.cpp:802
+#: gtk-awf/src/awf-qt4.cpp:771 gtk-awf/src/awf-qt5.cpp:830
+#: gtk-awf/src/awf-qt6.cpp:804
 msgid "Theme %1 reloaded, then screenshot saved (%2)."
 msgstr ""
 "თემა %1 თავიდან ჩაიტვირთა, შემდეგ კი მოხდა ეკრანის ანაბეჭდის შენახვა (%2)."
 
-#: gtk-awf/src/awf-qt4.cpp:774 gtk-awf/src/awf-qt5.cpp:833
-#: gtk-awf/src/awf-qt6.cpp:807
+#: gtk-awf/src/awf-qt4.cpp:776 gtk-awf/src/awf-qt5.cpp:835
+#: gtk-awf/src/awf-qt6.cpp:809
 msgid "Theme %1 reloaded."
 msgstr "თემა %1 თავიდან ჩაიტვირთა."
 
-#: gtk-awf/src/awf-adw.c:617 gtk-awf/src/awf-adw.c:1171
-#: gtk-awf/src/awf-gtk2.c:578 gtk-awf/src/awf-gtk2.c:954
-#: gtk-awf/src/awf-gtk3.c:713 gtk-awf/src/awf-gtk3.c:1338
-#: gtk-awf/src/awf-gtk4.c:615 gtk-awf/src/awf-gtk4.c:1095
+#: gtk-awf/src/awf-adw.c:630 gtk-awf/src/awf-adw.c:1184
+#: gtk-awf/src/awf-gtk2.c:582 gtk-awf/src/awf-gtk2.c:958
+#: gtk-awf/src/awf-gtk3.c:726 gtk-awf/src/awf-gtk3.c:1351
+#: gtk-awf/src/awf-gtk4.c:628 gtk-awf/src/awf-gtk4.c:1108
 #, c-format
 msgid "Theme %s loaded."
 msgstr "თემა %s ჩაიტვირთა."
 
-#: gtk-awf/src/awf-adw.c:583 gtk-awf/src/awf-gtk2.c:544
-#: gtk-awf/src/awf-gtk3.c:674 gtk-awf/src/awf-gtk4.c:581
+#: gtk-awf/src/awf-adw.c:588 gtk-awf/src/awf-gtk2.c:548
+#: gtk-awf/src/awf-gtk3.c:679 gtk-awf/src/awf-gtk4.c:586
 #, c-format
 msgid "Theme %s reloaded (error saving screenshot)."
 msgstr "თემა %s თავიდან ჩაიტვირთა (ეკრანის ანაბეჭდის შენახვის შეცდომა)."
 
-#: gtk-awf/src/awf-adw.c:578 gtk-awf/src/awf-gtk2.c:539
-#: gtk-awf/src/awf-gtk3.c:669 gtk-awf/src/awf-gtk4.c:576
+#: gtk-awf/src/awf-adw.c:583 gtk-awf/src/awf-gtk2.c:543
+#: gtk-awf/src/awf-gtk3.c:674 gtk-awf/src/awf-gtk4.c:581
 #, c-format
 msgid "Theme %s reloaded, then screenshot saved (%s)."
 msgstr ""
 "თემა %s თავიდან ჩაიტვირთა, შემდეგ კი მოხდა ეკრანის ანაბეჭდის შენახვა (%s)."
 
-#: gtk-awf/src/awf-adw.c:589 gtk-awf/src/awf-gtk2.c:550
-#: gtk-awf/src/awf-gtk3.c:680 gtk-awf/src/awf-gtk4.c:587
+#: gtk-awf/src/awf-adw.c:594 gtk-awf/src/awf-gtk2.c:554
+#: gtk-awf/src/awf-gtk3.c:685 gtk-awf/src/awf-gtk4.c:592
 #, c-format
 msgid "Theme %s reloaded."
 msgstr "თემა %s თავიდან ჩაიტვირთა."
 
-#: gtk-awf/src/awf-adw.c:3439 gtk-awf/src/awf-gtk2.c:2759
-#: gtk-awf/src/awf-gtk3.c:3380 gtk-awf/src/awf-gtk4.c:3272
+#: gtk-awf/src/awf-adw.c:3309 gtk-awf/src/awf-gtk2.c:2614
+#: gtk-awf/src/awf-gtk3.c:3248 gtk-awf/src/awf-gtk4.c:3140
 msgid "This is a question bar."
 msgstr "ეს კითხვის ანელია."
 
-#: gtk-awf/src/awf-adw.c:3445 gtk-awf/src/awf-gtk2.c:2765
-#: gtk-awf/src/awf-gtk3.c:3386 gtk-awf/src/awf-gtk4.c:3278
+#: gtk-awf/src/awf-adw.c:3315 gtk-awf/src/awf-gtk2.c:2620
+#: gtk-awf/src/awf-gtk3.c:3254 gtk-awf/src/awf-gtk4.c:3146
 msgid "This is a warning bar."
 msgstr "ეს გაფრთხილების პანელია."
 
-#: gtk-awf/src/awf-adw.c:3450 gtk-awf/src/awf-gtk2.c:2771
-#: gtk-awf/src/awf-gtk3.c:3392 gtk-awf/src/awf-gtk4.c:3284
+#: gtk-awf/src/awf-adw.c:3320 gtk-awf/src/awf-gtk2.c:2626
+#: gtk-awf/src/awf-gtk3.c:3260 gtk-awf/src/awf-gtk4.c:3152
 msgid "This is an error bar."
 msgstr "ეს შეცდომის პანელია."
 
-#: gtk-awf/src/awf-adw.c:3434 gtk-awf/src/awf-gtk2.c:2753
-#: gtk-awf/src/awf-gtk3.c:3374 gtk-awf/src/awf-gtk4.c:3266
+#: gtk-awf/src/awf-adw.c:3304 gtk-awf/src/awf-gtk2.c:2608
+#: gtk-awf/src/awf-gtk3.c:3242 gtk-awf/src/awf-gtk4.c:3134
 msgid "This is an info bar."
 msgstr "ეს ინფორმაციის პანელია."
 
-#: gtk-awf/src/awf-qt4.cpp:2880 gtk-awf/src/awf-qt5.cpp:2930
-#: gtk-awf/src/awf-qt6.cpp:2903
+#: gtk-awf/src/awf-qt4.cpp:2873 gtk-awf/src/awf-qt5.cpp:2923
+#: gtk-awf/src/awf-qt6.cpp:2896
 msgid "Translated by:"
-msgstr "Translated by:"
+msgstr "თარგმნა:"
 
-#: gtk-awf/src/awf-qt5.cpp:2970 gtk-awf/src/awf-qt6.cpp:2943
+#: gtk-awf/src/awf-qt5.cpp:2963 gtk-awf/src/awf-qt6.cpp:2936
 msgid "Write QSS here..."
 msgstr "დაწერეთ QSS აქ..."
 
-#: gtk-awf/src/awf-adw.c:2908 gtk-awf/src/awf-gtk2.c:2321
-#: gtk-awf/src/awf-gtk3.c:2867 gtk-awf/src/awf-gtk4.c:2673
+#: gtk-awf/src/awf-adw.c:2776 gtk-awf/src/awf-gtk2.c:2176
+#: gtk-awf/src/awf-gtk3.c:2735 gtk-awf/src/awf-gtk4.c:2541
 msgid "_Help"
 msgstr "_დახმარება"
 
-#: gtk-awf/src/awf-adw.c:1087
+#: gtk-awf/src/awf-adw.c:1100
 msgid "_Interface"
 msgstr "_Interface"
 
-#: gtk-awf/src/awf-adw.c:2685 gtk-awf/src/awf-gtk2.c:2156
-#: gtk-awf/src/awf-gtk3.c:2702 gtk-awf/src/awf-gtk4.c:2450
-#: gtk-awf/src/awf-qt4.cpp:2187 gtk-awf/src/awf-qt5.cpp:2257
-#: gtk-awf/src/awf-qt6.cpp:2229
+#: gtk-awf/src/awf-adw.c:2553 gtk-awf/src/awf-gtk2.c:2011
+#: gtk-awf/src/awf-gtk3.c:2570 gtk-awf/src/awf-gtk4.c:2318
+#: gtk-awf/src/awf-qt4.cpp:2191 gtk-awf/src/awf-qt5.cpp:2261
+#: gtk-awf/src/awf-qt6.cpp:2233
 msgid "_Options"
 msgstr "_პარამეტრები"
 
-#: gtk-awf/src/awf-adw.c:2690 gtk-awf/src/awf-gtk4.c:2455
-#: gtk-awf/src/awf-qt4.cpp:2197 gtk-awf/src/awf-qt4.cpp:2927
-#: gtk-awf/src/awf-qt5.cpp:2267 gtk-awf/src/awf-qt5.cpp:2975
-#: gtk-awf/src/awf-qt6.cpp:2239 gtk-awf/src/awf-qt6.cpp:2948
+#: gtk-awf/src/awf-adw.c:2646 gtk-awf/src/awf-gtk4.c:2411
+#: gtk-awf/src/awf-qt4.cpp:2247 gtk-awf/src/awf-qt5.cpp:2317
+#: gtk-awf/src/awf-qt6.cpp:2289
+msgid "_Quit"
+msgstr "_გასვლა"
+
+#: gtk-awf/src/awf-adw.c:2558 gtk-awf/src/awf-gtk4.c:2323
+#: gtk-awf/src/awf-qt4.cpp:2201 gtk-awf/src/awf-qt4.cpp:2920
+#: gtk-awf/src/awf-qt5.cpp:2271 gtk-awf/src/awf-qt5.cpp:2968
+#: gtk-awf/src/awf-qt6.cpp:2243 gtk-awf/src/awf-qt6.cpp:2941
 msgid "_Refresh"
 msgstr "_განახლება"
 
-#: gtk-awf/src/awf-adw.c:2792 gtk-awf/src/awf-gtk2.c:2214
-#: gtk-awf/src/awf-gtk3.c:2760 gtk-awf/src/awf-gtk4.c:2557
-#: gtk-awf/src/awf-qt4.cpp:2247 gtk-awf/src/awf-qt5.cpp:2317
-#: gtk-awf/src/awf-qt6.cpp:2289
+#: gtk-awf/src/awf-adw.c:2660 gtk-awf/src/awf-gtk2.c:2069
+#: gtk-awf/src/awf-gtk3.c:2628 gtk-awf/src/awf-gtk4.c:2425
+#: gtk-awf/src/awf-qt4.cpp:2251 gtk-awf/src/awf-qt5.cpp:2321
+#: gtk-awf/src/awf-qt6.cpp:2293
 msgid "_System themes"
 msgstr "_სისტემური თემები"
 
-#: gtk-awf/src/awf-adw.c:2900 gtk-awf/src/awf-gtk2.c:2307
-#: gtk-awf/src/awf-gtk3.c:2853 gtk-awf/src/awf-gtk4.c:2665
-#: gtk-awf/src/awf-qt4.cpp:2360 gtk-awf/src/awf-qt5.cpp:2421
-#: gtk-awf/src/awf-qt6.cpp:2393
+#: gtk-awf/src/awf-adw.c:2768 gtk-awf/src/awf-gtk2.c:2162
+#: gtk-awf/src/awf-gtk3.c:2721 gtk-awf/src/awf-gtk4.c:2533
+#: gtk-awf/src/awf-qt4.cpp:2364 gtk-awf/src/awf-qt5.cpp:2425
+#: gtk-awf/src/awf-qt6.cpp:2397
 msgid "_Text direction"
 msgstr "_ტექსტის მიმართულება"
 
-#: gtk-awf/src/awf-adw.c:2846 gtk-awf/src/awf-gtk2.c:2261
-#: gtk-awf/src/awf-gtk3.c:2807 gtk-awf/src/awf-gtk4.c:2611
-#: gtk-awf/src/awf-qt4.cpp:2299 gtk-awf/src/awf-qt5.cpp:2366
-#: gtk-awf/src/awf-qt6.cpp:2338
+#: gtk-awf/src/awf-adw.c:2714 gtk-awf/src/awf-gtk2.c:2116
+#: gtk-awf/src/awf-gtk3.c:2675 gtk-awf/src/awf-gtk4.c:2479
+#: gtk-awf/src/awf-qt4.cpp:2303 gtk-awf/src/awf-qt5.cpp:2370
+#: gtk-awf/src/awf-qt6.cpp:2342
 msgid "_User themes"
 msgstr "მ_ომხმარებლის თემები"
 
-#: gtk-awf/src/awf-qt4.cpp:659 gtk-awf/src/awf-qt4.cpp:2886
-#: gtk-awf/src/awf-qt5.cpp:701 gtk-awf/src/awf-qt5.cpp:2936
-#: gtk-awf/src/awf-qt6.cpp:677 gtk-awf/src/awf-qt6.cpp:2909
+#: gtk-awf/src/awf-qt4.cpp:661 gtk-awf/src/awf-qt4.cpp:2879
+#: gtk-awf/src/awf-qt5.cpp:703 gtk-awf/src/awf-qt5.cpp:2929
+#: gtk-awf/src/awf-qt6.cpp:679 gtk-awf/src/awf-qt6.cpp:2902
 msgid "compiled in %1 with: qt %2.%3.%4"
 msgstr "აგებულია %1-ზე ბიბლიოთეკით: qt %2.%3.%4"
 
-#: gtk-awf/src/awf-adw.c:365 gtk-awf/src/awf-adw.c:3378
+#: gtk-awf/src/awf-adw.c:370 gtk-awf/src/awf-adw.c:3248
 #, c-format
 msgid ""
 "compiled in %s with: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, pango %s"
@@ -460,14 +470,14 @@ msgstr ""
 "აგებულია %s-ზე ბიბლიოთეკით: gtk %d.%d.%d, adwaita %d.%d.%d, glib %d.%d.%d, "
 "pango %s"
 
-#: gtk-awf/src/awf-gtk2.c:386 gtk-awf/src/awf-gtk2.c:2702
-#: gtk-awf/src/awf-gtk3.c:420 gtk-awf/src/awf-gtk3.c:3313
-#: gtk-awf/src/awf-gtk4.c:380 gtk-awf/src/awf-gtk4.c:3206
+#: gtk-awf/src/awf-gtk2.c:390 gtk-awf/src/awf-gtk2.c:2557
+#: gtk-awf/src/awf-gtk3.c:425 gtk-awf/src/awf-gtk3.c:3181
+#: gtk-awf/src/awf-gtk4.c:385 gtk-awf/src/awf-gtk4.c:3074
 #, c-format
 msgid "compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"
 msgstr "აგებულია %s-ზე ბიბლიოთეკით: gtk %d.%d.%d, glib %d.%d.%d, pango %s"
 
-#: gtk-awf/src/awf-gtk3.c:399 gtk-awf/src/awf-gtk3.c:3297
+#: gtk-awf/src/awf-gtk3.c:404 gtk-awf/src/awf-gtk3.c:3165
 #, c-format
 msgid ""
 "compiled in %s with: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, pango %s"
@@ -475,16 +485,16 @@ msgstr ""
 "აგებულია %s-ზე ბიბლიოთეკით: gtk %d.%d.%d, handy %d.%d.%d, glib %d.%d.%d, "
 "pango %s"
 
-#: gtk-awf/src/awf-adw.c:3377 gtk-awf/src/awf-gtk2.c:2701
-#: gtk-awf/src/awf-gtk3.c:3296 gtk-awf/src/awf-gtk3.c:3312
-#: gtk-awf/src/awf-gtk4.c:3205 gtk-awf/src/awf-qt4.cpp:2885
-#: gtk-awf/src/awf-qt5.cpp:2935 gtk-awf/src/awf-qt6.cpp:2908
+#: gtk-awf/src/awf-adw.c:3247 gtk-awf/src/awf-gtk2.c:2556
+#: gtk-awf/src/awf-gtk3.c:3164 gtk-awf/src/awf-gtk3.c:3180
+#: gtk-awf/src/awf-gtk4.c:3073 gtk-awf/src/awf-qt4.cpp:2878
+#: gtk-awf/src/awf-qt5.cpp:2928 gtk-awf/src/awf-qt6.cpp:2901
 msgid "to reset keyboard shortcuts."
 msgstr "კლავიატურის მალსახმობების ჩამოსაყრელად."
 
-#: gtk-awf/src/awf-adw.c:3400 gtk-awf/src/awf-gtk2.c:2724
-#: gtk-awf/src/awf-gtk3.c:3337 gtk-awf/src/awf-gtk4.c:3229
-#: gtk-awf/src/awf-qt4.cpp:2878 gtk-awf/src/awf-qt5.cpp:2928
-#: gtk-awf/src/awf-qt6.cpp:2901
+#: gtk-awf/src/awf-adw.c:3270 gtk-awf/src/awf-gtk2.c:2579
+#: gtk-awf/src/awf-gtk3.c:3205 gtk-awf/src/awf-gtk4.c:3097
+#: gtk-awf/src/awf-qt4.cpp:2871 gtk-awf/src/awf-qt5.cpp:2921
+#: gtk-awf/src/awf-qt6.cpp:2894
 msgid "translator-credits"
 msgstr "Ekaterine Papava"

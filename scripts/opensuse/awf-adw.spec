@@ -3,7 +3,7 @@ Version:       4.3.0
 Release:       0
 Summary:       Theme preview application for Adwaita
 Summary(fr):   Application d'aperçu de thème pour Adwaita
-License:       GPL-3.0-or-later
+License:       GPL-3.0-or-later AND MIT
 URL:           https://github.com/luigifab/awf-extended
 Source0:       %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 

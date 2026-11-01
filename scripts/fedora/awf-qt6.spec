@@ -3,7 +3,7 @@ Version:       4.3.0
 Release:       1%{?dist}
 Summary:       Theme preview application for Qt 6
 Summary(fr):   Application d'aperçu de thème pour Qt 6
-License:       GPL-3.0-or-later
+License:       GPL-3.0-or-later AND MIT
 URL:           https://github.com/luigifab/awf-extended
 Source0:       %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
