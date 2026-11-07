@@ -7,7 +7,6 @@ License:       GPL-3.0-or-later AND MIT
 URL:           https://github.com/luigifab/awf-extended
 Source0:       %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
@@ -66,6 +65,7 @@ autoreconf -fi
 %changelog
 * Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
 - Initial Fedora package release (Closes: rhbz#2428546)
+
 
 
 

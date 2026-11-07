@@ -82,11 +82,9 @@ autoreconf -fi
 
 * Fri Aug 08 2025 Fabrice Creuzot <code@luigifab.fr> - 3.1.0-1.mga
 - New upstream release
-- Add support for CSD dialog
 
 * Mon May 05 2025 Fabrice Creuzot <code@luigifab.fr> - 3.0.0-1.mga
 - New upstream release
-- Add support for CSD window
 - Add --enable-only-gtkx and --disable-gtkx options
 
 * Fri Apr 04 2025 Fabrice Creuzot <code@luigifab.fr> - 2.9.0-1.mga
@@ -94,6 +92,8 @@ autoreconf -fi
 
 * Mon Mar 03 2025 Fabrice Creuzot <code@luigifab.fr> - 2.8.1-1.mga
 - Initial Mageia package release (Closes: mbz#32827)
+
+
 
 
 

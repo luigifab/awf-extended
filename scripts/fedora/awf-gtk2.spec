@@ -7,7 +7,6 @@ License:       GPL-3.0-or-later AND MIT
 URL:           https://github.com/luigifab/awf-extended
 Source0:       %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 
-BuildRequires: aspell-fr
 BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: desktop-file-utils
@@ -67,6 +66,9 @@ autoreconf -fi
 * Fri Jan 01 2027 Fabrice Creuzot <code@luigifab.fr> - 4.3.0-1
 - New upstream release
 
+* Mon Nov 02 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-3
+- Remove aspell-fr (Closes: rhbz#2564629)
+
 * Tue Jul 07 2026 Fabrice Creuzot <code@luigifab.fr> - 4.2.0-1
 - New upstream release
 - Use make install
@@ -82,11 +84,9 @@ autoreconf -fi
 
 * Fri Aug 08 2025 Fabrice Creuzot <code@luigifab.fr> - 3.1.0-1
 - New upstream release
-- Add support for CSD dialog
 
 * Mon May 05 2025 Fabrice Creuzot <code@luigifab.fr> - 3.0.0-1
 - New upstream release
-- Add support for CSD window
 - Add --enable-only-gtkx and --disable-gtkx options
 
 * Fri Apr 04 2025 Fabrice Creuzot <code@luigifab.fr> - 2.9.0-1

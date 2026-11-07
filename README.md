@@ -27,7 +27,7 @@ GTK 4.8..4.24-classic (with or without Adwaita 1.7..1.10, Pango 1.58)\
 [<img alt="Preview with GTK 4 - RTL Main window" src="https://raw.githubusercontent.com/luigifab/human-theme/master/images/thumbs/gtk4-rtl.png" width="200" />](https://raw.githubusercontent.com/luigifab/human-theme/master/images/gtk4-rtl.png)
 
 GTK 5.0\
-_GtkWindow will be probably deprecated... lol!_
+_GtkWindow will probably be deprecated... lol!_
 
 Qt 4.8\
 _Todo_
@@ -50,7 +50,7 @@ The theme used for the screenshots (96 DPI) is available [here](https://github.c
 
 * Some options are available from the command line (see `-h`, `--help`, or the man page)
 * The _Options_ menu allows you to display some dialogs
-* The _System themes_ and _User themes_ menu allows you to set the current theme
+* The _System themes_ and _User themes_ menus allow you to set the current theme
 * The _Text Direction_ menu allows you to change the text direction (LTR/RTL)
 * The _Info_ toolbar button allows you to display a notification
 * The _Plus/Minus_ toolbar buttons allow you to show/hide notebook arrows, marks on progress bars and scales...
@@ -213,7 +213,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20261101
+- Current version: 4.3.0~nightly20261107
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

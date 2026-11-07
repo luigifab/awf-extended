@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/01/11/2026
+ * Updated S/07/11/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -200,6 +200,7 @@ static void create_scales(GtkWidget *notebook, gchar *text, int position);
 static GtkWidget* create_horizontal_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static GtkWidget* create_vertical_scale(gdouble value, gboolean draw, gboolean inverted, int position);
 static void create_traditional_menubar(GtkWidget *root);
+static GSList* create_menu_themes(GtkWidget *menu, GList *list, GSList *group, gboolean system);
 static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accelgroup);
 static GtkWidget* create_menuitem_tearoff(GtkWidget *menu);
 static GtkWidget* create_menuitem_check(GtkWidget *menu, gchar *text, gboolean free, gboolean chk, gboolean ist, gboolean dsb);
@@ -221,6 +222,7 @@ static void dialog_about();
 static void dialog_inspector();
 static void dialog_calendar();
 static void dialog_scales();
+static void show_dialog(GtkWidget *content, int width);
 #if GTK_CHECK_VERSION (3,4,0)
 static gboolean on_scrolltabs(GtkWidget *widget, GdkEventScroll *event);
 #endif
@@ -819,7 +821,7 @@ static void update_widgets() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m update_widgets()\n");
 
-	// function called when user click on [+] or [-] toolbar buttons
+	// function called when the user clicks on [+] or [-] toolbar buttons
 	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	gboolean toggle = gtk_notebook_get_scrollable(GTK_NOTEBOOK(notebook1));
 
@@ -1053,13 +1055,13 @@ static gboolean take_screenshot() { // without window borders
 		GError *error = NULL;
 		result = gdk_pixbuf_save(image, opt_screenshot, "png", &error, "compression", "9", NULL);
 		if (!result) {
-			g_printf("\033[1;31m[error]\033[00m screenshot %dx%d save error: %s\n", width, height, error->message);
+			g_printf("\033[1;31m[error]\033[00m screenshot error: save width=%d height=%d (%s)\n", width, height, error->message);
 			g_error_free(error);
 		}
 		g_object_unref(image);
 	}
 	else {
-		g_printf("\033[1;31m[error]\033[00m screenshot error: width=%d height=%d image=%p\n", width, height, image);
+		g_printf("\033[1;31m[error]\033[00m screenshot error: image width=%d height=%d image=%p\n", width, height, image);
 	}
 
 	return result;
@@ -2222,18 +2224,15 @@ static void create_notebook_tab(GtkWidget *notebook, gchar *text, GtkWidget *con
 
 		#if GTK_CHECK_VERSION (3,20,0)
 			gtk_widget_set_focus_on_click(btn, FALSE);
-			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
-			// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
-			gtk_widget_add_events(btn, GDK_SCROLL_MASK);
-			g_signal_connect(btn, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
-		#elif GTK_CHECK_VERSION (3,4,0)
-			gtk_button_set_focus_on_click(GTK_BUTTON(btn), FALSE);
-			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
-			// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
-			gtk_widget_add_events(btn, GDK_SCROLL_MASK);
-			g_signal_connect(btn, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
 		#else
 			gtk_button_set_focus_on_click(GTK_BUTTON(btn), FALSE);
+		#endif
+
+		#if GTK_CHECK_VERSION (3,4,0)
+			// gtk-scroll-tabs (close button) for GTK 3.4..3.24 | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
+			// with or without gtk3-classic https://github.com/lah7/gtk3-classic/commit/66b65775822c46e07f5b2f30036010d06dbcbad4
+			gtk_widget_add_events(btn, GDK_SCROLL_MASK);
+			g_signal_connect(btn, "scroll-event", G_CALLBACK(on_scrolltabs), NULL);
 		#endif
 
 		add_to(headbtn, btn, FALSE, FALSE, 0, 0);
@@ -2557,12 +2556,9 @@ static void create_traditional_menubar(GtkWidget *root) {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m create_traditional_menubar()\n");
 
-	GtkWidget *menu, *submenu, *menuitem, *base;
+	GtkWidget *menu, *submenu, *menuitem;
 	GtkAccelGroup *accelgroup = gtk_accel_group_new();
 	GSList *group = NULL;
-	GList *iterator, *look;
-	gboolean mini, isUser;
-	int total, count;
 
 	gtk_window_add_accel_group(GTK_WINDOW(window), accelgroup);
 
@@ -2623,98 +2619,11 @@ static void create_traditional_menubar(GtkWidget *root) {
 			create_menuitem(menu, "gtk-close", TRUE, AWF_ACCEL_CLOS, AWF_CLOS, NULL);
 			create_menuitem(menu, "gtk-quit", FALSE, AWF_ACCEL_QUIT, AWF_QUIT, quit);
 
-	// system themes
-	group = NULL;
+	// system & user themes
 	menu  = create_menu(root, _app("_System themes"), TRUE, NULL);
-	total = g_list_length(list_system_theme);
-	mini  = total > 15;
-	for (iterator = list_system_theme; iterator; ) {
-
-		// count how many following contiguous elements have iterator->data as prefix
-		// avoids having a fixed list of themes
-		if (mini) {
-			count = 1;
-			look  = iterator->next;
-			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
-				count++;
-				look = look->next;
-			}
-		}
-		else {
-			count = 1;
-		}
-
-		// main menu or sub menu
-		if (mini && (count > 2) && (count != total)) {
-			submenu = create_menu(menu, iterator->data, FALSE, NULL);
-			base = submenu;
-		}
-		else {
-			base = menu;
-		}
-
-		// create the menuitems for all themes in the group (or the single theme if count == 1)
-		while (count--) {
-
-			isUser = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
-
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, isUser, group);
-			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
-
-			iterator = iterator->next;
-		}
-	}
-
-	if (!list_system_theme)
-		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
-
-	// user themes
-	menu = create_menu(root, _app("_User themes"), TRUE, NULL);
-	total = g_list_length(list_user_theme);
-	mini  = total > 15;
-	for (iterator = list_user_theme; iterator; ) {
-
-		// count how many following contiguous elements have iterator->data as prefix
-		// avoids having a fixed list of themes
-		if (mini) {
-			count = 1;
-			look  = iterator->next;
-			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
-				count++;
-				look = look->next;
-			}
-		}
-		else {
-			count = 1;
-		}
-
-		// main menu or sub menu
-		if (mini && (count > 2) && (count != total)) {
-			submenu = create_menu(menu, iterator->data, FALSE, NULL);
-			base = submenu;
-		}
-		else {
-			base = menu;
-		}
-
-		// create the menuitems for all themes in the group (or the single theme if count == 1)
-		while (count--) {
-
-			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, FALSE, group);
-			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
-			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
-				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
-			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
-
-			iterator = iterator->next;
-		}
-	}
-
-	if (!list_user_theme)
-		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
+	group = create_menu_themes(menu, list_system_theme, NULL, TRUE);
+	menu  = create_menu(root, _app("_User themes"), TRUE, NULL);
+	        create_menu_themes(menu, list_user_theme, group, FALSE);
 
 	// application text direction
 	group = NULL;
@@ -2748,6 +2657,62 @@ static void create_traditional_menubar(GtkWidget *root) {
 	g_signal_connect(window, "key-press-event", G_CALLBACK(accels_keypad), NULL);
 	g_object_set(gtk_settings_get_default(), "gtk-can-change-accels", FALSE, NULL);
 	g_object_unref(accelgroup);
+}
+
+// system themes or user themes, the radio group is shared by the two menus
+
+static GSList* create_menu_themes(GtkWidget *menu, GList *list, GSList *group, gboolean system) {
+
+	GtkWidget *submenu, *menuitem, *base;
+	GList *iterator, *look;
+	gboolean mini, isUser = FALSE;
+	int total, count;
+
+	total = g_list_length(list);
+	mini  = total > 15;
+	for (iterator = list; iterator; ) {
+
+		// count how many following contiguous elements have iterator->data as prefix
+		// avoids having a fixed list of themes
+		count = 1;
+		if (mini) {
+			look = iterator->next;
+			while (look && g_str_has_prefix((gchar*) look->data, (gchar*) iterator->data)) {
+				count++;
+				look = look->next;
+			}
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = create_menu(menu, iterator->data, FALSE, NULL);
+			base = submenu;
+		}
+		else {
+			base = menu;
+		}
+
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			// system theme also available as user theme
+			if (system)
+				isUser = (g_hash_table_lookup(hash_user_theme, iterator->data) != NULL);
+
+			menuitem = create_menuitem_radio(base, iterator->data, FALSE, FALSE, FALSE, isUser, group);
+			group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+			if (strcmp(current_theme, (gchar*) iterator->data) == 0)
+				gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem), TRUE);
+			g_signal_connect_swapped(menuitem, "activate", G_CALLBACK(update_theme), iterator->data);
+
+			iterator = iterator->next;
+		}
+	}
+
+	if (!list)
+		create_menuitem(menu, _app("No themes found"), TRUE, NULL, NULL, NULL);
+
+	return group;
 }
 
 static GtkWidget* create_menu(GtkWidget *root, gchar *text, gboolean mnemonic, GtkAccelGroup *accelgroup) {
@@ -3234,7 +3199,7 @@ static void dialog_calendar() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
-	GtkWidget *dialog, *infobar, *label, *calendar, *area, *btn, *vbox = BOXV;
+	GtkWidget *infobar, *label, *calendar, *vbox = BOXV;
 
 	// info bars and calendar
 	infobar = gtk_info_bar_new_with_buttons("gtk-ok", GTK_RESPONSE_OK, NULL);
@@ -3266,48 +3231,7 @@ static void dialog_calendar() {
 		GTK_CALENDAR_SHOW_DAY_NAMES | GTK_CALENDAR_SHOW_WEEK_NUMBERS);
 	add_to(vbox, calendar, FALSE, FALSE, 0, 0);
 
-	// GtkDialog
-	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
-
-	area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-	gtk_box_set_spacing(GTK_BOX(area), 2);
-	add_to(area, vbox, TRUE, TRUE, 5, 5);
-	btn = gtk_dialog_add_button(GTK_DIALOG(dialog), "gtk-close", GTK_RESPONSE_OK);
-
-	#if defined (WITH_HANDY)
-		if (awf_csd) {
-			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-			GtkWidget *headerbardialog = hdy_header_bar_new();
-			hdy_header_bar_set_has_subtitle(HDY_HEADER_BAR(headerbardialog), FALSE);
-			hdy_header_bar_set_show_close_button(HDY_HEADER_BAR(headerbardialog), TRUE);
-			gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
-		}
-	#elif GTK_CHECK_VERSION (3,12,0)
-		if (awf_csd) {
-			gtk_window_set_decorated(GTK_WINDOW(dialog), TRUE);
-			GtkWidget *headerbardialog = gtk_header_bar_new();
-			gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(headerbardialog), FALSE);
-			gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbardialog), TRUE);
-			gtk_window_set_titlebar(GTK_WINDOW(dialog), headerbardialog);
-		}
-	#endif
-
-	#if defined (WITH_HANDY)
-		gchar *text = g_strdup_printf("%s - GTK %d.%d Handy %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION, HDY_MAJOR_VERSION, HDY_MINOR_VERSION);
-	#else
-		gchar *text = g_strdup_printf("%s - GTK %d.%d", "GtkDialog", GTK_MAJOR_VERSION, GTK_MINOR_VERSION);
-	#endif
-	gtk_window_set_title(GTK_WINDOW(dialog), text);
-	g_free(text);
-
-	gtk_widget_set_name(dialog, "AwfDialogWindow");
-	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
-	gtk_widget_set_size_request(dialog, 350, -1);
-	gtk_widget_show_all(dialog);
-	gtk_widget_grab_focus(GTK_WIDGET(btn));
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
+	show_dialog(vbox, 350);
 }
 
 static void dialog_scales() {
@@ -3315,8 +3239,7 @@ static void dialog_scales() {
 	if (awf_trace)
 		g_printf("\033[36m[trace]\033[00m dialog_scales()\n");
 
-	GtkWidget *dialog, *notebook, *area, *btn;
-	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
+	GtkWidget *notebook;
 
 	notebook = gtk_notebook_new();
 	gtk_notebook_set_scrollable(GTK_NOTEBOOK(notebook), FALSE);
@@ -3326,10 +3249,18 @@ static void dialog_scales() {
 		create_scales(notebook, "value bottom", GTK_POS_BOTTOM);
 		create_scales(notebook, "value left", GTK_POS_LEFT);
 
+	show_dialog(notebook, -1);
+}
+
+static void show_dialog(GtkWidget *content, int width) {
+
+	GtkWidget *dialog, *area, *btn;
+	dialog = gtk_dialog_new_with_buttons(NULL, GTK_WINDOW(window), GTK_DIALOG_DESTROY_WITH_PARENT, NULL, NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(dialog), 5);
+
 	area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	gtk_box_set_spacing(GTK_BOX(area), 2);
-	add_to(area, notebook, TRUE, TRUE, 5, 5);
+	add_to(area, content, TRUE, TRUE, 5, 5);
 	btn = gtk_dialog_add_button(GTK_DIALOG(dialog), "gtk-close", GTK_RESPONSE_OK);
 
 	#if defined (WITH_HANDY)
@@ -3360,6 +3291,7 @@ static void dialog_scales() {
 
 	gtk_widget_set_name(dialog, "AwfDialogWindow");
 	gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+	gtk_widget_set_size_request(dialog, width, -1);
 	gtk_widget_show_all(dialog);
 	gtk_widget_grab_focus(GTK_WIDGET(btn));
 	gtk_dialog_run(GTK_DIALOG(dialog));

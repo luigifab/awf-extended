@@ -82,11 +82,9 @@ autoreconf -fi
 
 * Fri Aug 08 2025 Fabrice Creuzot <code@luigifab.fr> - 3.1.0-1
 - New upstream release
-- Add support for CSD dialog
 
 * Mon May 05 2025 Fabrice Creuzot <code@luigifab.fr> - 3.0.0-1
 - New upstream release
-- Add support for CSD window
 - Add --enable-only-gtkx and --disable-gtkx options
 
 * Fri Apr 04 2025 Fabrice Creuzot <code@luigifab.fr> - 2.9.0-1
@@ -115,6 +113,8 @@ autoreconf -fi
 
 * Sun Apr 04 2021 Fabrice Creuzot <code@luigifab.fr> - 2.3.0-1
 - Initial openSUSE package release
+
+
 
 
 

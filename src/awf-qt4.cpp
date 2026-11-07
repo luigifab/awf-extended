@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated D/01/11/2026
+ * Updated S/07/11/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -334,6 +334,7 @@ static void create_sliders(AwfTabWidget *notebook, QString text, QSlider::TickPo
 static QSlider* create_horizontal_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
 static QSlider* create_vertical_slider(int value, bool draw, bool inverted, QSlider::TickPosition position);
 static void create_traditional_menubar(QMenuBar *root);
+static void create_menu_themes(QMenu *menu, QStringList list, QActionGroup *group, bool system);
 static void accels_load();
 static bool accels_change(QObject *obj, QEvent *event);
 static void accels_save();
@@ -349,6 +350,7 @@ static void dialog_about();
 static void dialog_inspector();
 static void dialog_calendar();
 static void dialog_sliders();
+static void show_dialog(QWidget *content);
 
 
 // other
@@ -867,7 +869,7 @@ static void update_widgets() {
 
 	window->setUpdatesEnabled(false);
 
-	// function called when user click on [+] or [-] toolbar buttons
+	// function called when the user clicks on [+] or [-] toolbar buttons
 	// the button state is already changed, toggle = true when the [+] toolbar button is checked
 	bool toggle = notebook1->tabBar()->usesScrollButtons();
 
@@ -1028,7 +1030,11 @@ static bool take_screenshot() { // without window borders
 		printf("\033[36m[trace]\033[00m take_screenshot()\n");
 
 	QPixmap pixmap = QPixmap::grabWidget(window);
-	return pixmap.save(opt_screenshot, "PNG", 0); // 0 = 9
+	bool result = pixmap.save(opt_screenshot, "PNG", 0); // 0 = 9
+	if (!result)
+		printf("\033[1;31m[error]\033[00m screenshot error: save width=%d height=%d\n", pixmap.width(), pixmap.height());
+
+	return result;
 }
 
 
@@ -2176,12 +2182,10 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 	AwfCall *caller;
 	static AwfShortcutFilter *shortcutFilter = new AwfShortcutFilter(window);
-	QMenu *menu, *submenu, *base;
+	QMenu *menu, *submenu;
 	QActionGroup *group;
 	QAction *menuitem;
-	QString theme;
-	int idx, total, count, look;
-	bool mini, isUser, noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
+	bool noRefresh = !awf_gqss && !awf_sheet, noPrint = false;
 
 	#if ! defined (QT_PRINTSUPPORT_LIB)
 		noPrint = true;
@@ -2249,50 +2253,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 	// system themes
 	group = new QActionGroup(window); group->setExclusive(true);
 	menu  = root->addMenu(_app("_System themes"));
-	total = list_system_theme.size();
-	mini  = total > 15;
-	for (idx = 0; idx < total; ) {
-
-		// count how many following contiguous elements have list_system_theme[idx] as prefix
-		// avoids having a fixed list of themes
-		if (mini) {
-			count = 1;
-			look  = idx + 1;
-			while ((look < total) && list_system_theme[look].startsWith(list_system_theme[idx])) {
-				count++;
-				look++;
-			}
-		}
-		else {
-			count = 1;
-		}
-
-		// main menu or sub menu
-		if (mini && (count > 2) && (count != total)) {
-			submenu = menu->addMenu(list_system_theme[idx]);
-			base = submenu;
-		}
-		else {
-			base = menu;
-		}
-
-		// create the menuitems for all themes in the group (or the single theme if count == 1)
-		while (count--) {
-
-			theme  = list_system_theme[idx];
-			isUser = list_user_theme.contains(theme);
-
-			menuitem = create_menuitem_radio(base, theme, false, false, isUser, group);
-			if (current_theme == theme)
-				menuitem->setChecked(true);
-			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
-				caller = new AwfCall(menuitem);
-				caller->fn = [theme](){ update_theme(theme); };
-				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
-
-			idx++;
-		}
-	}
+	create_menu_themes(menu, list_system_theme, group, true);
 
 	if (!awf_gqss)
 		create_menuitem(menu, QIcon(), _app("GlobalQSS not available"), true, QKeySequence(), null, null);
@@ -2301,49 +2262,7 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 	// user themes
 	menu  = root->addMenu(_app("_User themes"));
-	total = list_user_theme.size();
-	mini  = total > 15;
-	for (idx = 0; idx < total; ) {
-
-		// count how many following contiguous elements have list_user_theme[idx] as prefix
-		// avoids having a fixed list of themes
-		if (mini) {
-			count = 1;
-			look  = idx + 1;
-			while ((look < total) && list_user_theme[look].startsWith(list_user_theme[idx])) {
-				count++;
-				look++;
-			}
-		}
-		else {
-			count = 1;
-		}
-
-		// main menu or sub menu
-		if (mini && (count > 2) && (count != total)) {
-			submenu = menu->addMenu(list_user_theme[idx]);
-			base = submenu;
-		}
-		else {
-			base = menu;
-		}
-
-		// create the menuitems for all themes in the group (or the single theme if count == 1)
-		while (count--) {
-
-			theme = list_user_theme[idx];
-
-			menuitem = create_menuitem_radio(base, theme, false, false, false, group);
-			if (current_theme == theme)
-				menuitem->setChecked(true);
-			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
-				caller = new AwfCall(menuitem);
-				caller->fn = [theme](){ update_theme(theme); };
-				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
-
-			idx++;
-		}
-	}
+	create_menu_themes(menu, list_user_theme, group, false);
 
 	if (awf_sheet) {
 		menuitem = create_menuitem_radio(menu, "-stylesheet", false, false, false, group);
@@ -2391,6 +2310,62 @@ static void create_traditional_menubar(QMenuBar *root) {
 
 	// gtk-can-change-accels for Qt | so same GTK 2.24 3.x 4.x & Qt 4.8 5.x 6.x
 	accels_load();
+}
+
+// system themes or user themes, the action group is shared by the two menus
+
+static void create_menu_themes(QMenu *menu, QStringList list, QActionGroup *group, bool system) {
+
+	AwfCall *caller;
+	QMenu *submenu, *base;
+	QAction *menuitem;
+	QString theme;
+	int idx, total, count, look;
+	bool mini, isUser = false;
+
+	total = list.size();
+	mini  = total > 15;
+	for (idx = 0; idx < total; ) {
+
+		// count how many following contiguous elements have list[idx] as prefix
+		// avoids having a fixed list of themes
+		count = 1;
+		if (mini) {
+			look = idx + 1;
+			while ((look < total) && list[look].startsWith(list[idx])) {
+				count++;
+				look++;
+			}
+		}
+
+		// main menu or sub menu
+		if (mini && (count > 2) && (count != total)) {
+			submenu = menu->addMenu(list[idx]);
+			base = submenu;
+		}
+		else {
+			base = menu;
+		}
+
+		// create the menuitems for all themes in the group (or the single theme if count == 1)
+		while (count--) {
+
+			// system theme also available as user theme
+			theme = list[idx];
+			if (system)
+				isUser = list_user_theme.contains(theme);
+
+			menuitem = create_menuitem_radio(base, theme, false, false, isUser, group);
+			if (current_theme == theme)
+				menuitem->setChecked(true);
+			//QObject::connect(menuitem, &QAction::triggered, [theme](){ update_theme(theme); });
+				caller = new AwfCall(menuitem);
+				caller->fn = [theme](){ update_theme(theme); };
+				QObject::connect(menuitem, SIGNAL(triggered()), caller, SLOT(run()));
+
+			idx++;
+		}
+	}
 }
 
 static QAction* create_menuitem_check(QMenu *menu, QString text, bool chk, bool ist, bool dsb) {
@@ -3014,44 +2989,17 @@ static void dialog_calendar() {
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_calendar()\n");
 
-	QWidget *dialog = new QDialog(window, Qt::Window | Qt::Dialog);
-	dialog->setWindowModality(Qt::ApplicationModal);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
-	dialog->setObjectName("AwfDialogWindow");
-	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
-
 	// QCalendarWidget
 	QCalendarWidget *calendar = new QCalendarWidget;
 	calendar->setGridVisible(true);
 
-	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
-	btnClose->setIcon(get_icon("dialog-close"));
-	QObject::connect(btnClose, SIGNAL(clicked()), dialog, SLOT(close()));
-
-	AwfHBox *buttonLayout = new AwfHBox;
-	buttonLayout->addStretch();
-	buttonLayout->addWidget(btnClose);
-
-	AwfVBox *mainLayout = new AwfVBox;
-	mainLayout->addWidget(calendar);
-	mainLayout->addLayout(buttonLayout);
-	dialog->setLayout(mainLayout);
-
-	dialog->show();
+	show_dialog(calendar);
 }
 
 static void dialog_sliders() {
 
 	if (awf_trace)
 		printf("\033[36m[trace]\033[00m dialog_sliders()\n");
-
-	QWidget *dialog = new QDialog(window, Qt::Window | Qt::Dialog);
-	dialog->setWindowModality(Qt::ApplicationModal);
-	dialog->setAttribute(Qt::WA_DeleteOnClose);
-	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
-	dialog->setObjectName("AwfDialogWindow");
-	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
 
 	// QTabWidget
 	AwfTabWidget *notebook = new AwfTabWidget;
@@ -3063,6 +3011,18 @@ static void dialog_sliders() {
 		create_sliders(notebook, "top/left", QSlider::TicksAbove);
 		create_sliders(notebook, "bottom/right", QSlider::TicksBelow);
 
+	show_dialog(notebook);
+}
+
+static void show_dialog(QWidget *content) {
+
+	QWidget *dialog = new QDialog(window, Qt::Window | Qt::Dialog);
+	dialog->setWindowModality(Qt::ApplicationModal);
+	dialog->setAttribute(Qt::WA_DeleteOnClose);
+	dialog->setWindowTitle(QString("%1 - Qt %2.%3").arg("QDialog").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
+	dialog->setObjectName("AwfDialogWindow");
+	dialog->setProperty("class", QString("qt-%1%2").arg(QT_VERSION_MAJOR).arg(QT_VERSION_MINOR));
+
 	QPushButton *btnClose = new QPushButton(_qt("QMdiSubWindow", "&Close"));
 	btnClose->setIcon(get_icon("dialog-close"));
 	QObject::connect(btnClose, SIGNAL(clicked()), dialog, SLOT(close()));
@@ -3072,7 +3032,7 @@ static void dialog_sliders() {
 	buttonLayout->addWidget(btnClose);
 
 	AwfVBox *mainLayout = new AwfVBox;
-	mainLayout->addWidget(notebook);
+	mainLayout->addWidget(content);
 	mainLayout->addLayout(buttonLayout);
 	dialog->setLayout(mainLayout);
 
