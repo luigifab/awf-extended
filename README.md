@@ -51,7 +51,7 @@ The theme used for the screenshots (96 DPI) is available [here](https://github.c
 * Some options are available from the command line (see `-h`, `--help`, or the man page)
 * The _Options_ menu allows you to display some dialogs
 * The _System themes_ and _User themes_ menus allow you to set the current theme
-* The _Text Direction_ menu allows you to change the text direction (LTR/RTL)
+* The _Text direction_ menu allows you to change the text direction (LTR/RTL)
 * The _Info_ toolbar button allows you to display a notification
 * The _Plus/Minus_ toolbar buttons allow you to show/hide notebook arrows, marks on progress bars and scales...
 * The _Refresh_ toolbar button and menu item allow you to reload the current theme (like the `SIGHUP` signal)
@@ -176,7 +176,7 @@ For themes, run the program like this: `awf-qt4 -stylesheet /usr/share/themes/Hu
 
 For a huge memory improvement, run the program like this: `env QT_XCB_GL_INTEGRATION=none awf-qt5`.
 
-On Fedora with Qt 5, the GTK 3 platform theme *(qt5-qtbase-gui)* works better than on Debian *(qt5-gtk-platformtheme)*, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509) ; the same applies to openSUSE. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt5`
+On Fedora with Qt 5, the GTK 3 platform theme *(qt5-qtbase-gui)* works better than on Debian *(qt5-gtk-platformtheme)*, but the fonts remain blurry, see [bug 2459509](https://bugzilla.redhat.com/show_bug.cgi?id=2459509). The same applies to openSUSE. To fix the problem, use a [fontconfig file](fonts.conf): `env FONTCONFIG_FILE=/.../fonts.conf awf-qt5`
 
 For themes support, without [GlobalQSS](https://github.com/luigifab/globalqss), you can run the program like this: `awf-qt5 -stylesheet /usr/share/themes/Human/qt5/qt.qss`
 
@@ -213,7 +213,7 @@ ls ~/.themes/yourtheme/qt6/*.qss | entr killall -s SIGHUP awf-qt6
 
 ## Copyright
 
-- Current version: 4.3.0~nightly20261107
+- Current version: 4.3.0~nightly20261119
 - Compatibility: GTK 2.24 / 3.0..3.24 / 4.0..4.24, Qt 4.8 / 5.2..5.15 / 6.0..6.12, Adwaita 1.7..1.10, Handy 1.0..1.8
 - Links: [luigifab.fr](https://www.luigifab.fr/gtkqt/awf-extended) - [github.com](https://github.com/luigifab/awf-extended) - [ppa/dpa](https://launchpad.net/~luigifab/+archive/ubuntu/packages)
 

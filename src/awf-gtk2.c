@@ -1,6 +1,6 @@
 /**
  * Forked  M/10/03/2020
- * Updated S/07/11/2026
+ * Updated J/19/11/2026
  *
  * Copyright 2020-2027 | Fabrice Creuzot (luigifab) <code~luigifab~fr>
  * https://github.com/luigifab/awf-extended
@@ -177,6 +177,7 @@ static gboolean allow_update_values = TRUE;
 static gboolean must_save_accels    = FALSE;
 
 // global functions
+static gchar* get_versions();
 static void awf_load_themes(GHashTable* hashtable, gchar *directory);
 static inline int awf_sort(gconstpointer a, gconstpointer b);
 static void notify_updated_gtktheme(GSettings *settings, gchar *key);
@@ -328,7 +329,7 @@ int main(int argc, gchar **argv) {
 		{NULL, 0, NULL, 0}
 	};
 
-	gchar *cVersion, *t1, *t2, *t3, *t4;
+	gchar *t1, *t2, *t3;
 	while ((opt = getopt_long(argc, argv, "hvlt:s:", options, NULL)) != -1) {
 		switch (opt) {
 			// --version -v
@@ -371,17 +372,7 @@ int main(int argc, gchar **argv) {
 			case 'x':
 			case 'h':
 			default:
-				#ifdef __STDC_VERSION__
-					if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
-					else if (__STDC_VERSION__ >= 201710L) cVersion = "C17";
-					else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
-					else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
-					else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-					else                                  cVersion = "C??";
-				#else
-					cVersion = "C89/C90";
-				#endif
-				g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n%s\n",
+				g_printf("%s\n\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n  %s %s\n\n%s\n",
 					t1 = g_strdup_printf(_app("A widget factory - GTK %d.%d"), GTK_MAJOR_VERSION, GTK_MINOR_VERSION),
 					"-v            ", _app("Show version number."),
 					"-l            ", _app("List available themes."),
@@ -389,20 +380,11 @@ int main(int argc, gchar **argv) {
 					"-s <filename> ", t2 = g_strdup_printf(_app("Run and save a screenshot on %s (PNG)."), "SIGHUP"),
 					"--ltr         ", _app("Run with text from left to right (Left-To-Right)."),
 					"--rtl         ", _app("Run with text from right to left (Right-To-Left)."),
-					t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-						cVersion,
-						GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-						GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-						PANGO_VERSION_STRING),
-					t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-						gtk_major_version, gtk_minor_version, gtk_micro_version,
-						glib_major_version, glib_minor_version, glib_micro_version,
-						pango_version_string())
+					t3 = get_versions()
 				);
 				g_free(t1);
 				g_free(t2);
 				g_free(t3);
-				g_free(t4);
 				return (opt == '?') ? 1 : status;
 		}
 	}
@@ -431,6 +413,37 @@ static void quit() {
 
 	accels_save();
 	gtk_main_quit();
+}
+
+static gchar* get_versions() {
+
+	gchar *cVersion, *compiled, *started, *result;
+	#ifdef __STDC_VERSION__
+		if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
+		else if (__STDC_VERSION__ >= 201710L) cVersion = "C17";
+		else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
+		else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
+		else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
+		else                                  cVersion = "C??";
+	#else
+		cVersion = "C89/C90";
+	#endif
+
+	compiled = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+		cVersion,
+		GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
+		GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
+		PANGO_VERSION_STRING);
+	started = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
+		gtk_major_version, gtk_minor_version, gtk_micro_version,
+		glib_major_version, glib_minor_version, glib_micro_version,
+		pango_version_string());
+
+	result = g_strdup_printf("%s\n%s", compiled, started);
+	g_free(compiled);
+	g_free(started);
+
+	return result;
 }
 
 static void awf_load_themes(GHashTable* hashtable, gchar *directory) {
@@ -2503,34 +2516,14 @@ static void dialog_about() {
 			pixbuf = gdk_win32_icon_to_pixbuf_libgtk_only(hIcon);
 	#endif
 
-	gchar *cVersion;
-	#ifdef __STDC_VERSION__
-		if      (__STDC_VERSION__ >= 202311L) cVersion = "C23";
-		else if (__STDC_VERSION__ >= 201710L) cVersion = "C17";
-		else if (__STDC_VERSION__ >= 201112L) cVersion = "C11";
-		else if (__STDC_VERSION__ >= 199901L) cVersion = "C99";
-		else if (__STDC_VERSION__ >= 199409L) cVersion = "C95";
-		else                                  cVersion = "C??";
-	#else
-		cVersion = "C89/C90";
-	#endif
-
-	gchar *t1, *t2, *t3, *t4;
+	gchar *t1, *t2, *t3;
 	gtk_show_about_dialog(GTK_WINDOW(window),
 		"version", VERSION,
-		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s\n%s",
+		"comments", t1 = g_strdup_printf("%s\n\n%s\n%s\n\n%s",
 			_app("A widget factory is a theme preview application for GTK and Qt. It displays the various widget types in a single window allowing to see the visual effect of the applied theme."),
 			t2 = g_strdup_printf(_app("Remove %s file"), "~/.awf-accels"),
 			_app("to reset keyboard shortcuts."),
-			t3 = g_strdup_printf(_app("compiled in %s with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-				cVersion,
-				GTK_MAJOR_VERSION, GTK_MINOR_VERSION, GTK_MICRO_VERSION,
-				GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION, GLIB_MICRO_VERSION,
-				PANGO_VERSION_STRING),
-			t4 = g_strdup_printf(_app(" started with: gtk %d.%d.%d, glib %d.%d.%d, pango %s"),
-				gtk_major_version, gtk_minor_version, gtk_micro_version,
-				glib_major_version, glib_minor_version, glib_micro_version,
-				pango_version_string())
+			t3 = get_versions()
 		),
 		"website", "https://github.com/luigifab/awf-extended",
 		"copyright", "Copyright © 2020-2027 Fabrice Creuzot (luigifab)\nCopyright © 2011-2017 Valère Monseur (valr)",
@@ -2550,7 +2543,6 @@ static void dialog_about() {
 	g_free(t1);
 	g_free(t2);
 	g_free(t3);
-	g_free(t4);
 
 	#if defined (G_OS_WIN32)
 		if (hIcon) {

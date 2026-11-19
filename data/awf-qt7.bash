@@ -1,4 +1,4 @@
-# Made in ChatGPT and Copilot and fixed by Claude Opus 5.5
+# Made with ChatGPT and Copilot and fixed by Claude Opus 5.5
 # Licensed under the MIT License
 _awf_qt7_complete() {
 	local cur prev opts all_opts single_opts

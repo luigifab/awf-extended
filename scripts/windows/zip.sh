@@ -4,7 +4,7 @@
 # Windows XP + mingw32
 #
 # 1/ download mingw-get-setup.exe from https://sourceforge.net/projects/mingw/files/Installer/ (2013-10-04)
-#	install in C:\MinGw
+#	install in C:\MinGW
 #	run: C:\MinGW\msys\1.0\msys.bat
 #	run: mingw-get.exe install mingw32-gcc-bin mingw32-gcc-g++-bin mingw32-make mingw32-gettext mingw32-gettext-dev msys-base msys-autoconf msys-automake msys-libtool
 #	or install them from MinGW GUI
